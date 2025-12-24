@@ -5,6 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, CheckCheck, Reply, Heart } from 'lucide-react';
 import { memo, useState } from 'react';
 
+interface MessageBubbleProps {
+    message: Message;
+    isSent: boolean;
+    showAvatar: boolean;
+    avatar?: string;
+    onReact?: (messageId: string, emoji: string) => void;
+    onReply?: (messageId: string) => void;
+    username?: string;
+}
+
 function MessageBubbleComponent({ message, isSent, showAvatar, avatar, onReact, onReply, username }: MessageBubbleProps) {
     const [lastTap, setLastTap] = useState(0);
     const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -57,7 +67,7 @@ function MessageBubbleComponent({ message, isSent, showAvatar, avatar, onReact, 
 
                 {/* Quick Reply Button - Appears on Hover */}
                 <button
-                    onClick={() => onReply?.(message)}
+                    onClick={() => onReply?.(message.id)}
                     className={`absolute ${isSent ? '-left-12' : '-right-12'} top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all duration-300 text-white/40 hover:text-white`}
                     title="Reply"
                 >

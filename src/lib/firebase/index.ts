@@ -11,4 +11,3 @@ export {
     updateUserTheme,
     type UserProfile,
 } from './auth';
-export { useAuth, AuthProvider } from './AuthContext';

@@ -4,7 +4,24 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function PixelHoverGrid(props) {
+interface PixelHoverGridProps {
+    gridSize?: number;
+    hoverColor?: string;
+    hoverColor2?: string;
+    hoverColor3?: string;
+    hoverColor4?: string;
+    backgroundColor?: string;
+    animationDuration?: number;
+    maxOpacity?: number;
+    borderColor?: string;
+    borderWidth?: number;
+    borderStyle?: string;
+    showCursor?: boolean;
+    cursorColor?: string;
+    cursorSize?: number;
+}
+
+export default function PixelHoverGrid(props: PixelHoverGridProps) {
     const {
         gridSize = 20,
         hoverColor = "#FF5588",
@@ -27,7 +44,7 @@ export default function PixelHoverGrid(props) {
     const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
     const [isMouseInside, setIsMouseInside] = useState(false);
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -55,12 +72,12 @@ export default function PixelHoverGrid(props) {
         return pixelArray;
     }, [actualGridSize]);
 
-    const handlePixelHover = useCallback(pixelId => {
+    const handlePixelHover = useCallback((pixelId: string) => {
         setHoveredPixels(prev => new Set(prev).add(pixelId));
         setAnimatingPixels(prev => new Set(prev).add(pixelId));
     }, []);
 
-    const handleAnimationComplete = useCallback(pixelId => {
+    const handleAnimationComplete = useCallback((pixelId: string) => {
         setHoveredPixels(prev => {
             const newSet = new Set(prev);
             newSet.delete(pixelId);
@@ -73,7 +90,7 @@ export default function PixelHoverGrid(props) {
         });
     }, []);
 
-    const handleMouseMove = useCallback(e => {
+    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         setCursorPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -87,7 +104,7 @@ export default function PixelHoverGrid(props) {
         setIsMouseInside(false);
     }, []);
 
-    const getPixelColor = useCallback(pixelId => {
+    const getPixelColor = useCallback((pixelId: string) => {
         const colors = [hoverColor, hoverColor2, hoverColor3, hoverColor4];
         const hash = pixelId.split("-").reduce((acc, val) => acc + parseInt(val), 0);
         return colors[hash % colors.length];
