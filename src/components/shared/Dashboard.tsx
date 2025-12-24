@@ -34,7 +34,7 @@ import {
     BookOpen
 } from 'lucide-react';
 import { Section } from '@/types/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import DailyAffirmations from '@/features/wellness/components/DailyAffirmations';
 import BreathingExercise from '@/features/wellness/components/BreathingExercise';
 import JournalPrompts from '@/features/wellness/components/JournalPrompts';
@@ -45,7 +45,7 @@ interface DashboardProps {
     onSectionChange: (section: Section) => void;
 }
 
-export default function Dashboard({ onSectionChange }: DashboardProps) {
+function DashboardComponent({ onSectionChange }: DashboardProps) {
     // Initialize greeting based on current hour to avoid setState in effect
     const getInitialGreeting = () => {
         const hour = new Date().getHours();
@@ -73,20 +73,20 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
         { id: 3, emotion: { id: 'grateful', name: 'Grateful' }, timestamp: new Date() },
     ];
 
-    const addTask = () => {
+    const addTask = useCallback(() => {
         if (!newTask.trim()) return;
-        setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }]);
+        setTasks(prev => [...prev, { id: Date.now(), text: newTask, completed: false }]);
         setNewTask('');
-    };
+    }, [newTask]);
 
-    const toggleTask = (id: number) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    const toggleTask = useCallback((id: number) => {
+        setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
         trackInteraction('task_toggle', 0);
-    };
+    }, [trackInteraction]);
 
-    const deleteTask = (id: number) => {
-        setTasks(tasks.filter(t => t.id !== id));
-    };
+    const deleteTask = useCallback((id: number) => {
+        setTasks(prev => prev.filter(t => t.id !== id));
+    }, []);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -138,32 +138,60 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
 
     return (
         <div className="p-6 pb-32 max-w-5xl mx-auto w-full">
-            {/* Header Section */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex justify-between items-end mb-12"
-            >
-                <div>
-                    <h1 className="text-4xl md:text-6xl font-black italic text-white tracking-tighter uppercase mb-2">
-                        {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Traveler</span>
+            {/* Header Section - Neural Core Update */}
+            <div className="relative mb-20 pt-10">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-64 pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-b from-purple-500/20 to-transparent blur-3xl opacity-30" />
+                    {/* Floating Procedural Node */}
+                    <motion.div
+                        animate={{
+                            y: [0, -20, 0],
+                            scale: [1, 1.05, 1],
+                            rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute left-1/2 top-0 -translate-x-1/2 w-48 h-48"
+                    >
+                        <div className="relative w-full h-full">
+                            <div className="absolute inset-0 bg-white/5 rounded-full blur-2xl animate-pulse" />
+                            <motion.div
+                                animate={{
+                                    borderRadius: ["40% 60% 70% 30% / 40% 50% 60% 70%", "60% 40% 30% 70% / 60% 30% 70% 40%", "40% 60% 70% 30% / 40% 50% 60% 70%"]
+                                }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="absolute inset-4 border border-white/20 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-xl"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,1)] animate-ping" />
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative z-10 text-center"
+                >
+                    <h1 className="text-5xl md:text-8xl font-black italic text-white tracking-tighter uppercase mb-4 leading-none">
+                        {greeting}<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400 glitch-text-sm">TRAVELER</span>
                     </h1>
-                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs md:text-sm flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        System Status: {systemStatus}
-                    </p>
-                </div>
-                <div className="hidden md:flex items-center gap-4">
-                    <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
-                        <Battery size={16} className="text-white/60" />
-                        <span className="text-xs font-mono text-white/60">100%</span>
+
+                    <div className="flex flex-col items-center gap-4 mt-6">
+                        <div className="flex items-center gap-6">
+                            <div className="px-4 py-2 rounded-full glass-premium flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]" />
+                                <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Core: {systemStatus}</span>
+                            </div>
+                            <div className="px-4 py-2 rounded-full glass-premium flex items-center gap-2">
+                                <Wifi size={14} className="text-blue-400" />
+                                <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Resonance Link</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
-                        <Wifi size={16} className="text-white/60" />
-                        <span className="text-xs font-mono text-white/60">LINKED</span>
-                    </div>
-                </div>
-            </motion.div>
+                </motion.div>
+            </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -193,29 +221,38 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                 {quickActions.map((action, i) => (
                     <motion.button
                         key={action.id}
+                        layout
                         onClick={() => onSectionChange(action.id as Section)}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 + (i * 0.1) }}
-                        whileHover={{ scale: 1.02 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 150,
+                            damping: 20,
+                            delay: i * 0.05
+                        }}
+                        whileHover={{ scale: 1.01, transition: { duration: 0.3 } }}
                         whileTap={{ scale: 0.98 }}
-                        className="relative h-48 rounded-[40px] overflow-hidden group text-left p-8"
+                        className="relative h-48 rounded-[40px] overflow-hidden group text-left p-8 will-change-transform"
                     >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
-                        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-10 group-hover:opacity-20 transition-all duration-500`} />
+                        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
                         <div className="relative z-10 flex flex-col h-full justify-between">
                             <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md w-fit">
+                                <motion.div
+                                    layout
+                                    className="p-3 rounded-2xl bg-white/10 backdrop-blur-md w-fit group-hover:bg-white/20 transition-colors"
+                                >
                                     <action.icon size={24} className="text-white" />
-                                </div>
-                                <div className="p-2 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0">
+                                </motion.div>
+                                <div className="p-2 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 duration-500">
                                     <ChevronRight size={20} className="text-white" />
                                 </div>
                             </div>
 
                             <div>
-                                <h3 className="text-2xl font-black italic text-white uppercase tracking-tighter mb-1">{action.label}</h3>
+                                <h3 className="text-2xl font-black italic text-white uppercase tracking-tighter mb-1 group-hover:translate-x-1 transition-transform duration-500">{action.label}</h3>
                                 <p className="text-xs font-bold text-white/50 uppercase tracking-widest">{action.desc}</p>
                             </div>
                         </div>
@@ -534,3 +571,6 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
         </div>
     );
 }
+
+const Dashboard = memo(DashboardComponent);
+export default Dashboard;

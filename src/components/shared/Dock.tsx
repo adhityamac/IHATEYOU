@@ -30,11 +30,12 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
 
     // Intelligent Scroll Hide/Show
     useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+        const handleScroll = (e: any) => {
+            // Get scroll position from the scrolling element
+            const currentScrollY = e.target.scrollTop || window.scrollY || document.documentElement.scrollTop;
 
-            // Show if scrolling up, hide if scrolling down
-            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            // Basic direction check
+            if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
                 setIsVisible(false); // Scrolling down
             } else if (currentScrollY < lastScrollY.current) {
                 setIsVisible(true);  // Scrolling up
@@ -42,8 +43,9 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
             lastScrollY.current = currentScrollY;
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        // Use capture: true to catch scroll events from any div inside the app
+        window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+        return () => window.removeEventListener('scroll', handleScroll, { capture: true });
     }, []);
 
     useEffect(() => {
@@ -82,18 +84,20 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
             <motion.div
                 initial={false}
                 animate={{
-                    y: showDock ? -20 : 100, // Move it up slightly when shown
+                    y: showDock ? -20 : 120, // Slide down further when hidden
                     opacity: showDock ? 1 : 0,
-                    scale: showDock ? 1 : 0.9
+                    scale: showDock ? 1 : 0.95,
+                    filter: showDock ? 'blur(0px)' : 'blur(4px)'
                 }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 transition={{
                     type: "spring",
-                    stiffness: 260,
-                    damping: 25
+                    stiffness: 200,
+                    damping: 25,
+                    mass: 0.8
                 }}
-                className="relative pointer-events-auto"
+                className="relative pointer-events-auto will-change-transform"
             >
                 <div
                     ref={containerRef}

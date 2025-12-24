@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-    // Stable ID counter for scores
-    // Use a constant for initial ID (safe for SSR)
-    const INITIAL_ID = 2025122300000;
-    const idCounter = useRef(INITIAL_ID);
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Timer, Trophy, RotateCcw } from 'lucide-react';
 
 export default function ReactionGame() {
+    // Stable ID counter for scores
+    const INITIAL_ID = 2025122300000;
+    const idCounter = useRef(INITIAL_ID);
+
     const [gameState, setGameState] = useState<'idle' | 'waiting' | 'ready' | 'result'>('idle');
     const [startTime, setStartTime] = useState(0);
     const [reactionTime, setReactionTime] = useState(0);
@@ -81,9 +81,9 @@ export default function ReactionGame() {
             <button
                 onClick={gameState === 'idle' || gameState === 'result' ? startTest : handleAction}
                 className={`relative w-80 h-80 rounded-full flex flex-col items-center justify-center transition-all duration-300 overflow-hidden border-4 ${gameState === 'idle' ? 'bg-white/5 border-white/10 hover:bg-white/10' :
-                        gameState === 'waiting' ? 'bg-rose-500/20 border-rose-500/40 cursor-wait' :
-                            gameState === 'ready' ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_80px_rgba(16,185,129,0.5)] cursor-pointer' :
-                                'bg-white/5 border-white/10'
+                    gameState === 'waiting' ? 'bg-rose-500/20 border-rose-500/40 cursor-wait' :
+                        gameState === 'ready' ? 'bg-emerald-500 border-emerald-400 shadow-[0_0_80px_rgba(16,185,129,0.5)] cursor-pointer' :
+                            'bg-white/5 border-white/10'
                     }`}
             >
                 {gameState === 'ready' && (

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
-import { onAuthStateChange, getUserProfile, updateGhostName, updateUserTheme, signOut as firebaseSignOut } from '@/lib/firebase/auth';
+import { onAuthStateChange, getUserProfile, updateGhostName, updateUserOnboardingData, updateUserTheme, signOut as firebaseSignOut } from '@/lib/firebase/auth';
 
 interface UserProfile {
     id: string;
@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             avatar: profile.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.uid}`,
                             authMethod: 'google', // Default to google for now
                             onboardingComplete: !!profile.ghostName, // If they have a ghost name, onboarding is complete
-                            moodBaseline: undefined,
-                            intent: undefined,
+                            moodBaseline: profile.moodBaseline,
+                            intent: profile.intent,
                             ghostName: profile.ghostName,
                             theme: profile.theme,
                             createdAt: profile.createdAt?.toDate() || new Date()
@@ -105,8 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const completeOnboarding = async (data: { name: string; moodBaseline: string; intent: string[] }) => {
         if (user && firebaseUser) {
             try {
-                // Update ghost name in Firestore
-                await updateGhostName(firebaseUser.uid, data.name);
+                // Update user onboarding data in Firestore
+                await updateUserOnboardingData(firebaseUser.uid, {
+                    ghostName: data.name,
+                    moodBaseline: data.moodBaseline,
+                    intent: data.intent
+                });
 
                 const updatedUser: UserProfile = {
                     ...user,

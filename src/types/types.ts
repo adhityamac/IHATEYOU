@@ -6,6 +6,7 @@ export interface User {
   username: string;
   avatar: string;
   isOnline: boolean;
+  currentEmotion?: string;
 }
 
 export interface Reaction {
@@ -21,6 +22,11 @@ export interface Message {
   isRead: boolean;
   reactions?: Reaction[];
   size?: 'small' | 'medium' | 'large';
+  replyTo?: {
+    id: string;
+    username: string;
+    content: string;
+  };
 }
 
 export interface Conversation {

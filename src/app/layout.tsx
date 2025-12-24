@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./mobile.css";
 import { GradientThemeProvider } from "@/components/shared/GradientThemeProvider";
 import { CursorProvider } from "@/components/shared/CursorContext";
 import { SoundProvider } from "@/components/shared/SoundProvider";

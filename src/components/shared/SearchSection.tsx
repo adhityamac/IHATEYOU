@@ -40,6 +40,7 @@ import { useAlgorithm } from '@/hooks/useAlgorithm';
 
 interface SearchSectionProps {
     feedPosts: any[];
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
 }
 
 type WidgetType =
@@ -62,7 +63,7 @@ interface WidgetItem {
     data: any;
 }
 
-export default function SearchSection({ feedPosts }: SearchSectionProps) {
+export default function SearchSection({ feedPosts, onScroll }: SearchSectionProps) {
     // Stable ID counter for widgets
     const INITIAL_ID = 2025122300000;
     const idCounter = useRef(INITIAL_ID);
@@ -154,6 +155,7 @@ export default function SearchSection({ feedPosts }: SearchSectionProps) {
     }, [activeTab]);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        onScroll(e);
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
         if (scrollHeight - scrollTop <= clientHeight + 100 && !isLoading) {
             setIsLoading(true);

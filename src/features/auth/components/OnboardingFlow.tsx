@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Sparkles, Shield } from 'lucide-react';
-import EmojiDoodleBackground from '@/components/backgrounds/EmojiDoodleBackground';
+import { ArrowRight, Shield, Check } from 'lucide-react';
+import EmojiGrid from '@/components/EmojiGrid';
+import LiquidImage from '@/components/backgrounds/LiquidImage';
 import { MOOD_OPTIONS, INTENT_OPTIONS } from '@/data/mockData';
 
 interface OnboardingData {
@@ -16,6 +17,79 @@ interface OnboardingFlowProps {
     onComplete: (data: OnboardingData) => void;
     userName?: string;
 }
+
+// Extracted Card Component to prevent re-renders
+const OnboardingCard = ({
+    children,
+    title,
+    subtitle,
+    step,
+    onNext,
+    onBack,
+    canProceed
+}: {
+    children: React.ReactNode,
+    title?: string,
+    subtitle?: string,
+    step: number,
+    onNext: () => void,
+    onBack: () => void,
+    canProceed: boolean
+}) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: -20 }}
+        className="relative z-10 w-[90%] max-w-[420px] aspect-[4/5] bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/5 rounded-[48px] p-8 flex flex-col items-center text-center shadow-2xl"
+        style={{
+            boxShadow: '0 0 100px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.05)'
+        } as React.CSSProperties}
+    >
+        {/* Header Badge */}
+        <div className="mt-4 mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-white/40 uppercase">
+                Setup Phase {step + 1}/5
+            </span>
+        </div>
+
+        {title && (
+            <div className="mb-2">
+                <h2 className="text-3xl font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                    {title}
+                </h2>
+            </div>
+        )}
+
+        {subtitle && (
+            <p className="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase mb-8">
+                {subtitle}
+            </p>
+        )}
+
+        <div className="w-full flex-1 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+            {children}
+        </div>
+
+        {/* Footer Navigation */}
+        <div className="w-full pt-6 mt-4 border-t border-white/5 flex gap-4">
+            {step > 0 && (
+                <button
+                    onClick={onBack}
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-full font-bold text-xs tracking-widest uppercase transition-colors"
+                >
+                    Back
+                </button>
+            )}
+            <button
+                onClick={onNext}
+                disabled={!canProceed}
+                className="flex-1 bg-white text-black py-4 rounded-full font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {step === 4 ? "Complete" : "Next"} <ArrowRight className="w-3 h-3" strokeWidth={3} />
+            </button>
+        </div>
+    </motion.div>
+);
 
 export default function OnboardingFlow({ onComplete, userName = '' }: OnboardingFlowProps) {
     const [step, setStep] = useState(0);
@@ -35,11 +109,11 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
 
     const canProceed = () => {
         switch (step) {
-            case 0: return true; // Welcome screen
+            case 0: return true;
             case 1: return data.name.trim().length > 0;
             case 2: return data.moodBaseline.length > 0;
             case 3: return data.intent.length > 0;
-            case 4: return true; // Privacy screen
+            case 4: return true;
             default: return false;
         }
     };
@@ -54,309 +128,173 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0">
-                {/* Emoji Doodle Background */}
-                <EmojiDoodleBackground />
-
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black to-rose-900/30" />
-                <motion.div
-                    animate={{
-                        opacity: [0.1, 0.2, 0.1],
-                    }}
-                    transition={{
-                        duration: 20,
-                        repeat: Infinity,
-                        repeatType: 'reverse',
-                    }}
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.3) 0%, transparent 50%)',
-                        backgroundSize: '200% 200%',
-                        animation: 'backgroundMove 20s ease-in-out infinite',
-                    }}
-                />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0D0D0F] font-sans overflow-hidden">
+            {/* Background Layers */}
+            <div className="absolute inset-0 z-0 opacity-40">
+                <LiquidImage strength={0.02} speed={0.15} />
             </div>
+            <EmojiGrid />
 
-            {/* Progress Indicator */}
-            <div className="absolute top-8 left-0 right-0 px-8 z-20">
-                <div className="max-w-md mx-auto">
-                    <div className="flex gap-2">
-                        {[0, 1, 2, 3, 4].map((i) => (
+            <AnimatePresence mode="wait">
+                {/* Step 0: Welcome */}
+                {step === 0 && (
+                    <OnboardingCard
+                        key="step0"
+                        title="INITIALIZE SOUL"
+                        subtitle="Connection Established"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                    >
+                        <div className="space-y-6 text-center">
                             <motion.div
-                                key={i}
-                                initial={{ scaleX: 0 }}
-                                animate={{ scaleX: i <= step ? 1 : 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden"
+                                animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-purple-500/20 to-rose-500/20 flex items-center justify-center border border-white/10"
                             >
-                                <div className="h-full bg-gradient-to-r from-purple-500 to-rose-500" />
+                                <span className="text-4xl">✨</span>
                             </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+                            <p className="text-white/60 text-sm leading-relaxed px-4">
+                                Welcome to IHATEYOU. <br />
+                                Before we permit entry to the void, we must calibrate your digital frequency.
+                            </p>
+                        </div>
+                    </OnboardingCard>
+                )}
 
-            {/* Content */}
-            <div className="relative z-10 w-full max-w-md px-6">
-                <AnimatePresence mode="wait">
-                    {/* Step 0: Welcome */}
-                    {step === 0 && (
-                        <motion.div
-                            key="welcome"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="text-center space-y-8"
-                        >
-                            <motion.div
-                                animate={{
-                                    scale: [1, 1.1, 1],
-                                    rotate: [0, 5, -5, 0],
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                                className="text-8xl"
-                            >
-                                👋
-                            </motion.div>
-
-                            <div className="space-y-4">
-                                <h1 className="text-4xl font-bold text-white">Welcome!</h1>
-                                <p className="text-white/70 text-lg">
-                                    Let's get to know you a bit.
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={handleNext}
-                                className="w-full bg-white hover:bg-gray-50 text-black font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
-                            >
-                                <span>Continue</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </motion.div>
-                    )}
-
-                    {/* Step 1: Name */}
-                    {step === 1 && (
-                        <motion.div
-                            key="name"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            <div className="space-y-4">
-                                <h2 className="text-3xl font-bold text-white">What should we call you?</h2>
-                                <p className="text-white/60">Choose any name you're comfortable with</p>
-                            </div>
-
+                {/* Step 1: Name */}
+                {step === 1 && (
+                    <OnboardingCard
+                        key="step1"
+                        title="IDENTITY"
+                        subtitle="What do they call you?"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                    >
+                        <div className="w-full space-y-4">
                             <input
                                 type="text"
-                                placeholder="Your name..."
                                 value={data.name}
                                 onChange={(e) => setData(prev => ({ ...prev, name: e.target.value }))}
-                                className="w-full bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-white/40 py-4 px-6 rounded-2xl focus:outline-none focus:border-purple-500 transition-colors text-lg"
+                                placeholder="Display Name"
+                                className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
                                 autoFocus
                             />
+                            <p className="text-[10px] text-white/20 uppercase tracking-wider text-center">
+                                This echo will represent you.
+                            </p>
+                        </div>
+                    </OnboardingCard>
+                )}
 
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setStep(step - 1)}
-                                    className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300"
+                {/* Step 2: Mood */}
+                {step === 2 && (
+                    <OnboardingCard
+                        key="step2"
+                        title="RESONANCE"
+                        subtitle="Current Emotional State"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                    >
+                        <div className="grid grid-cols-2 gap-3 w-full">
+                            {MOOD_OPTIONS.map((mood) => (
+                                <motion.button
+                                    key={mood.value}
+                                    onClick={() => setData(prev => ({ ...prev, moodBaseline: mood.value }))}
+                                    whileTap={{ scale: 0.98 }}
+                                    className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-2 ${data.moodBaseline === mood.value
+                                        ? 'bg-white text-black border-white'
+                                        : 'bg-[#151518] text-white/40 border-white/5 hover:bg-[#1A1A1D] hover:text-white'
+                                        }`}
                                 >
-                                    Back
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!canProceed()}
-                                    className="flex-1 bg-white hover:bg-gray-50 text-black font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                    <span className="text-2xl filter grayscale-[0.5]">{mood.emoji}</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-wide">{mood.label}</span>
+                                </motion.button>
+                            ))}
+                        </div>
+                    </OnboardingCard>
+                )}
+
+                {/* Step 3: Intent */}
+                {step === 3 && (
+                    <OnboardingCard
+                        key="step3"
+                        title="OBJECTIVE"
+                        subtitle="Why are you here?"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                    >
+                        <div className="space-y-2 w-full">
+                            {INTENT_OPTIONS.map((option) => (
+                                <motion.button
+                                    key={option.value}
+                                    onClick={() => toggleIntent(option.value)}
+                                    whileTap={{ scale: 0.99 }}
+                                    className={`w-full p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${data.intent.includes(option.value)
+                                        ? 'bg-white/10 border-white/20 text-white'
+                                        : 'bg-transparent border-white/5 text-white/40 hover:bg-white/5'
+                                        }`}
                                 >
-                                    <span>Next</span>
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Step 2: Mood Baseline */}
-                    {step === 2 && (
-                        <motion.div
-                            key="mood"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            <div className="space-y-4">
-                                <h2 className="text-3xl font-bold text-white">How are you feeling today?</h2>
-                                <p className="text-white/60">Pick what resonates with you right now</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {MOOD_OPTIONS.map((mood) => (
-                                    <motion.button
-                                        key={mood.value}
-                                        onClick={() => setData(prev => ({ ...prev, moodBaseline: mood.value }))}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className={`p-6 rounded-2xl border-2 transition-all duration-300 ${data.moodBaseline === mood.value
-                                            ? 'bg-white/20 border-white/40 backdrop-blur-xl'
-                                            : 'bg-white/5 border-white/10 backdrop-blur-xl hover:bg-white/10'
-                                            }`}
-                                    >
-                                        <div className="text-4xl mb-2">{mood.emoji}</div>
-                                        <div className="text-white font-medium">{mood.label}</div>
-                                    </motion.button>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setStep(step - 1)}
-                                    className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300"
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!canProceed()}
-                                    className="flex-1 bg-white hover:bg-gray-50 text-black font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <span>Next</span>
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Step 3: Intent */}
-                    {step === 3 && (
-                        <motion.div
-                            key="intent"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            <div className="space-y-4">
-                                <h2 className="text-3xl font-bold text-white">What are you here for?</h2>
-                                <p className="text-white/60">Select all that apply</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                {INTENT_OPTIONS.map((option) => (
-                                    <motion.button
-                                        key={option.value}
-                                        onClick={() => toggleIntent(option.value)}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className={`w-full p-4 rounded-2xl border-2 transition-all duration-300 flex items-center gap-4 ${data.intent.includes(option.value)
-                                            ? 'bg-white/20 border-white/40 backdrop-blur-xl'
-                                            : 'bg-white/5 border-white/10 backdrop-blur-xl hover:bg-white/10'
-                                            }`}
-                                    >
-                                        <div className="text-3xl">{option.icon}</div>
-                                        <div className="text-white font-medium text-left">{option.label}</div>
-                                        {data.intent.includes(option.value) && (
-                                            <motion.div
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                className="ml-auto w-6 h-6 bg-white rounded-full flex items-center justify-center"
-                                            >
-                                                <div className="w-3 h-3 bg-black rounded-full" />
-                                            </motion.div>
-                                        )}
-                                    </motion.button>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setStep(step - 1)}
-                                    className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300"
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!canProceed()}
-                                    className="flex-1 bg-white hover:bg-gray-50 text-black font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <span>Next</span>
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Step 4: Privacy Promise */}
-                    {step === 4 && (
-                        <motion.div
-                            key="privacy"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            <div className="text-center space-y-6">
-                                <motion.div
-                                    animate={{
-                                        scale: [1, 1.1, 1],
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
-                                    className="inline-block"
-                                >
-                                    <Shield className="w-20 h-20 text-white mx-auto" />
-                                </motion.div>
-
-                                <div className="space-y-4">
-                                    <h2 className="text-3xl font-bold text-white">Your Privacy Matters</h2>
-                                    <div className="space-y-3 text-white/70 text-lg">
-                                        <p>Your feelings aren't content.</p>
-                                        <p>You control what's shared.</p>
-                                        <p>Your data stays yours.</p>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-lg opacity-80">{option.icon}</span>
+                                        <span className="text-xs font-bold uppercase tracking-wide">{option.label}</span>
                                     </div>
+                                    {data.intent.includes(option.value) && (
+                                        <Check className="w-4 h-4 text-white" />
+                                    )}
+                                </motion.button>
+                            ))}
+                        </div>
+                    </OnboardingCard>
+                )}
+
+                {/* Step 4: Privacy */}
+                {step === 4 && (
+                    <OnboardingCard
+                        key="step4"
+                        title="PROTOCOL"
+                        subtitle="Privacy Agreement"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                    >
+                        <div className="space-y-6 w-full text-left">
+                            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <Shield className="w-8 h-8 text-white/80" strokeWidth={1.5} />
+                                <div>
+                                    <h4 className="text-sm font-bold text-white mb-1">Encrypted Soul</h4>
+                                    <p className="text-[10px] text-white/50 leading-relaxed">
+                                        Your data is encrypted end-to-end. We cannot see your shadows.
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-3">
-                                <div className="flex items-start gap-3">
-                                    <Sparkles className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
-                                    <p className="text-white/80 text-sm">End-to-end encryption for all messages</p>
+                            <div className="space-y-4 px-2">
+                                <div className="flex items-center gap-3 text-xs text-white/60">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span>No tracking pixels detected.</span>
                                 </div>
-                                <div className="flex items-start gap-3">
-                                    <Sparkles className="w-5 h-5 text-rose-400 mt-1 flex-shrink-0" />
-                                    <p className="text-white/80 text-sm">No ads, no tracking, no selling your data</p>
+                                <div className="flex items-center gap-3 text-xs text-white/60">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span>Zero-knowledge storage active.</span>
                                 </div>
-                                <div className="flex items-start gap-3">
-                                    <Sparkles className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
-                                    <p className="text-white/80 text-sm">You can delete everything anytime</p>
+                                <div className="flex items-center gap-3 text-xs text-white/60">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span>Right to vanish (Delete all) enabled.</span>
                                 </div>
                             </div>
-
-                            <button
-                                onClick={handleNext}
-                                className="w-full bg-gradient-to-r from-purple-500 to-rose-500 hover:from-purple-600 hover:to-rose-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
-                            >
-                                <span>Enter IHATEYOU</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-
-
+                        </div>
+                    </OnboardingCard>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -6,6 +6,8 @@ import { Send, Brain } from 'lucide-react';
 import { useSignals } from '@/hooks/useSignals';
 import { useAlgorithm } from '@/hooks/useAlgorithm';
 
+import PixelHoverGrid from '@/components/backgrounds/PixelHoverGrid';
+
 interface Message {
     id: string;
     text: string;
@@ -19,7 +21,6 @@ export default function SoulGuide() {
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const scrollRef = useRef<HTMLDivElement>(null);
     const { trackTool } = useSignals('user-1');
     const { state: emotionalState } = useAlgorithm('user-1');
@@ -33,14 +34,6 @@ export default function SoulGuide() {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, isTyping]);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
 
     const handleSend = () => {
         if (!input.trim()) return;
@@ -62,8 +55,18 @@ export default function SoulGuide() {
                 "I'm listening. Take your time."
             ];
 
-            // Personalize responses based on algorithm state
-            if (emotionalState?.primaryState === 'emotionally_overloaded') {
+            // PUZZLE STEP 2: "The Beginning"
+            if (input.toLowerCase().includes('the beginning')) {
+                responses = [
+                    "MEMORY UNLOCKED: 001",
+                    "It started with a simple thought, didn't it?",
+                    "You and I, we are just getting started.",
+                    "The next key is hidden where you track your joy.",
+                    "Look for the 'Golden' moment."
+                ];
+                // In a real app, we would unlock a database flag here.
+                // For now, the response IS the reward.
+            } else if (emotionalState?.primaryState === 'emotionally_overloaded') {
                 responses = [
                     "Everything feels like a lot right now, doesn't it? Let's just focus on your breath for a second.",
                     "I can feel the weight of those thoughts. You don't have to figure it all out today.",
@@ -102,56 +105,19 @@ export default function SoulGuide() {
     return (
         <div className="fixed inset-0 z-[50] bg-[#050505] flex flex-col items-center justify-center overflow-hidden">
             {/* Interactive Grid Background */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <motion.div
-                    className="absolute inset-0 opacity-[0.08]"
-                    style={{
-                        backgroundImage: `
-                            linear-gradient(to right, rgba(239, 68, 68, 0.15) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(239, 68, 68, 0.15) 1px, transparent 1px)
-                        `,
-                        backgroundSize: '60px 60px'
-                    }}
-                />
-
-                <motion.div
-                    className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
-                    animate={{
-                        x: mousePosition.x - 300,
-                        y: mousePosition.y - 300,
-                    }}
-                    transition={{
-                        type: "spring",
-                        damping: 30,
-                        stiffness: 200,
-                        mass: 0.5
-                    }}
-                    style={{
-                        background: 'radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.08) 30%, transparent 70%)',
-                        filter: 'blur(40px)'
-                    }}
-                />
-
-                <motion.div
-                    className="absolute w-[400px] h-[400px] rounded-full pointer-events-none"
-                    animate={{
-                        x: mousePosition.x - 200,
-                        y: mousePosition.y - 200,
-                    }}
-                    transition={{
-                        type: "spring",
-                        damping: 40,
-                        stiffness: 150,
-                        mass: 0.8
-                    }}
-                    style={{
-                        background: 'radial-gradient(circle, rgba(220, 38, 38, 0.2) 0%, rgba(239, 68, 68, 0.1) 40%, transparent 70%)',
-                        filter: 'blur(60px)'
-                    }}
-                />
-
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]" />
-            </div>
+            <PixelHoverGrid
+                gridSize={14}
+                hoverColor="#ef4444"
+                hoverColor2="#f87171"
+                hoverColor3="#dc2626"
+                hoverColor4="#b91c1c"
+                backgroundColor="#050505"
+                borderColor="rgba(239, 68, 68, 0.1)"
+                borderWidth={1}
+                animationDuration={0.6}
+                maxOpacity={0.8}
+                showCursor={false}
+            />
 
             {/* Centerpiece: Full Circle Watermelon */}
             <div className="relative flex items-center justify-center mb-12 z-10">

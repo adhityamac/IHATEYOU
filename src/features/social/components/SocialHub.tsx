@@ -23,16 +23,27 @@ export default function SocialHub() {
 
     // Mock user data for profile
     const currentUser = {
+        id: 'user-1',
         username: 'traveler',
+        displayName: 'Digital Traveler',
         bio: 'Existing in the digital void, finding light in the darkness.',
-        avatar: 'traveler',
-        followers: 234,
-        following: 156,
-        posts: 89,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=traveler',
+        coverImage: 'https://source.unsplash.com/random/800x300/?abstract',
+        theme: {
+            primary: '#8b5cf6',
+            secondary: '#ec4899',
+            gradient: 'from-purple-500 to-pink-500'
+        },
+        badges: ['Early Adopter', 'Soul Seeker'],
+        stats: {
+            posts: 89,
+            followers: 234,
+            following: 156,
+            streak: 30
+        },
         joinDate: 'January 2024',
         location: 'The Void',
         website: 'https://example.com',
-        badges: ['Early Adopter', 'Soul Seeker'],
         recentEmotions: [
             { name: 'Joyful', color: '#F5A8C8' },
             { name: 'Calm', color: '#A8C5E0' },

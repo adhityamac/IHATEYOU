@@ -1,0 +1,321 @@
+/* Mobile Responsive Enhancements */
+
+/* Improved touch targets for mobile */
+@media (max-width: 768px) {
+
+    /* Larger touch targets */
+    button,
+    a,
+    [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Better spacing on mobile */
+    .p-6 {
+        padding: 1rem;
+    }
+
+    .gap-6 {
+        gap: 1rem;
+    }
+
+    /* Responsive text sizes */
+    .text-6xl {
+        font-size: 2.5rem;
+    }
+
+    .text-5xl {
+        font-size: 2rem;
+    }
+
+    .text-4xl {
+        font-size: 1.75rem;
+    }
+
+    /* Full-width modals on mobile */
+    .modal-container {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    /* Better scroll behavior */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+    }
+
+    .overflow-x-auto>* {
+        scroll-snap-align: start;
+    }
+
+    /* Hide scrollbars but keep functionality */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Safe area insets for notched devices */
+    .safe-top {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .safe-left {
+        padding-left: env(safe-area-inset-left);
+    }
+
+    .safe-right {
+        padding-right: env(safe-area-inset-right);
+    }
+
+    /* Better grid layouts on mobile */
+    .grid-cols-4 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Stack cards vertically on mobile */
+    .md\:grid-cols-2,
+    .md\:grid-cols-3,
+    .md\:grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .grid-cols-4 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .md\:grid-cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+    .h-screen {
+        height: 100vh;
+    }
+
+    /* Reduce vertical padding in landscape */
+    .py-20 {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .py-16 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+    /* Sharper borders */
+    .border {
+        border-width: 0.5px;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+
+    /* Already dark, but ensure consistency */
+    body {
+        background-color: #000;
+        color: #fff;
+    }
+}
+
+/* Touch-specific improvements */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Remove hover effects on touch devices */
+    .hover\:scale-105:hover {
+        transform: none;
+    }
+
+    /* Add active states instead */
+    .hover\:scale-105:active {
+        transform: scale(0.95);
+    }
+
+    /* Larger tap targets */
+    button,
+    a,
+    [role="button"] {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Utility classes for mobile */
+.mobile-only {
+    display: block;
+}
+
+.desktop-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none;
+    }
+
+    .desktop-only {
+        display: block;
+    }
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus states for keyboard navigation */
+*:focus-visible {
+    outline: 2px solid rgba(168, 85, 247, 0.5);
+    outline-offset: 2px;
+}
+
+/* Prevent text selection on UI elements */
+button,
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Improve touch scrolling */
+.touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Pull-to-refresh prevention */
+body {
+    overscroll-behavior-y: contain;
+}
+
+/* Better input styling on mobile */
+input,
+textarea {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Sticky positioning fixes */
+.sticky-top {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Backdrop blur fallback */
+@supports not (backdrop-filter: blur(10px)) {
+    .backdrop-blur-xl {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .backdrop-blur-md {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .backdrop-blur-sm {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Loading skeleton animation */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+/* Smooth page transitions */
+.page-transition {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Better emoji rendering */
+.emoji {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-style: normal;
+}
+
+/* Prevent layout shift */
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Better glassmorphism on mobile */
+@media (max-width: 768px) {
+    .backdrop-blur-3xl {
+        backdrop-filter: blur(20px);
+    }
+
+    .backdrop-blur-xl {
+        backdrop-filter: blur(16px);
+    }
+}

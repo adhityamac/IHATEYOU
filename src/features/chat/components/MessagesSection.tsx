@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Conversation, Message, Story, Group } from '@/types/types';
 import MessageBubble from './MessageBubble';
-import { ChevronDown, ArrowLeft, MessageCircle, Smile, Sparkles, UserPlus, Search as SearchIcon, Send } from 'lucide-react';
+import { ChevronDown, ArrowLeft, MessageCircle, Smile, Sparkles, UserPlus, Search as SearchIcon, Send, X, Ghost, Plus, Paperclip, Image as ImageIcon, Mic, MoreVertical, Pin, Phone, Video } from 'lucide-react';
 import { emojiPack } from '@/data/emojiPack';
 import TypingIndicator from './TypingIndicator';
 import MessageSearch from './MessageSearch';
@@ -21,6 +21,7 @@ interface MessagesSectionProps {
     setStories?: React.Dispatch<React.SetStateAction<Story[]>>;
     groups?: Group[];
     setGroups?: React.Dispatch<React.SetStateAction<Group[]>>;
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export default function MessagesSection({
@@ -30,6 +31,7 @@ export default function MessagesSection({
     setActiveConversationId,
     currentUser,
     mockUsers,
+    onScroll,
 }: MessagesSectionProps) {
     const { trackTool, trackInteraction, trackConnection } = useSignals(currentUser.id);
     const [showSoulSiblingFinder, setShowSoulSiblingFinder] = useState(false);
@@ -51,34 +53,8 @@ export default function MessagesSection({
     };
     const [recentEmojis, setRecentEmojis] = useState<string[]>(getInitialRecentEmojis);
     const [showEmojiKeyboard, setShowEmojiKeyboard] = useState(false);
-    const [emojiSearch, setEmojiSearch] = useState('');
-    const [emojiCombo, setEmojiCombo] = useState<string[]>([]);
-    const [emojiSize, setEmojiSize] = useState<'small' | 'medium' | 'large'>('small');
-    const [keyboardHeight, setKeyboardHeight] = useState(350);
-    const [isResizing, setIsResizing] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!isResizing) return;
-            const newHeight = window.innerHeight - e.clientY;
-            if (newHeight >= 250 && newHeight <= window.innerHeight * 0.7) {
-                setKeyboardHeight(newHeight);
-            }
-        };
-        const handleMouseUp = () => setIsResizing(false);
-        if (isResizing) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isResizing]);
-
-    // Removed setRecentEmojis in useEffect to avoid cascading renders
 
     const activeConversation = conversations.find(c => c.id === activeConversationId);
 
@@ -120,7 +96,7 @@ export default function MessagesSection({
             content: messageInput,
             timestamp: new Date(),
             isRead: false,
-            size: emojiSize,
+            size: 'small'
         };
 
         setMessageInput('');
@@ -177,169 +153,291 @@ export default function MessagesSection({
     };
 
     return (
-        <div className="flex-1 flex overflow-hidden bg-black/40 backdrop-blur-3xl border border-white/5 rounded-[48px] mt-24 mx-8 mb-8">
-            {showSoulSiblingFinder ? (
-                <div className="flex-1 relative flex flex-col p-10">
-                    <div className="flex justify-between items-center mb-10">
-                        <div>
-                            <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase leading-none">Find Soul Siblings</h2>
-                            <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.4em] mt-3">Connecting you with similar energies</p>
-                        </div>
-                        <button onClick={() => setShowSoulSiblingFinder(false)} className="w-14 h-14 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl text-white/40 hover:text-white hover:bg-white/10 transition-all group">
-                            <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+        <div className="flex-1 flex items-end justify-center w-full h-full px-8 pb-8 pt-32">
+            {/* Main Messages Container - macOS Style */}
+            <div className="flex w-full max-w-7xl h-[90vh] bg-zinc-900/95 backdrop-blur-3xl rounded-[24px] shadow-[0_20px_100px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden">
+
+                {/* Left Sidebar - People List */}
+                <div className="w-[320px] flex-shrink-0 border-r border-white/10 flex flex-col bg-black/40">
+                    {/* Sidebar Header */}
+                    <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-white">Messages</h2>
+                        <button
+                            onClick={() => setShowSoulSiblingFinder(true)}
+                            className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                        >
+                            <Plus size={18} />
                         </button>
                     </div>
+
+                    {/* Search Bar */}
+                    <div className="px-4 py-3">
+                        <div className="relative">
+                            <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/20 transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Conversations List */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {mockUsers.map((user) => (
-                                <button key={user.id} onClick={() => handleSelectUser(user)} className="p-8 bg-white/[0.02] border border-white/5 rounded-[40px] hover:bg-white/[0.05] hover:border-white/10 transition-all text-left flex items-center gap-6 group">
-                                    <div className="w-16 h-16 rounded-full border-2 border-white/5 overflow-hidden bg-black/40 backdrop-blur-md">
-                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt="avatar" className="w-full h-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <div className="font-black text-white text-lg italic uppercase tracking-tighter">@{user.username}</div>
-                                        <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">92% Energy Match</div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <>
-                    {/* Chat Sidebar */}
-                    <div className="w-80 flex-shrink-0 border-r border-white/5 flex flex-col">
-                        <div className="p-8 border-b border-white/5 flex justify-between items-center">
-                            <h2 className="text-xl font-black italic text-white uppercase tracking-tighter">My Chats</h2>
-                            <button onClick={() => {
-                                setShowSoulSiblingFinder(true);
-                                trackTool('soul_sibling_finder', 0);
-                            }} className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all"><UserPlus size={18} /></button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                            {conversations.map((conv) => (
-                                <button
-                                    key={conv.id}
-                                    onClick={() => {
-                                        setActiveConversationId(conv.id);
-                                        setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, unreadCount: 0 } : c));
-                                        trackConnection(conv.participant.id);
-                                    }}
-                                    className={`w-full p-5 rounded-[32px] transition-all text-left group ${activeConversationId === conv.id ? 'bg-white/10 border border-white/20 shadow-2xl' : 'bg-transparent hover:bg-white/[0.03]'}`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full border-2 border-white/5 overflow-hidden bg-black flex items-center justify-center shrink-0">
-                                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.participant.name}`} alt="avatar" className="w-full h-full" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-black text-white text-sm uppercase italic tracking-tight">@{conv.participant.username}</div>
-                                            <div className="text-[11px] text-white/30 truncate mt-0.5">{conv.lastMessage?.content || 'No messages yet'}</div>
-                                        </div>
-                                        {conv.unreadCount > 0 && (
-                                            <div className="w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-rose-500/40">{conv.unreadCount}</div>
-                                        )}
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Chat Main */}
-                    {activeConversation ? (
-                        <div className="flex-1 flex flex-col relative bg-black/20">
-                            {/* Simple Chat Header */}
-                            <div className="p-6 border-b border-white/5 bg-black/40 backdrop-blur-3xl flex items-center justify-between z-20">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full border border-white/10 overflow-hidden bg-black"><img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}`} alt="avatar" className="w-full h-full" /></div>
-                                    <div>
-                                        <div className="font-black text-white italic uppercase tracking-tighter">@{activeConversation.participant.username}</div>
-                                        <div className="flex items-center gap-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${activeConversation.participant.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-white/20'}`} />
-                                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{activeConversation.participant.isOnline ? 'Active Now' : 'Quiet Now'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button onClick={() => setShowSearch(true)} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/40 transition-all"><SearchIcon size={18} /></button>
-                            </div>
-
-                            <AnimatePresence>
-                                {showSearch && (
-                                    <MessageSearch onClose={() => setShowSearch(false)} messages={activeConversation.messages} />
-                                )}
-                            </AnimatePresence>
-
-                            {/* Messages Grid */}
-                            <div className="flex-1 overflow-y-auto px-8 py-10 custom-scrollbar relative">
-                                <div className="space-y-4">
-                                    {activeConversation.messages.map((message, index) => {
-                                        const isSent = message.senderId === currentUser.id;
-                                        const prevMessage = activeConversation.messages[index - 1];
-                                        const showAvatar = !prevMessage || prevMessage.senderId !== message.senderId;
-                                        return (
-                                            <MessageBubble
-                                                key={message.id} message={message} isSent={isSent} showAvatar={showAvatar}
-                                                avatar={!isSent ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}` : undefined}
-                                                username={activeConversation.participant.name} onReact={handleReaction}
-                                            />
-                                        );
-                                    })}
-                                    {isTyping && (
-                                        <div className="mt-4 ml-2">
-                                            <TypingIndicator username={activeConversation.participant.username} />
-                                        </div>
+                        {conversations.map((conv) => (
+                            <button
+                                key={conv.id}
+                                onClick={() => {
+                                    setActiveConversationId(conv.id);
+                                    setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, unreadCount: 0 } : c));
+                                    trackConnection(conv.participant.id);
+                                }}
+                                className={`w-full px-4 py-3 flex items-center gap-3 transition-all ${activeConversationId === conv.id
+                                    ? 'bg-white/10'
+                                    : 'hover:bg-white/5'
+                                    }`}
+                            >
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 flex-shrink-0 relative">
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.participant.name}`}
+                                        alt={conv.participant.username}
+                                        className="w-full h-full"
+                                    />
+                                    {conv.participant.isOnline && (
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-zinc-900 rounded-full" />
                                     )}
                                 </div>
+                                <div className="flex-1 min-w-0 text-left">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="font-semibold text-white text-sm truncate">{conv.participant.username}</span>
+                                        {conv.lastMessage && (
+                                            <span className="text-xs text-white/40 ml-2">
+                                                {new Date(conv.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs text-white/50 truncate">
+                                            {conv.lastMessage?.content || 'No messages yet'}
+                                        </p>
+                                        {conv.unreadCount > 0 && (
+                                            <span className="ml-2 px-1.5 py-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[18px] text-center">
+                                                {conv.unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Right Side - Chat Area */}
+                {activeConversation ? (
+                    <div className="flex-1 flex flex-col bg-zinc-900/50">
+                        {/* Chat Header */}
+                        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/20">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800">
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}`}
+                                        alt={activeConversation.participant.username}
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-white">{activeConversation.participant.username}</h3>
+                                    <p className="text-xs text-white/50">
+                                        {activeConversation.participant.isOnline ? 'Active now' : 'Offline'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                                    <Phone size={18} />
+                                </button>
+                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                                    <Video size={18} />
+                                </button>
+                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                                    <MoreVertical size={18} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Messages Area */}
+                        <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar" onScroll={onScroll}>
+                            <div className="space-y-4">
+                                {activeConversation.messages.map((message, index) => {
+                                    const isSent = message.senderId === currentUser.id;
+                                    const prevMessage = activeConversation.messages[index - 1];
+                                    const showAvatar = !prevMessage || prevMessage.senderId !== message.senderId;
+                                    return (
+                                        <MessageBubble
+                                            key={message.id}
+                                            message={message}
+                                            isSent={isSent}
+                                            showAvatar={showAvatar}
+                                            avatar={!isSent ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}` : undefined}
+                                            username={activeConversation.participant.name}
+                                            onReact={handleReaction}
+                                            onReply={() => { }}
+                                        />
+                                    );
+                                })}
+                                {isTyping && (
+                                    <div className="flex items-end gap-2">
+                                        <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800">
+                                            <img
+                                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}`}
+                                                alt={activeConversation.participant.username}
+                                                className="w-full h-full"
+                                            />
+                                        </div>
+                                        <TypingIndicator username={activeConversation.participant.username} />
+                                    </div>
+                                )}
                                 <div ref={messagesEndRef} />
                             </div>
+                        </div>
 
-                            {/* New Message Input Bar (Standard Style) */}
-                            <div className="p-6 bg-black/40 backdrop-blur-3xl border-t border-white/5 flex flex-col gap-4">
+                        {/* Input Area - Fixed at Bottom */}
+                        <div className="px-6 py-4 border-t border-white/10 bg-black/20">
+                            <form onSubmit={handleSendMessage} className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEmojiKeyboard(!showEmojiKeyboard)}
+                                    className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all flex-shrink-0"
+                                >
+                                    <Smile size={20} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all flex-shrink-0"
+                                >
+                                    <ImageIcon size={20} />
+                                </button>
+                                <input
+                                    type="text"
+                                    value={messageInput}
+                                    onChange={(e) => setMessageInput(e.target.value)}
+                                    placeholder="Your message"
+                                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/20 transition-all"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!messageInput.trim()}
+                                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all flex-shrink-0 ${messageInput.trim()
+                                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                                        : 'bg-white/5 text-white/30 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <Send size={18} />
+                                </button>
+                            </form>
+
+                            {/* Emoji Picker */}
+                            <AnimatePresence>
                                 {showEmojiKeyboard && (
-                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white/[0.02] rounded-[32px] border border-white/5 overflow-hidden flex flex-col" style={{ height: keyboardHeight }}>
-                                        <div className="p-4 border-b border-white/5 flex gap-2 overflow-x-auto scrollbar-hide">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute bottom-20 left-6 right-6 bg-zinc-800 border border-white/10 rounded-2xl p-4 shadow-2xl max-h-[300px] overflow-y-auto custom-scrollbar"
+                                    >
+                                        <div className="flex gap-2 mb-3 pb-3 border-b border-white/10">
                                             {emojiPack.map(cat => (
-                                                <button key={cat.id} onClick={() => setActiveEmojiCategory(cat.id)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeEmojiCategory === cat.id ? 'bg-white text-black' : 'text-white/20 hover:text-white/40'}`}>
-                                                    {cat.name.split(' ')[0]}
+                                                <button
+                                                    key={cat.id}
+                                                    onClick={() => setActiveEmojiCategory(cat.id)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeEmojiCategory === cat.id
+                                                        ? 'bg-white text-black'
+                                                        : 'text-white/60 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    {cat.name}
                                                 </button>
                                             ))}
                                         </div>
-                                        <div className="flex-1 overflow-y-auto p-4 grid grid-cols-6 sm:grid-cols-8 gap-2 custom-scrollbar">
+                                        <div className="grid grid-cols-8 gap-2">
                                             {(activeEmojiCategory === 'recent' ? recentEmojis : emojiPack.find(c => c.id === activeEmojiCategory)?.emojis || []).map((emoji, idx) => (
-                                                <button key={idx} onClick={() => handleSelectEmoji(emoji)} className="aspect-square flex items-center justify-center text-3xl hover:bg-white/5 rounded-xl transition-all">{emoji}</button>
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => {
+                                                        handleSelectEmoji(emoji);
+                                                        setShowEmojiKeyboard(false);
+                                                    }}
+                                                    className="aspect-square flex items-center justify-center text-2xl hover:bg-white/10 rounded-lg transition-all"
+                                                >
+                                                    {emoji}
+                                                </button>
                                             ))}
                                         </div>
                                     </motion.div>
                                 )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center bg-zinc-900/50 text-white/40">
+                        <MessageCircle size={64} className="mb-4 opacity-20" />
+                        <h3 className="text-xl font-semibold mb-2">Select a conversation</h3>
+                        <p className="text-sm">Choose from your existing conversations or start a new one</p>
+                    </div>
+                )}
 
-                                <form onSubmit={handleSendMessage} className="flex items-center gap-4">
-                                    <button type="button" onClick={() => setShowEmojiKeyboard(!showEmojiKeyboard)} className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${showEmojiKeyboard ? 'bg-white text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}>
-                                        <Smile size={24} />
+                {/* Find Soul Siblings Modal */}
+                <AnimatePresence>
+                    {showSoulSiblingFinder && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+                            onClick={() => setShowSoulSiblingFinder(false)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold text-white">Find People</h2>
+                                    <button
+                                        onClick={() => setShowSoulSiblingFinder(false)}
+                                        className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                                    >
+                                        <X size={18} />
                                     </button>
-                                    <input
-                                        value={messageInput}
-                                        onChange={(e) => setMessageInput(e.target.value)}
-                                        placeholder="Type a message..."
-                                        className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 h-14 text-sm text-white focus:outline-none focus:border-rose-500/30 transition-all font-medium"
-                                    />
-                                    <button type="submit" disabled={!messageInput.trim()} className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white disabled:opacity-20 transition-all shadow-lg">
-                                        <Send size={24} />
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex-1 flex items-center justify-center p-12 text-center relative overflow-hidden">
-                            <div className="max-w-md relative z-10">
-                                <div className="w-24 h-24 bg-white/5 border border-white/5 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-3xl"><Sparkles className="w-10 h-10 text-white/10" /></div>
-                                <h2 className="text-3xl font-black italic text-white uppercase tracking-tighter mb-4">Your Chats</h2>
-                                <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em] mb-12 max-w-xs mx-auto">Find a soul sibling to start a conversation</p>
-                                <button onClick={() => setShowSoulSiblingFinder(true)} className="px-10 py-5 bg-white text-black font-black text-[11px] uppercase tracking-[0.3em] rounded-2xl hover:scale-105 transition-transform shadow-2xl">Find Soul Siblings</button>
-                            </div>
-                        </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {mockUsers.map((user) => (
+                                        <button
+                                            key={user.id}
+                                            onClick={() => handleSelectUser(user)}
+                                            className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center gap-3 transition-all text-left"
+                                        >
+                                            <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800">
+                                                <img
+                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`}
+                                                    alt={user.username}
+                                                    className="w-full h-full"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="font-semibold text-white">@{user.username}</div>
+                                                <div className="text-xs text-white/50">{user.name}</div>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        </motion.div>
                     )}
-                </>
-            )
-            }
-        </div >
+                </AnimatePresence>
+            </div>
+        </div>
     );
 }

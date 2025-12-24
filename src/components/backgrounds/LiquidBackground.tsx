@@ -36,7 +36,7 @@ export default function LiquidBackground() {
     }, [mouseX, mouseY]);
 
     return (
-        <div className="fixed inset-0 -z-10 overflow-hidden bg-[var(--bg-primary)]">
+        <div className="fixed inset-0 -z-10 overflow-hidden bg-[var(--bg-primary)] opacity-60">
             <motion.div
                 className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%]"
                 style={{ x: x1, y: y1 }}
@@ -96,7 +96,7 @@ export default function LiquidBackground() {
                     }}
                 />
             </motion.div>
-            <div className="absolute inset-0 bg-[var(--bg-primary)]/60 backdrop-blur-3xl" />
+            <div className="absolute inset-0 bg-[var(--bg-primary)]/40" />
         </div>
     );
 }

@@ -1,36 +1,37 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@layer base {
-  :root {
-    --bg-primary: #0D0D0F;
-    --text-primary: rgba(255, 255, 255, 0.95);
-    --text-secondary: rgba(255, 255, 255, 0.5);
-    --text-muted: rgba(255, 255, 255, 0.2);
-  }
-
-  body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.01em;
-    overflow-x: hidden;
-  }
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 15, 12, 41;
+  --background-end-rgb: 36, 36, 62;
 }
 
-/* Custom Typography */
-h1,
-h2,
-h3,
-h4 {
-  letter-spacing: -0.04em;
+/* Smooth scrolling and interaction physics */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
-/* Custom Scrollbar */
+body {
+  color: rgb(var(--foreground-rgb));
+  background: black;
+  min-height: 100vh;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -38,101 +39,62 @@ h4 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Layout Utilities */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
+.will-change-transform {
+  will-change: transform;
 }
 
-/* Emotion Components */
-.emotion-icon-sm {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 32%;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-  position: relative;
+.will-change-opacity {
+  will-change: opacity;
 }
 
-.emotion-icon-sm.selected {
-  transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+/* Neural Core Textures */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  filter: contrast(150%) brightness(100%);
 }
 
-.emotion-icon-sm.unselected {
-  opacity: 0.1;
-  filter: grayscale(1) blur(4px);
-  transform: scale(0.85);
+.glitch-text-sm {
+  text-shadow: 2px 0 #ff00c1, -2px 0 #00fff9;
 }
 
-.emotion-label-sm {
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.2);
-  margin-top: 0.75rem;
-  transition: opacity 0.4s ease;
-}
-
-/* Animations */
-@keyframes fluid-blob {
-
-  0%,
-  100% {
-    border-radius: 45% 55% 52% 48% / 48% 45% 55% 52%;
-  }
-
-  33% {
-    border-radius: 55% 45% 48% 52% / 52% 48% 45% 55%;
-  }
-
-  66% {
-    border-radius: 48% 52% 55% 45% / 45% 55% 48% 52%;
-  }
-}
-
-.animate-blob {
-  animation: fluid-blob 8s ease-in-out infinite;
-}
-
-@keyframes backgroundMove {
-
-  0%,
-  100% {
-    background-position: 50% 0%;
-  }
-
-  25% {
-    background-position: 100% 50%;
-  }
-
-  50% {
-    background-position: 50% 100%;
-  }
-
-  75% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Glass Effects */
-.glass-panel {
+.glass-premium {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
-.glow-text {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%)
+  }
+
+  100% {
+    transform: translateY(100%)
+  }
+}
+
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+      transparent 50%,
+      rgba(255, 255, 255, 0.02) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 100;
 }

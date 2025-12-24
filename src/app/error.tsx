@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function Error({
     error,
@@ -12,77 +10,31 @@ export default function Error({
     reset: () => void;
 }) {
     useEffect(() => {
-        console.error(error);
+        // Log the error to an error reporting service
+        console.error('APP CRASHED:', error);
     }, [error]);
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-900/30 via-black to-purple-900/30" />
-                <motion.div
-                    animate={{
-                        opacity: [0.1, 0.2, 0.1],
-                    }}
-                    transition={{
-                        duration: 20,
-                        repeat: Infinity,
-                        repeatType: 'reverse',
-                    }}
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(244, 63, 94, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)',
-                        backgroundSize: '200% 200%',
-                        animation: 'backgroundMove 20s ease-in-out infinite',
-                    }}
-                />
+        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8 font-mono">
+            <h2 className="text-3xl text-red-500 font-bold mb-4">CRITICAL SYSTEM FAILURE</h2>
+            <p className="text-zinc-500 mb-8">The Neural Core has encountered a fatal exception.</p>
+
+            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-lg max-w-2xl w-full overflow-auto mb-8">
+                <h3 className="text-sm font-bold text-zinc-400 mb-2">ERROR DIGEST</h3>
+                <code className="text-xs text-red-400 block whitespace-pre-wrap font-mono">
+                    {error.message}
+                    {error.stack && `\n\nSTACK TRACE:\n${error.stack}`}
+                </code>
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 w-full max-w-md px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center space-y-8"
-                >
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    >
-                        <AlertCircle className="w-20 h-20 text-rose-500 mx-auto" />
-                    </motion.div>
+            <button
+                onClick={reset}
+                className="px-6 py-3 bg-white text-black font-bold rounded hover:bg-zinc-200 transition-colors"
+            >
+                ATTEMPT SYSTEM REBOOT
+            </button>
 
-                    <div className="space-y-4">
-                        <h1 className="text-4xl font-bold text-white">Oops!</h1>
-                        <p className="text-white/70 text-lg">
-                            Something went wrong. Don't worry, we can fix this.
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={reset}
-                        className="w-full bg-white hover:bg-gray-50 text-black font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group"
-                    >
-                        <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-                        <span>Try Again</span>
-                    </button>
-
-                    <p className="text-white/40 text-xs">
-                        If this keeps happening, try refreshing the page
-                    </p>
-                </motion.div>
-            </div>
-
-            {/* Grain Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-            </div>
+            <p className="mt-8 text-xs text-zinc-700">ErrorCode: 500_INTERNAL_SERVER_ERROR</p>
         </div>
     );
 }

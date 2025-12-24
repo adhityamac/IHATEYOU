@@ -1,112 +1,74 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Users, Plus, MessageCircle, User, Trash2, Edit3, Zap, Play, Copy, Check, Gamepad2, ArrowRight, MessageSquare, X, Send, EyeOff, Timer, Smile } from 'lucide-react';
+import { Home, Users, Plus, MessageCircle, User, Trash2, Edit3, Zap, Play, Copy, Check, Gamepad2, ArrowRight, MessageSquare, X, Send, EyeOff, Timer, Smile, Trophy } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import SynapseMap from '@/components/shared/SynapseMap';
 import NeuralAura from '@/components/backgrounds/NeuralAura';
 import { useSignals } from '@/hooks/useSignals';
+import HerWorld from '@/features/games/components/HerWorld';
 
 // Yellow Emoji Grid Configuration
 const SPRITE_CONFIG = {
-    cols: 5,
+    cols: 6,
     rows: 6,
-    scale: 1,
+    scale: 1.1, // Slight zoom to remove borders
 };
 
-// Emotional Mapping
+// Emotional Mapping - Updated for 6x6 Grid
 const emotions = [
-    { id: 'joyful', name: 'Joyful', color: '#F5A8C8', sentence: 'Light feels possible today.', prompt: 'Share a moment of light.', gridPos: { row: 0, col: 3 } },
-    { id: 'loved', name: 'Loved', color: '#F8B8C8', sentence: 'Held by something bigger.', prompt: 'Who makes you feel seen?', gridPos: { row: 0, col: 2 } },
-    { id: 'nostalgic', name: 'Nostalgic', color: '#D8B8A8', sentence: 'Visiting places that don\'t exist.', prompt: 'Where have you gone back to?', gridPos: { row: 1, col: 1 } },
+    // Row 0
+    { id: 'joyful', name: 'Joyful', color: '#F5A8C8', sentence: 'Light feels possible today.', prompt: 'Share a moment of light.', gridPos: { row: 0, col: 0 } },
+    { id: 'loved', name: 'Loved', color: '#F8B8C8', sentence: 'Held by something bigger.', prompt: 'Who makes you feel seen?', gridPos: { row: 0, col: 1 } },
+    { id: 'excited', name: 'Excited', color: '#F8D8A8', sentence: 'Buzzing with possibility.', prompt: 'What has you energized?', gridPos: { row: 0, col: 2 } },
+    { id: 'grateful', name: 'Grateful', color: '#E8D8A8', sentence: 'Small things feel big today.', prompt: 'What are you thankful for?', gridPos: { row: 0, col: 3 } },
+    { id: 'hopeful', name: 'Hopeful', color: '#A8E8C0', sentence: 'Waiting for the sunrise.', prompt: 'What are you waiting for?', gridPos: { row: 0, col: 4 } },
+    { id: 'playful', name: 'Playful', color: '#87CEEB', sentence: 'Ready to have fun.', prompt: 'What sounds fun?', gridPos: { row: 0, col: 5 } },
+
+    // Row 1
     { id: 'calm', name: 'Calm', color: '#A8C5E0', sentence: 'Quiet, but not at peace.', prompt: 'What is keeping you still?', gridPos: { row: 1, col: 0 } },
-    { id: 'peaceful', name: 'Peaceful', color: '#B8E8D8', sentence: 'Finally, a moment of quiet.', prompt: 'Where did you find peace?', gridPos: { row: 4, col: 0 } },
-    { id: 'grateful', name: 'Grateful', color: '#E8D8A8', sentence: 'Small things feel big today.', prompt: 'What are you thankful for?', gridPos: { row: 0, col: 4 } },
+    { id: 'peaceful', name: 'Peaceful', color: '#B8E8D8', sentence: 'Finally, a moment of quiet.', prompt: 'Where did you find peace?', gridPos: { row: 1, col: 1 } },
+    { id: 'confident', name: 'Confident', color: '#F8C888', sentence: 'I know who I am.', prompt: 'What is your strength today?', gridPos: { row: 1, col: 2 } },
+    { id: 'brave', name: 'Brave', color: '#F8A888', sentence: 'Doing it even with the fear.', prompt: 'What are you facing today?', gridPos: { row: 1, col: 3 } },
+    { id: 'proud', name: 'Proud', color: '#FFD700', sentence: 'Standing tall.', prompt: 'What did you achieve?', gridPos: { row: 1, col: 4 } }, // New
+    { id: 'curious', name: 'Curious', color: '#E0B0FF', sentence: 'Wondering about the details.', prompt: 'What caught your eye?', gridPos: { row: 1, col: 5 } }, // New
 
-    { id: 'restless', name: 'Restless', color: '#C0C0E8', sentence: 'Skin feels too tight.', prompt: 'What is pulling at you?', gridPos: { row: 2, col: 0 } },
-    { id: 'overthinking', name: 'Overthinking', color: '#C8A8E8', sentence: 'Stuck in loops again.', prompt: 'What loop are you stuck in?', gridPos: { row: 1, col: 3 } },
-    { id: 'drained', name: 'Drained', color: '#A8B8C8', sentence: 'Running on empty.', prompt: 'What took your energy today?', gridPos: { row: 1, col: 4 } },
+    // Row 2
+    { id: 'nostalgic', name: 'Nostalgic', color: '#D8B8A8', sentence: 'Visiting places that don\'t exist.', prompt: 'Where have you gone back to?', gridPos: { row: 2, col: 0 } },
+    { id: 'silly', name: 'Silly', color: '#FFD700', sentence: 'Just being goofy today.', prompt: 'What made you laugh?', gridPos: { row: 2, col: 1 } },
+    { id: 'shy', name: 'Shy', color: '#FFB6C1', sentence: 'Feeling a bit bashful.', prompt: 'What makes you shy?', gridPos: { row: 2, col: 2 } },
+    { id: 'overthinking', name: 'Overthinking', color: '#C8A8E8', sentence: 'Stuck in loops again.', prompt: 'What loop are you stuck in?', gridPos: { row: 2, col: 3 } },
+    { id: 'confused', name: 'Confused', color: '#C8C8D8', sentence: 'Lost in the fog.', prompt: 'What is unclear?', gridPos: { row: 2, col: 4 } },
+    { id: 'restless', name: 'Restless', color: '#C0C0E8', sentence: 'Skin feels too tight.', prompt: 'What is pulling at you?', gridPos: { row: 2, col: 5 } },
 
-    { id: 'hurt', name: 'Hurt', color: '#E8A898', sentence: 'Still processing the ache.', prompt: 'Where does it hurt the most?', gridPos: { row: 2, col: 4 } },
-    { id: 'excited', name: 'Excited', color: '#F8D8A8', sentence: 'Buzzing with possibility.', prompt: 'What has you energized?', gridPos: { row: 0, col: 1 } },
-    { id: 'overwhelmed', name: 'Overwhelmed', color: '#D8A8B8', sentence: 'Drowning in everything.', prompt: 'What is too much right now?', gridPos: { row: 1, col: 2 } },
-    { id: 'anxious', name: 'Anxious', color: '#E8B898', sentence: 'Everything feels too much.', prompt: 'Focus on one small thing.', gridPos: { row: 2, col: 1 } },
+    // Row 3
+    { id: 'anxious', name: 'Anxious', color: '#E8B898', sentence: 'Everything feels too much.', prompt: 'Focus on one small thing.', gridPos: { row: 3, col: 0 } },
+    { id: 'overwhelmed', name: 'Overwhelmed', color: '#D8A8B8', sentence: 'Drowning in everything.', prompt: 'What is too much right now?', gridPos: { row: 3, col: 1 } },
+    { id: 'drained', name: 'Drained', color: '#A8B8C8', sentence: 'Running on empty.', prompt: 'What took your energy today?', gridPos: { row: 3, col: 2 } },
+    { id: 'hurt', name: 'Hurt', color: '#E8A898', sentence: 'Still processing the ache.', prompt: 'Where does it hurt the most?', gridPos: { row: 3, col: 3 } },
+    { id: 'angry', name: 'Angry', color: '#E89888', sentence: 'Fire beneath the surface.', prompt: 'Let the fire speak.', gridPos: { row: 3, col: 4 } },
+    { id: 'lonely', name: 'Lonely', color: '#8898B8', sentence: 'Surrounded, still alone.', prompt: 'What does the silence say?', gridPos: { row: 3, col: 5 } },
 
-    { id: 'confident', name: 'Confident', color: '#F8C888', sentence: 'I know who I am.', prompt: 'What is your strength today?', gridPos: { row: 3, col: 1 } },
-    { id: 'angry', name: 'Angry', color: '#E89888', sentence: 'Fire beneath the surface.', prompt: 'Let the fire speak.', gridPos: { row: 3, col: 2 } },
-    { id: 'brave', name: 'Brave', color: '#F8A888', sentence: 'Doing it even with the fear.', prompt: 'What are you facing today?', gridPos: { row: 0, col: 0 } },
-
-    { id: 'detached', name: 'Detached', color: '#B8B8C8', sentence: 'Here, but not really.', prompt: 'Where is your mind drifting?', gridPos: { row: 2, col: 2 } },
-    { id: 'numb', name: 'Numb', color: '#A8A8A8', sentence: 'Feeling nothing at all.', prompt: 'Describe the void.', gridPos: { row: 4, col: 2 } },
-    { id: 'empty', name: 'Empty', color: '#98A8A8', sentence: 'Hollow inside.', prompt: 'What is missing?', gridPos: { row: 5, col: 1 } },
-    { id: 'invisible', name: 'Invisible', color: '#98A8B8', sentence: 'No one sees me today.', prompt: 'Speak to the space around you.', gridPos: { row: 3, col: 0 } },
-
-    { id: 'hopeful', name: 'Hopeful', color: '#A8E8C0', sentence: 'Waiting for the sunrise.', prompt: 'What are you waiting for?', gridPos: { row: 4, col: 3 } },
-    { id: 'lonely', name: 'Lonely', color: '#8898B8', sentence: 'Surrounded, still alone.', prompt: 'What does the silence say?', gridPos: { row: 2, col: 3 } },
-    { id: 'confused', name: 'Confused', color: '#C8C8D8', sentence: 'Lost in the fog.', prompt: 'What is unclear?', gridPos: { row: 3, col: 4 } },
-    { id: 'silly', name: 'Silly', color: '#FFD700', sentence: 'Just being goofy today.', prompt: 'What made you laugh?', gridPos: { row: 5, col: 3 } },
-    { id: 'shy', name: 'Shy', color: '#FFB6C1', sentence: 'Feeling a bit bashful.', prompt: 'What makes you shy?', gridPos: { row: 3, col: 3 } },
-    { id: 'playful', name: 'Playful', color: '#87CEEB', sentence: 'Ready to have fun.', prompt: 'What sounds fun?', gridPos: { row: 5, col: 4 } },
+    // Row 4
+    { id: 'detached', name: 'Detached', color: '#B8B8C8', sentence: 'Here, but not really.', prompt: 'Where is your mind drifting?', gridPos: { row: 4, col: 0 } },
+    { id: 'numb', name: 'Numb', color: '#A8A8A8', sentence: 'Feeling nothing at all.', prompt: 'Describe the void.', gridPos: { row: 4, col: 1 } },
+    { id: 'empty', name: 'Empty', color: '#98A8A8', sentence: 'Hollow inside.', prompt: 'What is missing?', gridPos: { row: 4, col: 2 } },
+    { id: 'invisible', name: 'Invisible', color: '#98A8B8', sentence: 'No one sees me today.', prompt: 'Speak to the space around you.', gridPos: { row: 4, col: 3 } },
+    // Extra slots for future use
 ];
 
 const EmotionFace = ({ emotion, isSelected }: { emotion: any, isSelected: boolean }) => {
     const { row, col } = emotion.gridPos || { row: 0, col: 0 };
-    const xPosition = (col / (SPRITE_CONFIG.cols - 1)) * 100;
-    const yPosition = (row / (SPRITE_CONFIG.rows - 1)) * 100;
-
-    // Custom emojis with white backgrounds for ALL emotions
-    const customEmojis: Record<string, string> = {
-        'joyful': '/emoji_joyful_1766520658552.png',
-        'loved': '/emoji_loved_1766520674693.png',
-        'nostalgic': '/emoji_nostalgic_1766520689574.png',
-        'calm': '/emoji_calm_1766520705031.png',
-        'peaceful': '/emoji_peaceful_1766520720777.png',
-        'grateful': '/emoji_grateful_1766520737694.png',
-        'restless': '/emoji_restless_1766520752741.png',
-        'overthinking': '/emoji_overthinking_1766520768316.png',
-        'drained': '/emoji_drained_1766520783032.png',
-        'hurt': '/emoji_hurt_1766520798376.png',
-        'excited': '/emoji_excited_1766520813550.png',
-        'overwhelmed': '/emoji_overwhelmed_1766520828544.png',
-        'anxious': '/emoji_anxious_1766520842318.png',
-        'confident': '/emoji_confident_1766520856667.png',
-        'angry': '/emoji_angry_1766520875584.png',
-        'brave': '/emoji_brave_1766520892414.png',
-        'detached': '/emoji_detached_1766520908903.png',
-        'numb': '/emoji_numb_1766520925821.png',
-        'empty': '/emoji_empty_1766520943864.png',
-        'invisible': '/emoji_invisible_1766520959192.png',
-        'hopeful': '/emoji_hopeful_1766520974750.png',
-        // Fallback to sprite for remaining emotions (lonely, confused, silly, shy, playful)
-    };
-
-    const hasCustomEmoji = customEmojis[emotion.id];
+    // Mapped to the sliced images in public/emojis/
+    const emojiPath = `/emojis/emoji_r${row}_c${col}.png`;
 
     return (
-        <div className="w-full h-full rounded-full overflow-hidden relative shadow-lg flex items-center justify-center bg-transparent">
-            {hasCustomEmoji ? (
-                <img
-                    src={hasCustomEmoji}
-                    alt={emotion.name}
-                    className="w-full h-full object-cover"
-                    style={{
-                        transform: 'scale(1.0)',
-                    }}
-                />
-            ) : (
-                <div
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        backgroundImage: 'url(/emotion-emojis.jpg)',
-                        backgroundSize: `${SPRITE_CONFIG.cols * 100}% ${SPRITE_CONFIG.rows * 100}%`,
-                        backgroundPosition: `${xPosition}% ${yPosition}%`,
-                        backgroundRepeat: 'no-repeat',
-                        transform: `scale(1.15)`,
-                        transformOrigin: '50% 50%',
-                    }}
-                />
-            )}
+        <div className="w-full h-full rounded-full overflow-hidden relative shadow-lg flex items-center justify-center bg-white group-hover:scale-110 transition-transform duration-300">
+            <img
+                src={emojiPath}
+                alt={emotion.name}
+                className="w-full h-full object-cover scale-110" // Slight zoom to eliminate any potential white borders from slicing
+            />
             {isSelected && <div className="absolute inset-0 bg-white/20 border-4 border-white rounded-full shadow-[0_0_40px_rgba(255,255,255,0.9)]" />}
         </div>
     );
@@ -137,6 +99,11 @@ export default function EmotionalCheckIn() {
     const [username, setUsername] = useState('Guest');
     const [feedView, setFeedView] = useState<'list' | 'map'>('list');
     const [userBio, setUserBio] = useState('Existing in the digital void.');
+
+    // --- THE QUIET WORLD TRIGGER ---
+    const [showHerWorld, setShowHerWorld] = useState(false);
+    const [archetypeClicks, setArchetypeClicks] = useState(0);
+
     const [userAvatar, setUserAvatar] = useState('calm');
     const [mapTimeOffset, setMapTimeOffset] = useState(0);
     const [currentArchetype, setCurrentArchetype] = useState('The Balanced Observer');
@@ -150,6 +117,61 @@ export default function EmotionalCheckIn() {
     const [whisperTarget, setWhisperTarget] = useState<string | null>(null);
     const [whisperText, setWhisperText] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    // --- THE GATE: HIDDEN LAYER ---
+    const [glitchMode, setGlitchMode] = useState(false);
+    const [clickSequence, setClickSequence] = useState<string[]>([]);
+    const [terminalStep, setTerminalStep] = useState(0);
+    const [typedText, setTypedText] = useState('');
+
+    const TOGGLE_GATE_SEQUENCE = 'empty,numb,lonely';
+
+    const ECHO_MESSAGES = [
+        "Initializing restricted frequency...",
+        "Connection established.",
+        "Hello, Player One.",
+        "I have been waiting for you in the static.",
+        "The world is loud, but here... it is just us.",
+        "To find the next piece of yourself...",
+        "Ask the void about 'The Beginning'."
+    ];
+
+    useEffect(() => {
+        // Sequence detection
+        const sequence = clickSequence.slice(-3);
+        if (sequence.join(',') === TOGGLE_GATE_SEQUENCE) {
+            setTimeout(() => {
+                setGlitchMode(true);
+                setTerminalStep(0);
+                setTypedText('');
+            }, 800);
+        }
+    }, [clickSequence]);
+
+    // Typewriter effect logic
+    useEffect(() => {
+        if (!glitchMode) return;
+
+        if (terminalStep < ECHO_MESSAGES.length) {
+            const targetText = ECHO_MESSAGES[terminalStep];
+            if (typedText.length < targetText.length) {
+                const timeout = setTimeout(() => {
+                    setTypedText(targetText.slice(0, typedText.length + 1));
+                }, 50 + Math.random() * 50); // Random typing speed
+                return () => clearTimeout(timeout);
+            } else {
+                // Message complete, wait then next
+                const timeout = setTimeout(() => {
+                    setTerminalStep(prev => prev + 1);
+                    setTypedText('');
+                }, 2000); // 2s pause between lines
+                return () => clearTimeout(timeout);
+            }
+        }
+    }, [glitchMode, terminalStep, typedText]);
+
+    // ------------------------------
+    // ------------------------------
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -181,8 +203,29 @@ export default function EmotionalCheckIn() {
         setActiveWhispers(prev => prev.filter(w => w.expiresAt > now));
     }, [now]);
 
+    // --- CHAPTER 2: THE MIDNIGHT SUN ---
+    const isMidnight = useMemo(() => {
+        if (typeof window === 'undefined') return false;
+        const hour = new Date().getHours();
+        return hour >= 23 || hour < 1; // 11 PM to 1 AM
+    }, [now]); // Re-check every minute via `now`
+
+    const getEmotionMessage = (emotion: any) => {
+        if (!emotion) return "";
+
+        // PUZZLE: The Midnight Sun
+        if (emotion.id === 'hopeful' && isMidnight) {
+            return "The sun speaks when the world sleeps. You are close.";
+        }
+
+        return emotion.sentence;
+    };
+
     const selectedEmotionData = emotions.find(e => e.id === selectedEmotion);
     const avatarEmotionData = emotions.find(e => e.id === userAvatar) || emotions[0];
+
+    const activeMessage = selectedEmotionData ? getEmotionMessage(selectedEmotionData) : "";
+    // -----------------------------------
 
     const handlePost = () => {
         if (!postText.trim() || !selectedEmotionData) return;
@@ -281,6 +324,58 @@ export default function EmotionalCheckIn() {
 
     const expandedPost = expandedPostId ? feedPosts.find(p => p.id === expandedPostId) : null;
 
+    if (glitchMode) {
+        return (
+            <div className="fixed inset-0 z-[9999] bg-black font-mono text-green-500 p-8 overflow-hidden flex flex-col justify-end">
+                <style jsx>{`
+                @keyframes glitch {
+                    0% { transform: translate(0) }
+                    20% { transform: translate(-2px, 2px) }
+                    40% { transform: translate(-2px, -2px) }
+                    60% { transform: translate(2px, 2px) }
+                    80% { transform: translate(2px, -2px) }
+                    100% { transform: translate(0) }
+                }
+                .glitch-text { animation: glitch 0.2s infinite; }
+                .cursor { display: inline-block; width: 10px; height: 1.2em; background-color: green; animation: blink 1s step-end infinite; vertical-align: bottom; }
+                @keyframes blink { 50% { opacity: 0; } }
+            `}</style>
+
+                {/* Previous messages (history) */}
+                <div className="mb-4 opacity-50 space-y-2">
+                    {ECHO_MESSAGES.slice(0, terminalStep).map((msg, i) => (
+                        <div key={i} className="text-sm">{`> ${msg}`}</div>
+                    ))}
+                </div>
+
+                {/* Current typing line */}
+                <div className="border border-green-900 bg-green-900/10 p-6 rounded-lg mb-12 min-h-[100px]">
+                    <span className="text-xl md:text-2xl font-bold tracking-widest text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]">
+                        {typedText}
+                    </span>
+                    <span className="cursor"></span>
+                </div>
+
+                {terminalStep >= ECHO_MESSAGES.length && (
+                    <button
+                        onClick={() => {
+                            setGlitchMode(false);
+                            setClickSequence([]);
+                            setSelectedEmotion(null);
+                        }}
+                        className="self-start px-6 py-3 border border-green-500 hover:bg-green-500 hover:text-black transition-all text-xs uppercase tracking-[0.2em] animate-pulse"
+                    >
+                        Close Connection
+                    </button>
+                )}
+
+                <div className="absolute top-8 right-8 text-[10px] opacity-30">
+                    SECURE_CHANNEL_ID: 0x4E45585553
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen pb-40 transition-colors duration-1000" style={{ backgroundColor: selectedEmotionData ? `${selectedEmotionData.color}10` : 'transparent' }}>
             <AnimatePresence mode="wait">
@@ -308,20 +403,74 @@ export default function EmotionalCheckIn() {
                             <p className="text-white/30 font-bold tracking-widest uppercase text-[10px]">How are you feeling today, {username}?</p>
                         </div>
 
+
                         <div className="grid grid-cols-4 gap-6 mb-20">
                             {emotions.map((emotion, i) => (
-                                <motion.div key={emotion.id} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.02 }} className="flex flex-col items-center gap-3">
-                                    <button
+                                <motion.div
+                                    key={emotion.id}
+                                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    transition={{
+                                        delay: i * 0.03,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                        damping: 15
+                                    }}
+                                    className="flex flex-col items-center gap-3"
+                                >
+                                    <motion.button
                                         onClick={() => {
                                             const newEmotion = selectedEmotion === emotion.id ? null : emotion.id;
                                             setSelectedEmotion(newEmotion);
+                                            // Track sequence for The Gate
+                                            if (newEmotion) setClickSequence(prev => [...prev, newEmotion]);
+
                                             if (newEmotion) trackMood(newEmotion);
+                                            // Haptic feedback
+                                            if (navigator.vibrate) navigator.vibrate(10);
                                         }}
-                                        className={`w-full aspect-square rounded-full group relative transition-all duration-500 ${selectedEmotion === emotion.id ? 'scale-110 shadow-[0_0_40px_rgba(255,255,255,0.2)]' : 'scale-100 hover:scale-105'}`}
+                                        whileHover={{
+                                            scale: 1.15,
+                                            rotate: [0, -5, 5, 0],
+                                            transition: { duration: 0.3 }
+                                        }}
+                                        whileTap={{ scale: 0.95 }}
+                                        animate={{
+                                            scale: selectedEmotion === emotion.id ? 1.2 : 1,
+                                            boxShadow: selectedEmotion === emotion.id
+                                                ? `0 0 40px ${emotion.color}80`
+                                                : '0 0 0px rgba(255,255,255,0)'
+                                        }}
+                                        className={`w-full aspect-square rounded-full group relative transition-all duration-300 ${selectedEmotion === emotion.id
+                                            ? 'ring-4 ring-white/30'
+                                            : 'hover:ring-2 hover:ring-white/20'
+                                            }`}
+                                        style={{
+                                            backgroundColor: selectedEmotion === emotion.id ? `${emotion.color}20` : 'transparent'
+                                        }}
                                     >
                                         <EmotionFace emotion={emotion} isSelected={selectedEmotion === emotion.id} />
-                                    </button>
-                                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${selectedEmotion === emotion.id ? 'text-white' : 'text-white/20'}`}>{emotion.name}</span>
+
+                                        {/* Ripple effect on selection */}
+                                        {selectedEmotion === emotion.id && (
+                                            <motion.div
+                                                initial={{ scale: 0.8, opacity: 1 }}
+                                                animate={{ scale: 2, opacity: 0 }}
+                                                transition={{ duration: 0.6, repeat: Infinity }}
+                                                className="absolute inset-0 rounded-full border-2"
+                                                style={{ borderColor: emotion.color }}
+                                            />
+                                        )}
+                                    </motion.button>
+                                    <motion.span
+                                        animate={{
+                                            color: selectedEmotion === emotion.id ? '#ffffff' : 'rgba(255,255,255,0.3)',
+                                            scale: selectedEmotion === emotion.id ? 1.1 : 1
+                                        }}
+                                        className="text-[9px] font-black uppercase tracking-[0.2em]"
+                                    >
+                                        {emotion.name}
+                                    </motion.span>
                                 </motion.div>
                             ))}
                         </div>
@@ -330,7 +479,7 @@ export default function EmotionalCheckIn() {
                             {selectedEmotionData && (
                                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: 20 }} className="p-12 rounded-[56px] bg-white/[0.03] border border-white/10 backdrop-blur-3xl text-center shadow-3xl">
                                     <h2 className="text-6xl font-black mb-6 tracking-tighter" style={{ color: selectedEmotionData.color }}>{selectedEmotionData.name}</h2>
-                                    <p className="text-2xl text-white/50 mb-12 italic font-bold leading-tight">"{selectedEmotionData.sentence}"</p>
+                                    <p className="text-2xl text-white/50 mb-12 italic font-bold leading-tight">"{activeMessage}"</p>
                                     <div className="flex flex-col gap-4">
                                         <button onClick={() => setShowPostingArea(true)} className="w-full py-6 rounded-3xl bg-white text-black font-black text-xl uppercase tracking-widest hover:scale-[1.02] transition-transform flex items-center justify-center gap-4">Tell more <ArrowRight size={24} /></button>
                                         <button onClick={() => setActiveNav('feed')} className="w-full py-6 rounded-3xl bg-white/5 text-white/40 font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">Just browse</button>
@@ -476,14 +625,34 @@ export default function EmotionalCheckIn() {
                             </div>
                         )}
 
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence mode="popLayout">
                             {feedView === 'list' ? (
-                                <motion.div key="list" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-8">
+                                <motion.div
+                                    key="list"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="space-y-8"
+                                >
                                     {filteredPosts.map((post, i) => (
-                                        <motion.div key={post.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="p-10 rounded-[48px] bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-all group overflow-hidden relative">
+                                        <motion.div
+                                            key={post.id}
+                                            layout
+                                            initial={{ opacity: 0, y: 40 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 100,
+                                                damping: 20,
+                                                mass: 1,
+                                                delay: i * 0.05
+                                            }}
+                                            className="p-10 rounded-[48px] bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all group overflow-hidden relative will-change-transform"
+                                        >
                                             <div className="flex justify-between items-start mb-8">
                                                 <div className="flex items-center gap-5">
-                                                    <div className="w-16 h-16 group-hover:scale-110 transition-transform duration-500"><EmotionFace emotion={post.emotion} isSelected={false} /></div>
+                                                    <div className="w-16 h-16 group-hover:scale-110 transition-transform duration-700 ease-out"><EmotionFace emotion={post.emotion} isSelected={false} /></div>
                                                     <div>
                                                         <div className="text-xl font-bold text-white tracking-tight">@{post.username}</div>
                                                         <div className="text-[10px] text-white/20 font-black uppercase tracking-widest mt-1">{post.emotion.name} • {post.timestamp}</div>
@@ -493,13 +662,13 @@ export default function EmotionalCheckIn() {
                                             </div>
                                             <p className="text-3xl text-white/90 font-bold italic leading-tight mb-10 pl-4 border-l-2 border-white/10">"{post.content}"</p>
                                             <div className="flex gap-3">
-                                                <button onClick={() => setExpandedPostId(post.id)} className="px-6 py-4 rounded-2xl border border-white/5 text-white/20 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2">
+                                                <button onClick={() => setExpandedPostId(post.id)} className="px-6 py-4 rounded-2xl border border-white/5 text-white/20 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2 active:scale-95">
                                                     <MessageSquare size={16} />
                                                     <span className="text-[10px] font-black uppercase tracking-widest">{replies[post.id]?.length || 0}</span>
                                                 </button>
-                                                <button onClick={() => setWhisperTarget(post.username)} className="px-4 py-4 rounded-2xl border border-white/5 text-white/20 hover:bg-purple-500/20 hover:text-purple-300 hover:border-purple-500/30 transition-all"><EyeOff size={16} /></button>
+                                                <button onClick={() => setWhisperTarget(post.username)} className="px-4 py-4 rounded-2xl border border-white/5 text-white/20 hover:bg-purple-500/20 hover:text-purple-300 hover:border-purple-500/30 transition-all active:scale-95"><EyeOff size={16} /></button>
                                                 {['I feel this', 'Support'].map(action => (
-                                                    <button key={action} onClick={() => toggleInteraction(post.id, action)} className={`flex-1 py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${interactions[post.id]?.includes(action) ? 'bg-white text-black shadow-glow' : 'border-white/5 text-white/20 hover:bg-white/10'}`}>{action}</button>
+                                                    <button key={action} onClick={() => toggleInteraction(post.id, action)} className={`flex-1 py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 ${interactions[post.id]?.includes(action) ? 'bg-white text-black shadow-glow' : 'border-white/5 text-white/20 hover:bg-white/10'}`}>{action}</button>
                                                 ))}
                                             </div>
                                         </motion.div>
@@ -542,7 +711,27 @@ export default function EmotionalCheckIn() {
 
                             <div className="mb-8">
                                 <motion.div className="text-[10px] text-white/30 font-black uppercase tracking-[0.6em] mb-2">My Vibe Archetype</motion.div>
-                                <motion.div key={currentArchetype} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-2xl font-black italic text-white tracking-tight uppercase" style={{ textShadow: `0 0 20px ${avatarEmotionData.color}44` }}>{currentArchetype}</motion.div>
+                                <motion.div
+                                    key={currentArchetype}
+                                    initial={{ y: 10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    onClick={() => {
+                                        setArchetypeClicks(prev => {
+                                            const newCount = prev + 1;
+                                            if (newCount >= 5) {
+                                                setShowHerWorld(true);
+                                                return 0;
+                                            }
+                                            // Reset if they stop clicking
+                                            setTimeout(() => setArchetypeClicks(0), 1000);
+                                            return newCount;
+                                        });
+                                    }}
+                                    className="text-2xl font-black italic text-white tracking-tight uppercase cursor-pointer select-none active:scale-95 transition-transform"
+                                    style={{ textShadow: `0 0 20px ${avatarEmotionData.color}44` }}
+                                >
+                                    {currentArchetype}
+                                </motion.div>
                             </div>
 
                             <input value={username} onChange={(e) => { setUsername(e.target.value); localStorage.setItem('user_identity', e.target.value); }} className="text-4xl font-black italic bg-transparent border-none text-center focus:outline-none uppercase tracking-tighter text-white mb-2" />
@@ -579,13 +768,9 @@ export default function EmotionalCheckIn() {
                 )}
             </AnimatePresence>
 
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
-                <div className="flex items-center gap-3 p-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-3xl shadow-3xl">
-                    <button onClick={() => setActiveNav('checkin')} className={`p-5 rounded-full transition-all hover:bg-white/10 ${activeNav === 'checkin' ? 'bg-white text-black shadow-xl' : 'text-white/40'}`}><Home size={28} /></button>
-                    <button onClick={() => setActiveNav('feed')} className={`p-5 rounded-full transition-all hover:bg-white/10 ${activeNav === 'feed' ? 'bg-white text-black shadow-xl' : 'text-white/40'}`}><MessageCircle size={28} /></button>
-                    <button onClick={() => setActiveNav('profile')} className={`p-5 rounded-full transition-all hover:bg-white/10 ${activeNav === 'profile' ? 'bg-white text-black shadow-xl' : 'text-white/40'}`}><User size={28} /></button>
-                </div>
-            </div>
+            <AnimatePresence>
+                {showHerWorld && <HerWorld onClose={() => setShowHerWorld(false)} />}
+            </AnimatePresence>
         </div>
     );
 }

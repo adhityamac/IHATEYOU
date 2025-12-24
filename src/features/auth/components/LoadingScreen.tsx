@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 
+import EmojiDoodleBackground from '@/components/backgrounds/EmojiDoodleBackground';
+
 interface LoadingScreenProps {
     message?: string;
 }
@@ -9,88 +11,86 @@ interface LoadingScreenProps {
 export default function LoadingScreen({ message = "Getting things ready..." }: LoadingScreenProps) {
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
-            {/* Animated Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-rose-900/20" />
+            <EmojiDoodleBackground />
 
-            {/* Breathing Echo Animation */}
+            {/* Animated Background Gradient (Subtle Overlay) */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-black/80 to-rose-900/40 mix-blend-overlay" />
+
+            {/* Void Loading Animation (Matching Splash Screen) */}
             <div className="relative flex flex-col items-center gap-8">
-                {/* Echo Watermelon 🍉 */}
-                <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.8, 1, 0.8],
-                    }}
-                    transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    className="relative"
-                >
-                    <div className="text-8xl">🍉</div>
-
-                    {/* Pulse Rings */}
+                <div className="relative w-16 h-16">
                     <motion.div
                         animate={{
-                            scale: [1, 2, 2],
-                            opacity: [0.5, 0, 0],
+                            rotate: 360,
+                            scale: [1, 1.1, 1],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute inset-0 border-2 border-white/20 rounded-2xl"
+                    />
+                    <motion.div
+                        animate={{
+                            rotate: -360,
+                            scale: [1, 0.8, 1],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute inset-0 border-2 border-purple-500/50 rounded-2xl"
+                        style={{ margin: '-4px' }}
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [0.8, 1.2, 0.8],
+                            opacity: [0.3, 0.7, 0.3],
                         }}
                         transition={{
                             duration: 2,
                             repeat: Infinity,
-                            ease: "easeOut"
+                            ease: "easeInOut"
                         }}
-                        className="absolute inset-0 rounded-full border-2 border-white/30"
+                        className="absolute inset-0 bg-white/10 blur-xl rounded-full"
                     />
-                    <motion.div
-                        animate={{
-                            scale: [1, 2.5, 2.5],
-                            opacity: [0.3, 0, 0],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeOut",
-                            delay: 0.5
-                        }}
-                        className="absolute inset-0 rounded-full border-2 border-rose-400/30"
-                    />
-                </motion.div>
+                </div>
 
                 {/* Loading Message */}
-                <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-white/70 text-lg font-light tracking-wide"
-                >
-                    {message}
-                </motion.p>
-
-                {/* Loading Dots */}
-                <div className="flex gap-2">
-                    {[0, 1, 2].map((i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                y: [0, -10, 0],
-                                opacity: [0.3, 1, 0.3]
-                            }}
-                            transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                                ease: "easeInOut"
-                            }}
-                            className="w-2 h-2 bg-white/50 rounded-full"
-                        />
-                    ))}
+                <div className="flex flex-col items-center gap-2">
+                    <motion.h3
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="text-white font-bold tracking-[0.2em] uppercase text-sm"
+                    >
+                        {message}
+                    </motion.h3>
+                    <div className="flex gap-1">
+                        {[0, 1, 2].map((i) => (
+                            <motion.div
+                                key={i}
+                                animate={{
+                                    y: [0, -4, 0],
+                                    opacity: [0.3, 1, 0.3]
+                                }}
+                                transition={{
+                                    duration: 1,
+                                    repeat: Infinity,
+                                    delay: i * 0.2,
+                                    ease: "easeInOut"
+                                }}
+                                className="w-1 h-1 bg-purple-500 rounded-full"
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* Grain Texture */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                <div className="absolute inset-0 bg-[url('/noise.svg')]" />
             </div>
         </div>
     );

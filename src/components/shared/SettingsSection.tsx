@@ -18,8 +18,16 @@ import {
 import ThemeSelector from './ThemeSelector';
 import { useTheme } from './GradientThemeProvider';
 
-export default function SettingsSection() {
+
+import { useAuth } from '@/contexts/AuthContext';
+
+interface SettingsSectionProps {
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
+}
+
+export default function SettingsSection({ onScroll }: SettingsSectionProps) {
     const { theme, setTheme } = useTheme();
+    const { logout } = useAuth();
     const [showProfileEdit, setShowProfileEdit] = useState(false);
     const [username, setUsername] = useState('IHATEYOU');
     const [bio, setBio] = useState('Living authentically, feeling deeply');
@@ -33,7 +41,7 @@ export default function SettingsSection() {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-transparent p-6">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-transparent p-6" onScroll={onScroll}>
             <div className="max-w-2xl mx-auto space-y-12 pb-32">
                 {/* Profile Edit Modal */}
                 <AnimatePresence>
@@ -234,6 +242,7 @@ export default function SettingsSection() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
+                        onClick={() => logout()}
                         className="w-full flex items-center justify-between p-8 bg-rose-500/5 border border-rose-500/10 rounded-[40px] group hover:bg-rose-500/10 transition-all active:scale-[0.98]"
                     >
                         <div className="flex items-center gap-6">

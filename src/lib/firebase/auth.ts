@@ -3,6 +3,7 @@ import {
     GoogleAuthProvider,
     signOut as firebaseSignOut,
     onAuthStateChanged,
+    signInAnonymously as firebaseSignInAnonymously,
     User,
     UserCredential,
 } from 'firebase/auth';
@@ -23,6 +24,8 @@ export interface UserProfile {
     displayName: string | null;
     photoURL: string | null;
     ghostName?: string;
+    moodBaseline?: string;
+    intent?: string[];
     createdAt: Timestamp;
     lastLoginAt: Timestamp;
     theme?: string;
@@ -48,6 +51,21 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
         return result;
     } catch (error: any) {
         console.error('Error signing in with Google:', error);
+        throw error;
+    }
+};
+
+// Anonymous Sign-In
+export const signInAnonymously = async (): Promise<UserCredential> => {
+    try {
+        const result = await firebaseSignInAnonymously(auth);
+
+        // Ensure profile is created
+        await createOrUpdateUserProfile(result.user);
+
+        return result;
+    } catch (error: any) {
+        console.error('Error signing in anonymously:', error);
         throw error;
     }
 };
@@ -83,7 +101,21 @@ export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
     }
 };
 
-// Update user's ghost name
+// Update user's onboarding data
+export const updateUserOnboardingData = async (
+    uid: string,
+    data: { ghostName: string; moodBaseline: string; intent: string[] }
+): Promise<void> => {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+        ghostName: data.ghostName,
+        moodBaseline: data.moodBaseline,
+        intent: data.intent,
+        onboardingComplete: true // Mark as complete in DB too if needed, though we use ghostName check currently
+    });
+};
+
+// Update user's ghost name (Legacy / Individual update)
 export const updateGhostName = async (uid: string, ghostName: string): Promise<void> => {
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, { ghostName });

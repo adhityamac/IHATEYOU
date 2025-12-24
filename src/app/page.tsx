@@ -1,4 +1,6 @@
 'use client';
+// Rebuild trigger 1
+
 
 import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -16,6 +18,7 @@ import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import Dashboard from '@/components/shared/Dashboard';
 import InteractiveGrid from '@/components/backgrounds/InteractiveGrid';
 import DynamicInfoBox from '@/components/ui/DynamicInfoBox';
+import NeuralRipples from '@/components/shared/NeuralRipples';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import NeuralAudio from '@/components/shared/NeuralAudio';
 import NeuralNotifications from '@/components/shared/NeuralNotifications';
@@ -38,15 +41,17 @@ const DEFAULT_USER: User = {
   username: 'you',
   avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
   isOnline: true,
+  currentEmotion: 'static',
 };
 
 const mockUsers: User[] = [
   {
     id: 'user-2',
     name: 'Alex',
-    username: 'alex',
+    username: 'alex_flow',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
     isOnline: true,
+    currentEmotion: 'joyful'
   },
   {
     id: 'user-3',
@@ -54,6 +59,7 @@ const mockUsers: User[] = [
     username: 'sarah',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
     isOnline: false,
+    currentEmotion: 'static'
   },
   {
     id: 'user-4',
@@ -61,6 +67,7 @@ const mockUsers: User[] = [
     username: 'mike',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
     isOnline: true,
+    currentEmotion: 'anxious'
   },
   {
     id: 'user-5',
@@ -68,6 +75,7 @@ const mockUsers: User[] = [
     username: 'emma',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
     isOnline: true,
+    currentEmotion: 'loved'
   },
   {
     id: 'user-6',
@@ -75,6 +83,7 @@ const mockUsers: User[] = [
     username: 'james',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
     isOnline: false,
+    currentEmotion: 'angry'
   },
 ];
 
@@ -155,18 +164,13 @@ export default function Home() {
   const [pullStartY, setPullStartY] = useState(0);
   const [pullProgress, setPullProgress] = useState(0);
   const dashboardRef = useRef<HTMLDivElement>(null);
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   // Handle splash screen timing
   useEffect(() => {
-    // This timer controls the minimum duration of the splash screen.
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 2000);
-
-    // The cleanup function is crucial to prevent memory leaks if the component unmounts.
     return () => clearTimeout(timer);
-    // The dependency array is empty to ensure this effect runs only once when the component mounts.
   }, []);
 
   // Handle loading screen
@@ -185,16 +189,6 @@ export default function Home() {
       setShowOnboarding(true);
     }
   }, [user, showSplash, showLoading]);
-
-  const addRipple = (e: React.MouseEvent | React.TouchEvent) => {
-    const x = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const y = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    const id = Date.now();
-    setRipples(prev => [...prev, { id, x, y }]);
-    setTimeout(() => {
-      setRipples(prev => prev.filter(r => r.id !== id));
-    }, 1000);
-  };
 
   // Messages state
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
@@ -290,35 +284,27 @@ export default function Home() {
   };
 
   return (
-    <div onMouseDown={addRipple} className="relative w-full h-full overflow-hidden">
-      {/* Neural Pulse Ripples */}
+    <div className="relative w-full h-full overflow-hidden">
+      <NeuralRipples />
+
+
+      {/* 1. Splash Screen - Always First */}
       <AnimatePresence>
-        {ripples.map(ripple => (
-          <motion.div
-            key={ripple.id}
-            initial={{ scale: 0, opacity: 0.5 }}
-            animate={{ scale: 4, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="fixed w-20 h-20 bg-white/10 rounded-full pointer-events-none z-[100] blur-xl"
-            style={{ left: `${ripple.x - 40}px`, top: `${ripple.y - 40}px` } as React.CSSProperties}
-          />
-        ))}
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       </AnimatePresence>
 
-      {/* Splash Screen */}
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      {/* 2. Loading Screen - Show while checking auth OR if explicitly loading */}
+      {!showSplash && (authLoading || showLoading) && (
+        <LoadingScreen message={authLoading ? "Connecting to Neural Core..." : "Loading Experience..."} />
+      )}
 
-      {/* Loading Screen */}
-      {!showSplash && showLoading && <LoadingScreen />}
-
-      {/* Auth Screen (Firebase) */}
-      {!showSplash && !showLoading && !user && (
+      {/* 3. Auth Screen - Show if ready and no user */}
+      {!showSplash && !authLoading && !showLoading && !user && (
         <AuthScreen onAuthSuccess={handleAuthSuccess} />
       )}
 
-      {/* Main App */}
-      {!showSplash && !showLoading && user && (
+      {/* 4. Main App - Show if ready and has user */}
+      {!showSplash && !authLoading && !showLoading && user && (
         <>
           {/* Onboarding Overlay */}
           <AnimatePresence>
@@ -326,6 +312,7 @@ export default function Home() {
               <OnboardingFlow onComplete={handleOnboardingComplete} userName={user.name} />
             )}
           </AnimatePresence>
+
 
           {/* Dynamic Background */}
           {theme === 'liquid' ? (
@@ -343,55 +330,67 @@ export default function Home() {
 
           <div className="flex flex-col h-screen overflow-hidden relative">
             {/* Minimal Header - Hidden in Home for immersion */}
+            {/* Premium Header - Neural Update */}
             <AnimatePresence>
-              {activeSection !== 'home' && showHeader && (
+              {showHeader && (
                 <motion.header
                   initial={{ y: -100, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -100, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className="absolute top-0 left-0 right-0 z-30 p-4 flex justify-between items-center bg-gradient-to-b from-black/30 to-transparent backdrop-blur-sm pointer-events-none"
+                  transition={{ type: 'spring', stiffness: 200, damping: 30 }}
+                  className="fixed top-0 left-0 right-0 z-[100] h-24 px-8 flex items-center justify-between pointer-events-none"
                 >
-                  <div className="flex items-center gap-6 pointer-events-auto">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white flex items-center justify-center rounded-full overflow-hidden">
-                        <div className="w-full h-full bg-black flex items-center justify-center">
-                          <div className="w-4 h-4 rounded-full bg-white animate-pulse" />
-                        </div>
-                      </div>
-                      <h1 className="text-2xl font-black italic tracking-[0.2em] text-white uppercase leading-none">IHATEYOU</h1>
-                    </div>
+                  <div className="absolute inset-0 glass-premium opacity-90 border-b border-white/5 pointer-events-auto" />
+                  <div className="noise-overlay opacity-[0.02] pointer-events-none" />
 
-                    {/* Neural Breadcrumbs */}
-                    <Breadcrumbs items={getBreadcrumbs()} className="hidden md:flex" />
+                  <div className="flex items-center gap-6 pointer-events-auto relative z-10">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
+                        <h1 className="text-xl font-black italic text-white uppercase tracking-tighter">Neural Core</h1>
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="text-[8px] text-white/20 font-black uppercase tracking-[0.4em]">Section:</span>
+                        <motion.span
+                          key={activeSection}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-[8px] text-white/40 font-black uppercase tracking-[0.4em] glitch-text-sm"
+                        >
+                          {activeSection}
+                        </motion.span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Compact Dynamic Info Box in center */}
-                  <div className="absolute left-1/2 -translate-x-1/2 pointer-events-auto hidden md:block">
+                  {/* Desktop Center Dynamic Info Box */}
+                  <div className="hidden lg:flex items-center pointer-events-auto relative z-10">
                     <DynamicInfoBox />
                   </div>
 
-                  <div className="flex items-center gap-3 pointer-events-auto">
+                  <div className="flex items-center gap-3 pointer-events-auto relative z-10">
                     <button
                       onClick={() => {
                         setShowFunZone(true);
                         setHasNewGames(false);
                       }}
-                      className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-white transition-all"
+                      className="group relative h-12 px-6 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white transition-all overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-                      <Gamepad2 className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all group-hover:scale-110 duration-500 relative z-10" />
+                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-center gap-3">
+                        <Gamepad2 className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all duration-500" />
+                        <span className="text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">Playzone</span>
+                      </div>
                       {hasNewGames && (
-                        <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full animate-pulse z-20 shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
+                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
                       )}
                     </button>
 
                     <button
                       onClick={() => setActiveSection('settings')}
-                      className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-white transition-all overflow-hidden"
+                      className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white transition-all"
                     >
-                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <Settings className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all group-hover:rotate-90 duration-500 relative z-10" />
+                      <Settings className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all group-hover:rotate-90 duration-500" />
                     </button>
                   </div>
                 </motion.header>
@@ -412,17 +411,25 @@ export default function Home() {
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px]" />
               </div>
 
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={activeSection}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex-1 flex flex-col overflow-hidden"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.02 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 200,
+                    damping: 25,
+                    mass: 0.5
+                  }}
+                  className="flex-1 flex flex-col will-change-transform overflow-hidden"
                 >
                   {activeSection === 'home' && (
-                    <div className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative">
+                    <div
+                      className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative"
+                      onScroll={handleScroll}
+                    >
                       <EmotionalCheckIn />
                     </div>
                   )}
@@ -478,19 +485,20 @@ export default function Home() {
                       setStories={setStories}
                       groups={groups}
                       setGroups={setGroups}
+                      onScroll={handleScroll}
                     />
                   )}
 
                   {activeSection === 'search' && (
                     <>
                       <ScrollProgress color="rgb(236, 72, 153)" position="right" thickness={3} />
-                      <SearchSection feedPosts={feedPosts} />
+                      <SearchSection feedPosts={feedPosts} onScroll={handleScroll} />
                     </>
                   )}
 
                   {activeSection === 'guide' && <SoulGuide />}
 
-                  {activeSection === 'settings' && <SettingsSection />}
+                  {activeSection === 'settings' && <SettingsSection onScroll={handleScroll} />}
                 </motion.div>
               </AnimatePresence>
             </main>

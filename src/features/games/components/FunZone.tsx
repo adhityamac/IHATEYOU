@@ -4,6 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Gamepad2, Trophy, Zap, Play, Check, AlertCircle, Brain, Music, Ghost, FlaskConical, HelpCircle, Grid, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useSignals } from '@/hooks/useSignals';
+import TicTacToe from './TicTacToe';
+import MemoryGame from './MemoryGame';
+import ReactionGame from './ReactionGame';
+import AlchemyGame from './AlchemyGame';
+import VoidPopperGame from './VoidPopperGame';
+import TriviaGame from './TriviaGame';
 
 // Massive Movie Database
 const MOVIE_DB = [
@@ -54,6 +60,7 @@ const GAMES = [
     { id: 'rhythm', name: 'Neon Rhythm', icon: '🎵', color: 'from-orange-500 to-red-500', desc: 'Tap to beat' },
     { id: 'memory', name: 'Mind Match', icon: '🧩', color: 'from-cyan-500 to-blue-500', desc: 'Memory training' },
     { id: 'word', name: 'Word Vortex', icon: '🌪️', color: 'from-violet-500 to-purple-500', desc: 'Unscramble' },
+    { id: 'tictactoe', name: 'Tic Tac Toe', icon: '🎲', color: 'from-yellow-500 to-orange-500', desc: 'Classic game' },
 ];
 
 interface FunZoneProps {
@@ -225,8 +232,32 @@ export default function FunZone({ onClose }: FunZoneProps) {
                             </div>
                         )}
 
+                        {gameMode === 'tictactoe' && (
+                            <TicTacToe />
+                        )}
+
+                        {gameMode === 'memory' && (
+                            <MemoryGame />
+                        )}
+
+                        {gameMode === 'rhythm' && (
+                            <ReactionGame />
+                        )}
+
+                        {gameMode === 'alchemy' && (
+                            <AlchemyGame />
+                        )}
+
+                        {gameMode === 'popper' && (
+                            <VoidPopperGame />
+                        )}
+
+                        {gameMode === 'trivia' && (
+                            <TriviaGame />
+                        )}
+
                         {/* Placeholder for other games */}
-                        {gameMode !== 'movie' && (
+                        {gameMode !== 'movie' && gameMode !== 'tictactoe' && gameMode !== 'memory' && gameMode !== 'rhythm' && gameMode !== 'alchemy' && gameMode !== 'popper' && gameMode !== 'trivia' && (
                             <div className="flex-1 flex flex-col items-center justify-center text-center">
                                 <div className="text-6xl mb-6">🚧</div>
                                 <h2 className="text-3xl font-black text-white italic mb-2">Under Construction</h2>
