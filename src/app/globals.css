@@ -1,0 +1,138 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  :root {
+    --bg-primary: #0D0D0F;
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.5);
+    --text-muted: rgba(255, 255, 255, 0.2);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Typography */
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.04em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Layout Utilities */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
+}
+
+/* Emotion Components */
+.emotion-icon-sm {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 32%;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.emotion-icon-sm.selected {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.emotion-icon-sm.unselected {
+  opacity: 0.1;
+  filter: grayscale(1) blur(4px);
+  transform: scale(0.85);
+}
+
+.emotion-label-sm {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.2);
+  margin-top: 0.75rem;
+  transition: opacity 0.4s ease;
+}
+
+/* Animations */
+@keyframes fluid-blob {
+
+  0%,
+  100% {
+    border-radius: 45% 55% 52% 48% / 48% 45% 55% 52%;
+  }
+
+  33% {
+    border-radius: 55% 45% 48% 52% / 52% 48% 45% 55%;
+  }
+
+  66% {
+    border-radius: 48% 52% 55% 45% / 45% 55% 48% 52%;
+  }
+}
+
+.animate-blob {
+  animation: fluid-blob 8s ease-in-out infinite;
+}
+
+@keyframes backgroundMove {
+
+  0%,
+  100% {
+    background-position: 50% 0%;
+  }
+
+  25% {
+    background-position: 100% 50%;
+  }
+
+  50% {
+    background-position: 50% 100%;
+  }
+
+  75% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glass Effects */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
