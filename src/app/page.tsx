@@ -237,8 +237,6 @@ export default function Home() {
     } else if (activeSection === 'dashboard') {
       items.push({ label: 'Dashboard', href: '#dashboard' });
       items.push({ label: 'My Mood', href: '#my-mood' });
-    } else if (activeSection === 'wellness') {
-      items.push({ label: 'Wellness Hub', href: '#wellness' });
     } else if (activeSection === 'search') {
       items.push({ label: 'Search', href: '#search' });
     } else if (activeSection === 'guide') {
@@ -460,12 +458,7 @@ export default function Home() {
                     </>
                   )}
 
-                  {activeSection === 'wellness' && (
-                    <>
-                      <ScrollProgress color="rgb(236, 72, 153)" position="right" thickness={3} />
-                      <WellnessSection />
-                    </>
-                  )}
+
 
                   {activeSection === 'messages' && (
                     <MessagesSection
@@ -509,7 +502,7 @@ export default function Home() {
                 setActiveSection(section);
                 setShowHeader(true);
               }}
-              // Add 'wellness' to Dock navigation if not present
+            // Add 'wellness' to Dock navigation if not present
             />
           </div>
 
