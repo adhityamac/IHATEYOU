@@ -71,12 +71,8 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             });
         } catch (e: any) {
             console.error(e);
-            // Can't mock Google login easily, so show error
-            if (e.code === 'auth/api-key-not-valid' || e.message?.includes('valid-api-key')) {
-                setError("Setup Required: Valid Firebase API Key missing in .env.local");
-            } else {
-                setError("Connection Refused: " + (e.message || "Unknown Error"));
-            }
+            // Show generic error message
+            setError("Connection Error: " + (e.message || "Unable to connect. Please try again."));
             setIsLoading(false);
         }
     };
