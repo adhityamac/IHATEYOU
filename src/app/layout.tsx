@@ -6,6 +6,7 @@ import { CursorProvider } from "@/components/shared/CursorContext";
 import { SoundProvider } from "@/components/shared/SoundProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CustomCursor from "@/components/shared/CustomCursor";
+import { CommandMenu } from "@/components/shared/CommandMenu";
 
 export const metadata: Metadata = {
   title: "IHATEYOU - Neural Resonance",
@@ -24,6 +25,7 @@ export default function RootLayout({
       >
         <GradientThemeProvider>
           <AuthProvider>
+            <CommandMenu />
             <CursorProvider>
               <SoundProvider>
                 <CustomCursor />

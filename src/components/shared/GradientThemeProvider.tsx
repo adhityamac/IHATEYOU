@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type Theme = 'liquid' | 'dark' | 'spiral';
+export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid';
 
 interface ThemeContextType {
     theme: Theme;

@@ -9,6 +9,7 @@ import {
     ChatMessage,
     Conversation,
 } from '@/lib/firebase/chat';
+import { Timestamp } from 'firebase/firestore';
 import { handleEchoBotResponse, isEchoBotConversation, ECHO_BOT_ID } from '@/lib/bots/echo';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -66,7 +67,22 @@ export const useChat = () => {
         async (content: string, type: 'text' | 'image' | 'voice' = 'text', mediaUrl?: string) => {
             if (!user?.id || !activeConversationId || !content.trim()) return;
 
+            // 1. Optimistic Update: Show message immediately
+            const tempId = `temp-${Date.now()}`;
+            const optimisticMessage: ChatMessage = {
+                id: tempId,
+                conversationId: activeConversationId,
+                senderId: user.id,
+                content: content,
+                timestamp: Timestamp.now(),
+                isRead: false,
+                reactions: [],
+                type: type
+            };
+
+            setMessages(prev => [...prev, optimisticMessage]);
             setSending(true);
+
             try {
                 // Get recipient ID from conversation
                 const conversation = conversations.find((c) => c.id === activeConversationId);
@@ -83,6 +99,8 @@ export const useChat = () => {
                     handleEchoBotResponse(activeConversationId, content, user.id);
                 }
             } catch (error) {
+                // 2. Rollback on failure
+                setMessages(prev => prev.filter(m => m.id !== tempId));
                 console.error('Error sending message:', error);
                 throw error;
             } finally {

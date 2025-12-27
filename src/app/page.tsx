@@ -242,11 +242,13 @@ export default function Home() {
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollY = e.currentTarget.scrollTop;
+    const diff = currentScrollY - lastScrollY.current;
 
-    if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
-      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+    // Optimized: Only update state if difference is significant and state actually changes
+    if (Math.abs(diff) > 20) {
+      if (diff > 0 && currentScrollY > 50 && showHeader) {
         setShowHeader(false);
-      } else if (currentScrollY < lastScrollY.current) {
+      } else if (diff < 0 && !showHeader) {
         setShowHeader(true);
       }
       lastScrollY.current = currentScrollY;
