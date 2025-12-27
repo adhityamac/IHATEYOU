@@ -9,6 +9,7 @@ import { emojiPack } from '@/data/emojiPack';
 import TypingIndicator from './TypingIndicator';
 import MessageSearch from './MessageSearch';
 import { useSignals } from '@/hooks/useSignals';
+import UserDiscovery from '@/features/social/components/UserDiscovery';
 
 interface MessagesSectionProps {
     conversations: Conversation[];
@@ -386,55 +387,13 @@ export default function MessagesSection({
                     </div>
                 )}
 
-                {/* Find Soul Siblings Modal */}
+                {/* User Discovery Modal */}
                 <AnimatePresence>
                     {showSoulSiblingFinder && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
-                            onClick={() => setShowSoulSiblingFinder(false)}
-                        >
-                            <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.9, opacity: 0 }}
-                                onClick={(e) => e.stopPropagation()}
-                                className="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
-                            >
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-2xl font-bold text-white">Find People</h2>
-                                    <button
-                                        onClick={() => setShowSoulSiblingFinder(false)}
-                                        className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {mockUsers.map((user) => (
-                                        <button
-                                            key={user.id}
-                                            onClick={() => handleSelectUser(user)}
-                                            className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center gap-3 transition-all text-left"
-                                        >
-                                            <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800">
-                                                <img
-                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`}
-                                                    alt={user.username}
-                                                    className="w-full h-full"
-                                                />
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-white">@{user.username}</div>
-                                                <div className="text-xs text-white/50">{user.name}</div>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        </motion.div>
+                        <UserDiscovery
+                            onClose={() => setShowSoulSiblingFinder(false)}
+                            onUserSelected={() => setShowSoulSiblingFinder(false)}
+                        />
                     )}
                 </AnimatePresence>
             </div>

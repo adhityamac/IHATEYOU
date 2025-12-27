@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export default function NeuralRipples() {
     const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
@@ -16,8 +16,8 @@ export default function NeuralRipples() {
         }, 1000);
     }, []);
 
-    // We use window listener to avoid re-rendering parent
-    useState(() => {
+    // Use useEffect for event listeners to avoid re-rendering parent
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             window.addEventListener('mousedown', addRipple as any);
             window.addEventListener('touchstart', addRipple as any, { passive: true });
@@ -28,7 +28,7 @@ export default function NeuralRipples() {
                 window.removeEventListener('touchstart', addRipple as any);
             }
         };
-    });
+    }, [addRipple]);
 
     return (
         <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">

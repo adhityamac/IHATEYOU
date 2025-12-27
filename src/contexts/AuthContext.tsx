@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { onAuthStateChange, getUserProfile, updateGhostName, updateUserOnboardingData, updateUserTheme, signOut as firebaseSignOut } from '@/lib/firebase/auth';
+import { createEchoBotConversation } from '@/lib/bots/echo';
 
 interface UserProfile {
     id: string;
@@ -121,6 +122,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name}`
                 };
                 setUser(updatedUser);
+
+                // Create Echo bot conversation for new user
+                try {
+                    await createEchoBotConversation(
+                        firebaseUser.uid,
+                        updatedUser.name,
+                        updatedUser.avatar,
+                        updatedUser.ghostName
+                    );
+                    console.log('Echo bot conversation created successfully');
+                } catch (echoError) {
+                    console.error('Error creating Echo bot conversation:', echoError);
+                    // Don't throw - onboarding should still complete
+                }
             } catch (error) {
                 console.error('Error completing onboarding:', error);
                 throw error;

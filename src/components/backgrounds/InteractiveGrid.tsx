@@ -1,18 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { nanoid } from 'nanoid'; // Import nanoid for unique IDs
 import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from 'framer-motion';
 
 export default function InteractiveGrid() {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+    const lastUpdateTime = useRef(0);
 
-    function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const handleMouseMove = useCallback(({ currentTarget, clientX, clientY }: React.MouseEvent) => {
+        // Throttle to 60fps max
+        const now = Date.now();
+        if (now - lastUpdateTime.current < 16) return;
+        lastUpdateTime.current = now;
+
         const { left, top } = currentTarget.getBoundingClientRect();
         mouseX.set(clientX - left);
         mouseY.set(clientY - top);
-    }
+    }, [mouseX, mouseY]);
 
     return (
         <div

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BrainCircuit, Sprout, Shuffle, Zap, Activity, Cpu, Network, Share2, Globe, Database, Wifi, RefreshCw, Trophy, Flower, Leaf, TreeDeciduous, CloudRain, Sun, Trash2, Coins, Hash, User, Bot } from 'lucide-react';
+import { X, BrainCircuit, Sprout, Shuffle, Zap, Activity, Cpu, Network, Share2, Globe, Database, Wifi, RefreshCw, Trophy, Flower, Leaf, TreeDeciduous, CloudRain, Sun, Trash2, Coins, Hash, User } from 'lucide-react';
 
 // --- Game Components ---
 
@@ -437,6 +437,21 @@ const MindGarden = ({ onBack, tokens, onUpdateTokens }: GameProps) => {
     );
 };
 
+const checkWinner = (squares: (string | null)[]) => {
+    const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+    for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+            return squares[a];
+        }
+    }
+    return null;
+};
+
 const TicTacToe = ({ onBack, tokens, onUpdateTokens }: GameProps) => {
     const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
     const [isXNext, setIsXNext] = useState(true);
@@ -444,21 +459,6 @@ const TicTacToe = ({ onBack, tokens, onUpdateTokens }: GameProps) => {
     const [winner, setWinner] = useState<string | null>(null);
     const [isDraw, setIsDraw] = useState(false);
     const [aiThinking, setAiThinking] = useState(false);
-
-    const checkWinner = (squares: (string | null)[]) => {
-        const lines = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
-            [0, 4, 8], [2, 4, 6]             // Diagonals
-        ];
-        for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return squares[a];
-            }
-        }
-        return null;
-    };
 
     const handleClick = (index: number) => {
         if (board[index] || winner || isDraw || (gameMode === 'ai' && !isXNext && !winner)) return;
@@ -543,7 +543,7 @@ const TicTacToe = ({ onBack, tokens, onUpdateTokens }: GameProps) => {
                         <span className="font-bold text-white">Vs Friend</span>
                     </button>
                     <button onClick={() => setGameMode('ai')} className="flex flex-col items-center gap-4 p-6 bg-white/5 hover:bg-white/10 rounded-2xl transition-all hover:scale-105 group">
-                        <div className="p-4 rounded-full bg-rose-500/20 group-hover:bg-rose-500/40 transition-colors"><Bot className="w-8 h-8 text-rose-300" /></div>
+                        <div className="p-4 rounded-full bg-rose-500/20 group-hover:bg-rose-500/40 transition-colors"><Cpu className="w-8 h-8 text-rose-300" /></div>
                         <span className="font-bold text-white">Vs AI</span>
                     </button>
                 </div>
@@ -601,7 +601,7 @@ const games = [
     { id: 'tic-tac-toe', name: 'Neon Tic-Tac-Toe', description: 'Classic strategy against AI or a friend.', icon: <Hash className="w-8 h-8" />, status: 'Play', component: TicTacToe, color: 'violet' },
 ];
 
-type GameId = 'neural-shuffler' | 'echo-weave' | 'mind-garden' | null;
+type GameId = 'neural-shuffler' | 'echo-weave' | 'mind-garden' | 'tic-tac-toe' | null;
 
 const FunZone = ({ onClose }: { onClose: () => void }) => {
     const [activeGame, setActiveGame] = useState<GameId>(null);

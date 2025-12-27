@@ -1,11 +1,12 @@
 'use client';
 
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function LiquidBackground() {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+    const lastUpdateTime = useRef(0);
 
     const springConfig = { damping: 25, stiffness: 150 };
     const springX = useSpring(mouseX, springConfig);
@@ -23,6 +24,11 @@ export default function LiquidBackground() {
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
+            // Throttle to 60fps max (16ms)
+            const now = Date.now();
+            if (now - lastUpdateTime.current < 16) return;
+            lastUpdateTime.current = now;
+
             const { innerWidth, innerHeight } = window;
             // Normalize mouse position between -1 and 1
             const x = (e.clientX / innerWidth) * 2 - 1;
@@ -31,7 +37,7 @@ export default function LiquidBackground() {
             mouseY.set(y);
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, [mouseX, mouseY]);
 

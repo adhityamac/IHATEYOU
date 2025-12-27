@@ -12,7 +12,7 @@ import LiquidBackground from '@/components/backgrounds/LiquidBackground';
 import SpiralBackground from '@/components/backgrounds/SpiralBackground';
 import FunZone from '@/features/games/components/FunZone';
 import Dock from '@/components/shared/Dock';
-import MessagesSection from '@/features/chat/components/MessagesSection';
+import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
 import SettingsSection from '@/components/shared/SettingsSection';
 import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import Dashboard from '@/components/shared/Dashboard';
@@ -468,25 +468,7 @@ export default function Home() {
 
 
                   {activeSection === 'messages' && (
-                    <MessagesSection
-                      conversations={conversations}
-                      setConversations={setConversations}
-                      activeConversationId={activeConversationId}
-                      setActiveConversationId={setActiveConversationId}
-                      currentUser={{
-                        id: user.id,
-                        name: user.name,
-                        username: user.name.toLowerCase().replace(/\s+/g, ''),
-                        avatar: user.avatar,
-                        isOnline: true,
-                      }}
-                      mockUsers={mockUsers}
-                      stories={stories}
-                      setStories={setStories}
-                      groups={groups}
-                      setGroups={setGroups}
-                      onScroll={handleScroll}
-                    />
+                    <MessagesSectionWrapper onScroll={handleScroll} />
                   )}
 
                   {activeSection === 'search' && (

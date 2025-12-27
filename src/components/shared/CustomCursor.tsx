@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 import { useCursor } from './CursorContext';
 
 const CustomCursor = () => {
     const { cursorType } = useCursor();
     const [isVisible, setIsVisible] = useState(false);
+    const lastUpdateTime = useRef(0);
 
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -18,6 +19,11 @@ const CustomCursor = () => {
 
     useEffect(() => {
         const moveCursor = (e: MouseEvent) => {
+            // Throttle to 60fps max (16ms)
+            const now = Date.now();
+            if (now - lastUpdateTime.current < 16) return;
+            lastUpdateTime.current = now;
+
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
             if (!isVisible) setIsVisible(true);
@@ -26,7 +32,7 @@ const CustomCursor = () => {
         const handleMouseLeave = () => setIsVisible(false);
         const handleMouseEnter = () => setIsVisible(true);
 
-        window.addEventListener('mousemove', moveCursor);
+        window.addEventListener('mousemove', moveCursor, { passive: true });
         document.addEventListener('mouseleave', handleMouseLeave);
         document.addEventListener('mouseenter', handleMouseEnter);
 
