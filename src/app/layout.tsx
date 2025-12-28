@@ -13,13 +13,17 @@ export const metadata: Metadata = {
   description: "A premium manifest interface for spectral communication.",
 };
 
+// import { Inter } from "next/font/google";
+
+// const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="text-base">
+    <html lang="en">
       <body
         className="bg-[#000000] text-zinc-400 antialiased font-sans"
       >

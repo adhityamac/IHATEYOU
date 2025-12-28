@@ -4,12 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Conversation, Message, Story, Group } from '@/types/types';
 import MessageBubble from './MessageBubble';
-import { ChevronDown, ArrowLeft, MessageCircle, Smile, Sparkles, UserPlus, Search as SearchIcon, Send, X, Ghost, Plus, Paperclip, Image as ImageIcon, Mic, MoreVertical, Pin, Phone, Video } from 'lucide-react';
+import { ChevronDown, ArrowLeft, MessageCircle, Smile, Sparkles, UserPlus, Search as SearchIcon, Send, X, Ghost, Plus, Paperclip, Image as ImageIcon, Mic, MoreVertical, Pin, Phone, Video, Info } from 'lucide-react';
 import { emojiPack } from '@/data/emojiPack';
 import TypingIndicator from './TypingIndicator';
 import MessageSearch from './MessageSearch';
 import { useSignals } from '@/hooks/useSignals';
 import UserDiscovery from '@/features/social/components/UserDiscovery';
+import { generateEchoResponse } from '@/lib/bots/echo';
 
 interface MessagesSectionProps {
     conversations: Conversation[];
@@ -41,6 +42,8 @@ export default function MessagesSection({
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isAtBottom, setIsAtBottom] = useState(true);
     const [showNewMessageToast, setShowNewMessageToast] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+    const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'video'>('idle');
 
     const [activeEmojiCategory, setActiveEmojiCategory] = useState(emojiPack[0].id);
     const getInitialRecentEmojis = () => {
@@ -87,7 +90,7 @@ export default function MessagesSection({
         }
     }, [activeConversation?.messages]);
 
-    const handleSendMessage = (e?: React.FormEvent) => {
+    const handleSendMessage = async (e?: React.FormEvent) => {
         e?.preventDefault();
         if (!messageInput.trim() || !activeConversationId) return;
 
@@ -97,34 +100,50 @@ export default function MessagesSection({
             content: messageInput,
             timestamp: new Date(),
             isRead: false,
-            size: 'small'
+            size: 'small',
+            reactions: []
         };
 
         setMessageInput('');
+        const currentInput = messageInput; // Capture for processing
+
         setConversations(prev =>
             prev.map(conv => conv.id === activeConversationId ? { ...conv, messages: [...conv.messages, newMessage], lastMessage: newMessage } : conv)
         );
         trackInteraction('send_message', 0);
 
-        // Auto-reply logic
-        setTimeout(() => {
+        // Auto-reply logic with Emotional Intelligence (Echo Bot)
+        setTimeout(async () => {
             setIsTyping(true);
+
+            // Determine if we should reply (mock logic, or use Echo bot if ID matches)
+            // For now, we'll apply Echo logic to ALL conversations for the demo effect
+            // In a real app, this would be `if (activeConversation.participant.id === 'echo-bot')`
+
+            const echoResponse = generateEchoResponse(currentInput);
+
             setTimeout(() => {
-                const replies = ["I hear you.", "That's interesting!", "Tell me more about it.", "I feel that too.", "Wow!", "Got it."];
                 const replyMessage: Message = {
                     id: `msg-${Date.now() + 1}`,
                     senderId: activeConversation?.participant.id || '',
-                    content: replies[Math.floor(Math.random() * replies.length)],
+                    content: echoResponse,
                     timestamp: new Date(),
                     isRead: false,
-                    size: 'small'
+                    size: 'small',
+                    reactions: []
                 };
+
                 setConversations(prev =>
-                    prev.map(conv => conv.id === activeConversationId ? { ...conv, messages: [...conv.messages, replyMessage], lastMessage: replyMessage, unreadCount: conv.unreadCount + 1 } : conv)
+                    prev.map(conv => conv.id === activeConversationId ? {
+                        ...conv,
+                        messages: [...conv.messages, replyMessage],
+                        lastMessage: replyMessage,
+                        unreadCount: conv.unreadCount + 1
+                    } : conv)
                 );
                 setIsTyping(false);
-            }, 2000);
-        }, 1000);
+            }, 1500 + Math.random() * 1000); // Natural delay
+        }, 500);
     };
 
     const handleSelectEmoji = (emoji: string) => {
@@ -156,7 +175,7 @@ export default function MessagesSection({
     return (
         <div className="flex-1 flex items-end justify-center w-full h-full px-8 pb-8 pt-32">
             {/* Main Messages Container - macOS Style */}
-            <div className="flex w-full max-w-7xl h-[90vh] bg-zinc-900/95 backdrop-blur-3xl rounded-[24px] shadow-[0_20px_100px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden">
+            <div className="flex w-full max-w-7xl h-full bg-zinc-900/95 backdrop-blur-3xl rounded-[24px] shadow-[0_20px_100px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden">
 
                 {/* Left Sidebar - People List */}
                 <div className="w-[320px] flex-shrink-0 border-r border-white/10 flex flex-col bg-black/40">
@@ -184,7 +203,7 @@ export default function MessagesSection({
                     </div>
 
                     {/* Conversations List */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar" onScroll={onScroll} data-scrollable="true">
                         {conversations.map((conv) => (
                             <button
                                 key={conv.id}
@@ -254,20 +273,29 @@ export default function MessagesSection({
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                                <button
+                                    onClick={() => setCallStatus('calling')}
+                                    className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                                >
                                     <Phone size={18} />
                                 </button>
-                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                                <button
+                                    onClick={() => setCallStatus('video')}
+                                    className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                                >
                                     <Video size={18} />
                                 </button>
-                                <button className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all">
-                                    <MoreVertical size={18} />
+                                <button
+                                    onClick={() => setShowProfile(!showProfile)}
+                                    className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                                >
+                                    <Info size={18} />
                                 </button>
                             </div>
                         </div>
 
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar" onScroll={onScroll}>
+                        <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar" onScroll={onScroll} data-scrollable="true">
                             <div className="space-y-4">
                                 {activeConversation.messages.map((message, index) => {
                                     const isSent = message.senderId === currentUser.id;
@@ -394,6 +422,99 @@ export default function MessagesSection({
                             onClose={() => setShowSoulSiblingFinder(false)}
                             onUserSelected={() => setShowSoulSiblingFinder(false)}
                         />
+                    )}
+
+                </AnimatePresence>
+
+                {/* Profile Slide-over */}
+                <AnimatePresence>
+                    {showProfile && activeConversation && (
+                        <motion.div
+                            initial={{ x: '100%', opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: '100%', opacity: 0 }}
+                            className="absolute inset-y-0 right-0 w-[300px] bg-black/95 backdrop-blur-3xl border-l border-white/10 z-20 flex flex-col p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                        >
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-lg font-bold text-white">Profile</h3>
+                                <button onClick={() => setShowProfile(false)} className="p-2 rounded-full hover:bg-white/10 text-white/60 hover:text-white">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col items-center mb-8">
+                                <div className="w-24 h-24 rounded-full p-1 border-2 border-white/10 mb-4 relative">
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}`}
+                                        className="w-full h-full rounded-full bg-zinc-800"
+                                    />
+                                    {activeConversation.participant.isOnline && (
+                                        <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-black rounded-full" />
+                                    )}
+                                </div>
+                                <h2 className="text-xl font-bold text-white mb-1">{activeConversation.participant.username}</h2>
+                                <p className="text-white/40 text-sm">@{activeConversation.participant.name.toLowerCase().replace(/\s/g, '')}</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button onClick={() => setCallStatus('calling')} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all">
+                                        <Phone size={20} />
+                                        <span className="text-xs font-bold">Call</span>
+                                    </button>
+                                    <button onClick={() => setCallStatus('video')} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-all">
+                                        <Video size={20} />
+                                        <span className="text-xs font-bold">Video</span>
+                                    </button>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                    <h4 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3">About</h4>
+                                    <p className="text-sm text-white/60 leading-relaxed">
+                                        Exploring the digital void. ✨<br />
+                                        Loves retro music and deep chats.
+                                    </p>
+                                </div>
+
+                                <button className="w-full py-3 rounded-xl bg-white/5 text-rose-400 font-bold hover:bg-rose-500/10 transition-all text-sm">
+                                    Block User
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Calling Overlay */}
+                <AnimatePresence>
+                    {callStatus !== 'idle' && activeConversation && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl"
+                        >
+                            <div className="flex flex-col items-center gap-6">
+                                <div className="w-32 h-32 rounded-full p-1 border-4 border-white/10 relative">
+                                    <img
+                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.participant.name}`}
+                                        className="w-full h-full rounded-full bg-zinc-800"
+                                    />
+                                    <div className="absolute inset-0 rounded-full border-4 border-white/20 animate-ping opacity-50" />
+                                </div>
+                                <div className="text-center">
+                                    <h2 className="text-3xl font-black text-white mb-2">{activeConversation.participant.username}</h2>
+                                    <p className="text-white/50 animate-pulse">
+                                        {callStatus === 'calling' ? 'Calling...' : 'Video Calling...'}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setCallStatus('idle')}
+                                    className="mt-8 px-8 py-3 rounded-full bg-rose-500 text-white font-bold hover:bg-rose-600 transition-all shadow-[0_0_30px_rgba(244,63,94,0.4)]"
+                                >
+                                    End Call
+                                </button>
+                            </div>
+                        </motion.div>
                     )}
                 </AnimatePresence>
             </div>

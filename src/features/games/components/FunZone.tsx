@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Gamepad2, Trophy, Zap, Play, Check, AlertCircle, Brain, Music, Ghost, FlaskConical, HelpCircle, Grid, ChevronRight } from 'lucide-react';
+import { X, Gamepad2, Trophy, Zap, Play, Check, AlertCircle, Brain, Music, Ghost, FlaskConical, HelpCircle, Grid, ChevronRight, Crown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useSignals } from '@/hooks/useSignals';
 import TicTacToe from './TicTacToe';
@@ -10,6 +10,8 @@ import ReactionGame from './ReactionGame';
 import AlchemyGame from './AlchemyGame';
 import VoidPopperGame from './VoidPopperGame';
 import TriviaGame from './TriviaGame';
+import ChessGame from './ChessGame';
+import PacmanGame from './PacmanGame';
 
 // Massive Movie Database
 const MOVIE_DB = [
@@ -54,6 +56,8 @@ const MOVIE_DB = [
 
 const GAMES = [
     { id: 'movie', name: 'Emoji Movie', icon: '🎬', color: 'from-purple-500 to-blue-500', desc: 'Guess the film' },
+    { id: 'chess', name: 'Quantum Chess', icon: '♟️', color: 'from-orange-500 to-amber-500', desc: 'Strategic warfare' },
+    { id: 'pacman', name: 'Neon Pac-Man', icon: '👻', color: 'from-yellow-400 to-orange-500', desc: 'Arcade classic' },
     { id: 'alchemy', name: 'Mood Alchemy', icon: '⚗️', color: 'from-pink-500 to-rose-500', desc: 'Mix emotions' },
     { id: 'popper', name: 'Void Popper', icon: '👻', color: 'from-gray-500 to-slate-500', desc: 'Clear thoughts' },
     { id: 'trivia', name: 'Cosmic Trivia', icon: '🧠', color: 'from-emerald-500 to-teal-500', desc: 'Test knowledge' },
@@ -134,8 +138,8 @@ export default function FunZone({ onClose }: FunZoneProps) {
                     <div className="p-6">
                         <h2 className="text-white/40 font-bold uppercase tracking-widest mb-6">Select a Game</h2>
 
-                        {/* Horizontal Scroll Container */}
-                        <div className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory no-scrollbar">
+                        {/* Vertical Stack Container */}
+                        <div className="flex flex-col gap-4">
                             {GAMES.map(game => (
                                 <button
                                     key={game.id}
@@ -143,21 +147,21 @@ export default function FunZone({ onClose }: FunZoneProps) {
                                         setGameMode(game.id);
                                         trackTool(`game_${game.id}`, 0);
                                     }}
-                                    className="snap-center shrink-0 w-[280px] h-[320px] rounded-[40px] relative overflow-hidden group text-left p-8 flex flex-col justify-between border border-white/10 hover:border-white/30 transition-all"
+                                    className="w-full relative group flex items-center gap-6 p-4 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-white/30 hover:bg-white/[0.08] transition-all text-left overflow-hidden"
                                 >
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
+                                    <div className={`absolute inset-0 bg-gradient-to-r ${game.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
 
-                                    <div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-500">{game.icon}</div>
-
-                                    <div>
-                                        <h3 className="text-3xl font-black italic text-white uppercase tracking-tighter mb-2">{game.name}</h3>
-                                        <p className="text-white/50 font-bold text-sm uppercase tracking-widest">{game.desc}</p>
+                                    <div className={`relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition-transform`}>
+                                        {game.icon}
                                     </div>
 
-                                    <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-4 group-hover:translate-x-0 duration-300">
-                                        <div className="p-3 rounded-full bg-white text-black">
-                                            <Play size={20} fill="currentColor" />
-                                        </div>
+                                    <div className="relative z-10 flex-1">
+                                        <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">{game.name}</h3>
+                                        <p className="text-white/50 font-bold text-xs uppercase tracking-widest">{game.desc}</p>
+                                    </div>
+
+                                    <div className="relative z-10 pr-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
+                                        <ChevronRight size={24} className="text-white" />
                                     </div>
                                 </button>
                             ))}
@@ -172,98 +176,151 @@ export default function FunZone({ onClose }: FunZoneProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="p-6 max-w-2xl mx-auto h-full flex flex-col">
-                        <button onClick={() => setGameMode(null)} className="self-start mb-8 text-white/40 hover:text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                            <X size={14} /> Back to Menu
-                        </button>
+                    <div className="h-full flex flex-col relative">
+                        {/* Swipe Back Handler Container */}
+                        <AnimatePresence>
+                            <motion.div
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={{ right: 0.2 }}
+                                onDragEnd={(e, { offset, velocity }) => {
+                                    // Swipe Right Threshold
+                                    if (offset.x > 100 || (offset.x > 50 && velocity.x > 500)) {
+                                        setGameMode(null);
+                                    }
+                                }}
+                                className="flex-1 flex flex-col h-full bg-black"
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            >
+                                {/* Visual Handle for 'Swipe Back' hint (optional, or just rely on standard UX) */}
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-32 bg-gradient-to-r from-white/10 to-transparent z-50 pointer-events-none opacity-0 transition-opacity" />
 
-                        {gameMode === 'movie' && (
-                            <div className="flex-1 flex flex-col items-center justify-center">
-                                <div className="w-full aspect-square max-w-[300px] bg-white/[0.03] rounded-[40px] border border-white/10 flex items-center justify-center mb-8 relative overflow-hidden">
-                                    <div className="text-8xl select-none animate-bounce-slow">
-                                        {MOVIE_DB[currentMovieIndex].emoji}
-                                    </div>
-
-                                    <AnimatePresence>
-                                        {feedback && (
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
-                                                className={`absolute inset-0 flex flex-col items-center justify-center backdrop-blur-md transition-all ${feedback === 'correct' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
-                                            >
-                                                {feedback === 'correct' ? (
-                                                    <Check size={80} className="text-green-400 mb-4" />
-                                                ) : (
-                                                    <X size={80} className="text-red-400 mb-4" />
-                                                )}
-                                                {showAnswer && (
-                                                    <motion.div
-                                                        initial={{ y: 20, opacity: 0 }}
-                                                        animate={{ y: 0, opacity: 1 }}
-                                                        className="text-center px-4"
-                                                    >
-                                                        <div className="text-white/60 text-sm font-bold uppercase tracking-widest mb-1">The answer was</div>
-                                                        <div className="text-2xl font-black text-white italic">{MOVIE_DB[currentMovieIndex].title}</div>
-                                                    </motion.div>
-                                                )}
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-
-                                <div className="w-full max-w-xs relative">
-                                    <input
-                                        value={guess}
-                                        onChange={(e) => setGuess(e.target.value)}
-                                        onKeyDown={(e) => e.key === 'Enter' && checkGuess()}
-                                        placeholder="Guess the movie..."
-                                        disabled={feedback !== null}
-                                        className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-4 text-center text-xl font-bold focus:outline-none focus:border-white/40 focus:bg-black/40 transition-all disabled:opacity-50"
-                                    />
-                                    <button
-                                        onClick={checkGuess}
-                                        disabled={feedback !== null}
-                                        className="absolute right-2 top-2 bottom-2 aspect-square bg-white text-black rounded-xl flex items-center justify-center hover:scale-95 transition-transform disabled:opacity-50 disabled:hover:scale-100"
-                                    >
-                                        <Play size={20} fill="currentColor" />
+                                <div className="p-6 max-w-2xl mx-auto w-full h-full flex flex-col relative overflow-y-auto">
+                                    <button onClick={() => setGameMode(null)} className="self-start mb-6 text-white/40 hover:text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                        <ChevronRight className="rotate-180" size={14} /> Back
                                     </button>
+
+                                    {/* --- Game Rendering --- */}
+
+                                    {gameMode === 'movie' && (
+                                        <div className="flex-1 flex flex-col items-center justify-center">
+                                            <div className="w-full aspect-square max-w-[300px] bg-white/[0.03] rounded-[40px] border border-white/10 flex items-center justify-center mb-8 relative overflow-hidden">
+                                                <div className="text-8xl select-none animate-bounce-slow">
+                                                    {MOVIE_DB[currentMovieIndex].emoji}
+                                                </div>
+
+                                                <AnimatePresence>
+                                                    {feedback && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                            className={`absolute inset-0 flex flex-col items-center justify-center backdrop-blur-md transition-all ${feedback === 'correct' ? 'bg-green-500/20' : 'bg-red-500/20'}`}
+                                                        >
+                                                            {feedback === 'correct' ? (
+                                                                <Check size={80} className="text-green-400 mb-4" />
+                                                            ) : (
+                                                                <X size={80} className="text-red-400 mb-4" />
+                                                            )}
+                                                            {showAnswer && (
+                                                                <motion.div
+                                                                    initial={{ y: 20, opacity: 0 }}
+                                                                    animate={{ y: 0, opacity: 1 }}
+                                                                    className="text-center px-4"
+                                                                >
+                                                                    <div className="text-white/60 text-sm font-bold uppercase tracking-widest mb-1">The answer was</div>
+                                                                    <div className="text-2xl font-black text-white italic">{MOVIE_DB[currentMovieIndex].title}</div>
+                                                                </motion.div>
+                                                            )}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+
+                                            <div className="w-full max-w-xs relative">
+                                                <input
+                                                    value={guess}
+                                                    onChange={(e) => setGuess(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && checkGuess()}
+                                                    placeholder="Guess the movie..."
+                                                    disabled={feedback !== null}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-4 text-center text-xl font-bold focus:outline-none focus:border-white/40 focus:bg-black/40 transition-all disabled:opacity-50"
+                                                />
+                                                <button
+                                                    onClick={checkGuess}
+                                                    disabled={feedback !== null}
+                                                    className="absolute right-2 top-2 bottom-2 aspect-square bg-white text-black rounded-xl flex items-center justify-center hover:scale-95 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+                                                >
+                                                    <Play size={20} fill="currentColor" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {gameMode === 'chess' && (
+                                        <div className="flex-1 flex flex-col h-full" onPointerDown={(e) => e.stopPropagation()}>
+                                            {/* Stop propagation so board interactions don't trigger swipe easily? 
+                                                Actually, vertical scroll or board moves are distinct. 
+                                                Horizontal board moves MIGHT conflict. 
+                                                We'll leave simple drag wrapper for now. 
+                                            */}
+                                            <ChessGame
+                                                onBack={() => setGameMode(null)}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {gameMode === 'pacman' && (
+                                        <div className="flex-1 flex flex-col h-full" onPointerDown={(e) => e.stopPropagation()}>
+                                            {/* Pacman needs swipes. Let's rely on the Back button there or very distinct edge swipe if we can.
+                                                For now, let's stop propagation on the game container so dragging PACMAN doesn't drag the SCREEN.
+                                            */}
+                                            <PacmanGame
+                                                onBack={() => setGameMode(null)}
+                                                tokens={score}
+                                                onUpdateTokens={(amount) => setScore(s => s + amount)}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {gameMode === 'tictactoe' && (
+                                        <TicTacToe />
+                                    )}
+
+                                    {gameMode === 'memory' && (
+                                        <MemoryGame />
+                                    )}
+
+                                    {gameMode === 'rhythm' && (
+                                        <ReactionGame />
+                                    )}
+
+                                    {gameMode === 'alchemy' && (
+                                        <AlchemyGame />
+                                    )}
+
+                                    {gameMode === 'popper' && (
+                                        <VoidPopperGame />
+                                    )}
+
+                                    {gameMode === 'trivia' && (
+                                        <TriviaGame />
+                                    )}
+
+                                    {/* Placeholder for other games */}
+                                    {gameMode !== 'movie' && gameMode !== 'chess' && gameMode !== 'pacman' && gameMode !== 'tictactoe' && gameMode !== 'memory' && gameMode !== 'rhythm' && gameMode !== 'alchemy' && gameMode !== 'popper' && gameMode !== 'trivia' && (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center">
+                                            <div className="text-6xl mb-6">🚧</div>
+                                            <h2 className="text-3xl font-black text-white italic mb-2">Under Construction</h2>
+                                            <p className="text-white/50">This zone is being built by the digital architects.</p>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
-
-                        {gameMode === 'tictactoe' && (
-                            <TicTacToe />
-                        )}
-
-                        {gameMode === 'memory' && (
-                            <MemoryGame />
-                        )}
-
-                        {gameMode === 'rhythm' && (
-                            <ReactionGame />
-                        )}
-
-                        {gameMode === 'alchemy' && (
-                            <AlchemyGame />
-                        )}
-
-                        {gameMode === 'popper' && (
-                            <VoidPopperGame />
-                        )}
-
-                        {gameMode === 'trivia' && (
-                            <TriviaGame />
-                        )}
-
-                        {/* Placeholder for other games */}
-                        {gameMode !== 'movie' && gameMode !== 'tictactoe' && gameMode !== 'memory' && gameMode !== 'rhythm' && gameMode !== 'alchemy' && gameMode !== 'popper' && gameMode !== 'trivia' && (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center">
-                                <div className="text-6xl mb-6">🚧</div>
-                                <h2 className="text-3xl font-black text-white italic mb-2">Under Construction</h2>
-                                <p className="text-white/50">This zone is being built by the digital architects.</p>
-                            </div>
-                        )}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 )}
             </div>

@@ -22,6 +22,30 @@ body {
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  /* Mobile performance optimizations */
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Light theme text colors */
+body[data-theme="light"],
+body[data-theme="retro"] {
+  --foreground-rgb: 0, 0, 0;
+}
+
+body[data-theme="light"] {
+  background: #f9fafb;
+}
+
+body[data-theme="retro"] {
+  background: #fef3c7;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
 }
 
 .custom-scrollbar {

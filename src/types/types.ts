@@ -1,4 +1,4 @@
-export type Section = 'home' | 'dashboard' | 'messages' | 'settings' | 'search' | 'guide' | 'social';
+export type Section = 'home' | 'dashboard' | 'messages' | 'settings' | 'search' | 'guide' | 'social' | 'games' | 'music';
 
 export interface User {
   id: string;

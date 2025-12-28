@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useSpring } from 'framer-motion';
-import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain, Camera } from 'lucide-react';
+import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain, Camera, Gamepad2, Music } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useRef, useEffect, useState } from 'react';
 
@@ -18,8 +18,7 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
     const items = [
         { id: 'home' as Section, icon: Home },
         { id: 'dashboard' as Section, icon: LayoutGrid },
-        { id: 'social' as Section, icon: Camera },
-        { id: 'messages' as Section, icon: MessageCircle },
+        { id: 'messages' as Section, icon: MessageCircle, label: 'Chat' },
         { id: 'guide' as Section, icon: Brain },
         { id: 'search' as Section, icon: Search },
         { id: 'settings' as Section, icon: Settings },
@@ -29,24 +28,46 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
     const activeIndex = items.findIndex(item => item.id === activeSection);
     const [bubbleLeft, setBubbleLeft] = useState(32);
 
-    // Intelligent Scroll Hide/Show
+    // Intelligent Scroll Hide/Show - Improved for all sections
     useEffect(() => {
-        const handleScroll = (e: any) => {
-            // Get scroll position from the scrolling element
-            const currentScrollY = e.target.scrollTop || window.scrollY || document.documentElement.scrollTop;
+        const handleScroll = () => {
+            // Find all scrollable containers
+            const scrollableElements = document.querySelectorAll('[data-scrollable="true"]');
+            let currentScrollY = 0;
 
-            // Basic direction check
-            if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+            // Get the maximum scroll position from all scrollable elements
+            scrollableElements.forEach((el) => {
+                const scrollTop = el.scrollTop;
+                if (scrollTop > currentScrollY) {
+                    currentScrollY = scrollTop;
+                }
+            });
+
+            // Also check window scroll as fallback
+            if (currentScrollY === 0) {
+                currentScrollY = window.scrollY || document.documentElement.scrollTop;
+            }
+
+            // Basic direction check with improved threshold
+            if (currentScrollY > lastScrollY.current && currentScrollY > 20) {
                 setIsVisible(false); // Scrolling down
-            } else if (currentScrollY < lastScrollY.current) {
-                setIsVisible(true);  // Scrolling up
+            } else if (currentScrollY < lastScrollY.current || currentScrollY < 20) {
+                setIsVisible(true);  // Scrolling up or near top
             }
             lastScrollY.current = currentScrollY;
         };
 
-        // Use capture: true to catch scroll events from any div inside the app
+        // Listen to scroll events on window and capture phase for child elements
         window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-        return () => window.removeEventListener('scroll', handleScroll, { capture: true });
+
+        // Also add a custom event listener for manual scroll tracking
+        const customScrollHandler = (e: Event) => handleScroll();
+        document.addEventListener('custom-scroll', customScrollHandler);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll, { capture: true });
+            document.removeEventListener('custom-scroll', customScrollHandler);
+        };
     }, []);
 
     useEffect(() => {

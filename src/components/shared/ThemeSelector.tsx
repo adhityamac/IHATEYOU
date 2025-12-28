@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Moon, Zap } from 'lucide-react';
-import { Theme } from './GradientThemeProvider';
+import { Check, Sparkles, Moon, Zap, Sun, Music, Type } from 'lucide-react';
+export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro' | 'retro-minimal';
 
 interface ThemeSelectorProps {
     currentTheme: Theme;
@@ -30,6 +30,27 @@ const themeData = [
         description: 'OLED silence',
         icon: Moon,
         colors: 'from-zinc-900 via-black to-zinc-900'
+    },
+    {
+        id: 'light' as Theme,
+        label: 'Clean Light',
+        description: 'Minimal clarity',
+        icon: Sun,
+        colors: 'from-blue-200 via-purple-200 to-pink-200'
+    },
+    {
+        id: 'retro' as Theme,
+        label: 'Retro Vibes',
+        description: 'Vintage warmth',
+        icon: Music,
+        colors: 'from-amber-400 via-orange-400 to-rose-400'
+    },
+    {
+        id: 'retro-minimal' as Theme,
+        label: 'Retro Minimalist',
+        description: 'Journal aesthetic',
+        icon: Type,
+        colors: 'from-orange-200 via-stone-200 to-teal-200'
     }
 ];
 
@@ -76,8 +97,8 @@ export default function ThemeSelector({ currentTheme, onThemeChange }: ThemeSele
 
                             {/* Status Indicator */}
                             <div className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all duration-500 ${isActive
-                                    ? 'bg-white text-black border-white'
-                                    : 'bg-white/5 border-white/5 text-transparent'
+                                ? 'bg-white text-black border-white'
+                                : 'bg-white/5 border-white/5 text-transparent'
                                 }`}>
                                 <Check size={14} strokeWidth={4} />
                             </div>

@@ -45,6 +45,8 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [showNotificationsModal, setShowNotificationsModal] = useState(false);
     const [showDataModal, setShowDataModal] = useState(false);
+    const [showAppearanceModal, setShowAppearanceModal] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     // Profile data
     const [tempGhostName, setTempGhostName] = useState('');
@@ -376,6 +378,69 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                     )}
                 </AnimatePresence>
 
+                {/* Appearance Modal */}
+                <AnimatePresence>
+                    {showAppearanceModal && (
+                        <DetailModal
+                            title="App Appearance"
+                            subtitle="Customize your visual experience"
+                            onClose={() => setShowAppearanceModal(false)}
+                        >
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Color Theme</h3>
+                                    <ThemeSelector currentTheme={theme} onThemeChange={handleThemeChange} />
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-2">More Options</h3>
+                                    <p className="text-sm text-white/60">Font scaling and reduced motion settings coming soon.</p>
+                                </div>
+                            </div>
+                        </DetailModal>
+                    )}
+                </AnimatePresence>
+
+                {/* Help Modal */}
+                <AnimatePresence>
+                    {showHelpModal && (
+                        <DetailModal
+                            title="Help Center"
+                            subtitle="How can we assist you?"
+                            onClose={() => setShowHelpModal(false)}
+                        >
+                            <div className="space-y-4">
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                    <h4 className="font-bold text-white mb-2">Frequently Asked Questions</h4>
+                                    <div className="space-y-3">
+                                        <details className="group">
+                                            <summary className="text-sm text-white/80 cursor-pointer list-none flex items-center justify-between">
+                                                <span>How do I change my ghost name?</span>
+                                                <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                                            </summary>
+                                            <p className="text-xs text-white/50 mt-2 pl-2 border-l-2 border-white/10">
+                                                Go to Account Details &gt; Edit Profile to update your ghost name.
+                                            </p>
+                                        </details>
+                                        <details className="group">
+                                            <summary className="text-sm text-white/80 cursor-pointer list-none flex items-center justify-between">
+                                                <span>Is my chat private?</span>
+                                                <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                                            </summary>
+                                            <p className="text-xs text-white/50 mt-2 pl-2 border-l-2 border-white/10">
+                                                Yes, all messages are end-to-end encrypted and stored securely.
+                                            </p>
+                                        </details>
+                                    </div>
+                                </div>
+                                <button className="w-full py-3 bg-purple-500 rounded-xl text-white font-bold text-sm hover:bg-purple-600 transition-all">
+                                    Contact Support
+                                </button>
+                            </div>
+                        </DetailModal>
+                    )}
+                </AnimatePresence>
+
                 {/* Profile Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -408,21 +473,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                     </div>
                 </motion.div>
 
-                {/* Theme Selector */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="space-y-6"
-                >
-                    <div className="px-4">
-                        <h3 className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.4em]">
-                            Accent Color
-                        </h3>
-                        <p className="text-[9px] text-white/10 font-bold uppercase tracking-widest mt-1">Select your primary color theme</p>
-                    </div>
-                    <ThemeSelector currentTheme={theme} onThemeChange={handleThemeChange} />
-                </motion.div>
+
 
                 {/* Settings Groups */}
                 <div className="space-y-16 px-2">
@@ -445,6 +496,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                 icon={Palette}
                                 label="App Appearance"
                                 subLabel="Customize your interface"
+                                onClick={() => setShowAppearanceModal(true)}
                             />
                             <SettingItem
                                 icon={Bell}
@@ -493,7 +545,12 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                     >
                         <h3 className="text-[10px] font-black italic text-white/20 uppercase tracking-[0.5em] px-4">Support & Info</h3>
                         <div className="space-y-2">
-                            <SettingItem icon={HelpCircle} label="Help Center" subLabel="Get support and guidance" />
+                            <SettingItem
+                                icon={HelpCircle}
+                                label="Help Center"
+                                subLabel="Get support and guidance"
+                                onClick={() => setShowHelpModal(true)}
+                            />
                             <SettingItem icon={Info} label="About IHATEYOU" subLabel="Version 1.0.0-BETA" />
                         </div>
                     </motion.div>

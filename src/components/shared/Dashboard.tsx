@@ -31,7 +31,8 @@ import {
     Plus,
     X,
     Heart,
-    BookOpen
+    BookOpen,
+    Music
 } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useState, useEffect, useCallback, memo } from 'react';
@@ -39,6 +40,7 @@ import DailyAffirmations from '@/features/wellness/components/DailyAffirmations'
 import BreathingExercise from '@/features/wellness/components/BreathingExercise';
 import JournalPrompts from '@/features/wellness/components/JournalPrompts';
 import MoodInsights from '@/features/wellness/components/MoodInsights';
+import RetroPlayer from '@/features/music/components/RetroPlayer';
 import { useSignals } from '@/hooks/useSignals';
 
 interface DashboardProps {
@@ -59,6 +61,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
     const [timer, setTimer] = useState(25 * 60);
     const [isTimerActive, setIsTimerActive] = useState(false);
     const [activeWellnessTab, setActiveWellnessTab] = useState<'overview' | 'affirmations' | 'breathe' | 'journal' | 'insights'>('overview');
+    const [showMusicPlayer, setShowMusicPlayer] = useState(false);
     const [tasks, setTasks] = useState<{ id: number, text: string, completed: boolean }[]>([
         { id: 1, text: 'Meditate for 10m', completed: true },
         { id: 2, text: 'Journal thoughts', completed: false },
@@ -127,7 +130,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
         { id: 'messages', label: 'Neural Link', icon: MessageCircle, desc: 'Open channels', color: 'from-purple-500 to-blue-500' },
         { id: 'search', label: 'Discovery', icon: Search, desc: 'Find resonance', color: 'from-emerald-500 to-teal-500' },
         { id: 'settings', label: 'Settings', icon: Settings, desc: 'App preferences', color: 'from-gray-500 to-gray-800' },
-        { id: 'trending', label: 'Trending', icon: Flame, desc: 'See what’s hot', color: 'from-yellow-500 to-red-500' },
+        { id: 'music', label: 'Retro Tunes', icon: Music, desc: '90s Station', color: 'from-fuchsia-500 to-rose-500' },
     ];
 
     const recentActivity = [
@@ -222,7 +225,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     <motion.button
                         key={action.id}
                         layout
-                        onClick={() => onSectionChange(action.id as Section)}
+                        onClick={() => action.id === 'music' ? setShowMusicPlayer(true) : onSectionChange(action.id as Section)}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{
@@ -568,6 +571,34 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     </motion.div>
                 </AnimatePresence>
             </motion.div>
+
+            {/* Music Player Modal */}
+            <AnimatePresence>
+                {showMusicPlayer && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    >
+                        <div className="absolute inset-0 bg-black/90 backdrop-blur-3xl" onClick={() => setShowMusicPlayer(false)} />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative w-full max-w-lg bg-[#1a1a1c] border border-white/10 rounded-[40px] overflow-hidden shadow-2xl h-[80vh]"
+                        >
+                            <button
+                                onClick={() => setShowMusicPlayer(false)}
+                                className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                            >
+                                <X size={20} />
+                            </button>
+                            <RetroPlayer />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

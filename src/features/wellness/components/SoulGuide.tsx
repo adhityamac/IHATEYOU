@@ -103,23 +103,23 @@ export default function SoulGuide() {
     const greenOuter = R;
 
     return (
-        <div className="fixed inset-0 z-[50] bg-[#050505] flex flex-col items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 z-[50] bg-[#0c0a09] flex flex-col items-center justify-center overflow-hidden">
             {/* Interactive Grid Background */}
             <PixelHoverGrid
                 gridSize={14}
-                hoverColor="#ef4444"
-                hoverColor2="#f87171"
-                hoverColor3="#dc2626"
-                hoverColor4="#b91c1c"
-                backgroundColor="#050505"
-                borderColor="rgba(239, 68, 68, 0.1)"
+                hoverColor="#f97316"
+                hoverColor2="#fb923c"
+                hoverColor3="#ea580c"
+                hoverColor4="#c2410c"
+                backgroundColor="#0c0a09"
+                borderColor="rgba(249, 115, 22, 0.1)"
                 borderWidth={1}
                 animationDuration={0.6}
                 maxOpacity={0.8}
                 showCursor={false}
             />
 
-            {/* Centerpiece: Full Circle Watermelon */}
+            {/* Centerpiece: Tangerine Echo */}
             <div className="relative flex items-center justify-center mb-12 z-10">
                 <AnimatePresence>
                     {(isTyping || isSpeaking) && (
@@ -140,9 +140,9 @@ export default function SoulGuide() {
                                     }}
                                     className="absolute rounded-full opacity-30"
                                     style={{
-                                        width: `${R * 2.4}px`,
-                                        height: `${R * 2.4}px`,
-                                        background: 'radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%)',
+                                        width: `280px`,
+                                        height: `280px`,
+                                        background: 'radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%)',
                                         filter: 'blur(20px)'
                                     }}
                                 />
@@ -159,120 +159,23 @@ export default function SoulGuide() {
                     }}
                     transition={{
                         scale: { duration: isTyping ? 2 : 6, repeat: Infinity, ease: "easeInOut" },
-                        rotate: { duration: 120, repeat: Infinity, ease: "linear" },
+                        rotate: { duration: 60, repeat: Infinity, ease: "linear" }, // Slower rotation for image
                         y: { duration: isTyping ? 2 : 6, repeat: Infinity, ease: "easeInOut" }
                     }}
-                    className="relative"
+                    className="relative rounded-full overflow-hidden border-4 border-orange-500/20"
                     style={{
-                        width: `${R * 2}px`,
-                        height: `${R * 2}px`,
+                        width: `240px`,
+                        height: `240px`,
                         filter: isSpeaking
-                            ? 'drop-shadow(0 0 40px rgba(239,68,68,0.6))'
-                            : 'drop-shadow(0 0 15px rgba(239,68,68,0.2))'
+                            ? 'drop-shadow(0 0 40px rgba(249, 115, 22, 0.6))'
+                            : 'drop-shadow(0 0 15px rgba(249, 115, 22, 0.2))'
                     }}
                 >
-                    <svg viewBox={`0 0 ${R * 2} ${R * 2}`} className="w-full h-full">
-                        <defs>
-                            {/* Gradient for depth on red flesh */}
-                            <radialGradient id="redGradient" cx="50%" cy="50%">
-                                <stop offset="0%" stopColor="#ff4444" />
-                                <stop offset="70%" stopColor="#ef4444" />
-                                <stop offset="100%" stopColor="#dc2626" />
-                            </radialGradient>
-
-                            {/* Glossy highlight gradient */}
-                            <radialGradient id="glossHighlight" cx="30%" cy="30%">
-                                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-                                <stop offset="40%" stopColor="#ffffff" stopOpacity="0.3" />
-                                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                            </radialGradient>
-                        </defs>
-                        {/* Green outer rind */}
-                        <circle
-                            cx={R}
-                            cy={R}
-                            r={greenOuter}
-                            fill="#22c55e"
-                        />
-
-                        {/* Light green/yellow inner rind */}
-                        <circle
-                            cx={R}
-                            cy={R}
-                            r={whiteOuter}
-                            fill="#fef08a"
-                        />
-
-                        {/* Red flesh with gradient */}
-                        <circle
-                            cx={R}
-                            cy={R}
-                            r={redRadius}
-                            fill="url(#redGradient)"
-                        />
-
-                        {/* Hand-drawn glossy highlight - pencil sketch style */}
-                        <path
-                            d={`M ${R * 0.4},${R * 0.7} 
-                                Q ${R * 0.45},${R * 0.55} ${R * 0.6},${R * 0.52}
-                                Q ${R * 0.75},${R * 0.5} ${R * 0.88},${R * 0.58}
-                                Q ${R * 0.95},${R * 0.62} ${R * 0.92},${R * 0.72}
-                                Q ${R * 0.88},${R * 0.82} ${R * 0.75},${R * 0.85}
-                                Q ${R * 0.6},${R * 0.88} ${R * 0.45},${R * 0.82}
-                                Q ${R * 0.35},${R * 0.78} ${R * 0.4},${R * 0.7} Z`}
-                            fill="url(#glossHighlight)"
-                            opacity="0.85"
-                        />
-
-                        {/* Seeds - scattered in circular pattern */}
-                        <g>
-                            {[
-                                // Outer ring
-                                { angle: 0, distance: 0.6 },
-                                { angle: 45, distance: 0.62 },
-                                { angle: 90, distance: 0.58 },
-                                { angle: 135, distance: 0.61 },
-                                { angle: 180, distance: 0.59 },
-                                { angle: 225, distance: 0.63 },
-                                { angle: 270, distance: 0.60 },
-                                { angle: 315, distance: 0.62 },
-                                // Middle ring
-                                { angle: 22, distance: 0.45 },
-                                { angle: 67, distance: 0.43 },
-                                { angle: 112, distance: 0.47 },
-                                { angle: 157, distance: 0.44 },
-                                { angle: 202, distance: 0.46 },
-                                { angle: 247, distance: 0.45 },
-                                { angle: 292, distance: 0.43 },
-                                { angle: 337, distance: 0.46 },
-                                // Inner ring
-                                { angle: 30, distance: 0.28 },
-                                { angle: 90, distance: 0.25 },
-                                { angle: 150, distance: 0.27 },
-                                { angle: 210, distance: 0.26 },
-                                { angle: 270, distance: 0.28 },
-                                { angle: 330, distance: 0.25 }
-                            ].map((seed, i) => {
-                                const angleRad = (seed.angle * Math.PI) / 180;
-                                const dist = seed.distance * redRadius;
-                                const x = R + dist * Math.cos(angleRad);
-                                const y = R + dist * Math.sin(angleRad);
-                                const rotation = seed.angle + 90;
-
-                                return (
-                                    <ellipse
-                                        key={i}
-                                        cx={x}
-                                        cy={y}
-                                        rx={R * 0.04}
-                                        ry={R * 0.08}
-                                        fill="#000000"
-                                        transform={`rotate(${rotation} ${x} ${y})`}
-                                    />
-                                );
-                            })}
-                        </g>
-                    </svg>
+                    <img
+                        src="/echo-tangerine.jpg"
+                        alt="Echo Tangerine"
+                        className="w-full h-full object-cover"
+                    />
                 </motion.div>
             </div>
 
@@ -291,7 +194,7 @@ export default function SoulGuide() {
                                 className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div className={`max-w-[85%] px-10 py-7 rounded-[40px] text-xl leading-relaxed ${msg.sender === 'user'
-                                    ? 'bg-red-500/[0.08] text-white/90 border border-red-500/20 shadow-2xl'
+                                    ? 'bg-orange-500/[0.08] text-white/90 border border-orange-500/20 shadow-2xl'
                                     : 'text-white/50 italic font-light text-center w-full'
                                     }`}>
                                     {msg.text}
@@ -309,7 +212,7 @@ export default function SoulGuide() {
                                     transition={{ duration: 2, repeat: Infinity }}
                                     className="px-10 py-7 text-white/20 italic font-light text-xl"
                                 >
-                                    Echo is reflecting on your words...
+                                    Echo is peeling back the layers...
                                 </motion.div>
                             </motion.div>
                         )}
@@ -325,23 +228,23 @@ export default function SoulGuide() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type a feeling..."
-                            className="w-full bg-white/[0.02] border border-red-500/20 rounded-[40px] px-10 py-8 text-white placeholder:text-white/10 focus:outline-none focus:bg-red-500/[0.05] focus:border-red-500/30 transition-all text-xl pr-24 shadow-inner"
+                            className="w-full bg-white/[0.02] border border-orange-500/20 rounded-[40px] px-10 py-8 text-white placeholder:text-white/10 focus:outline-none focus:bg-orange-500/[0.05] focus:border-orange-500/30 transition-all text-xl pr-24 shadow-inner"
                         />
                         <button
                             onClick={handleSend}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-rose-600 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-red-500/20"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-orange-500/20"
                         >
                             <Send size={24} />
                         </button>
                     </div>
-                    <p className="text-center text-[10px] text-white/10 uppercase tracking-[0.3em] mt-6">Echo • A safe space for your internal frequency</p>
+                    <p className="text-center text-[10px] text-white/10 uppercase tracking-[0.3em] mt-6">Echo • A fresh perspective for your thoughts</p>
                 </div>
             </div>
 
             {/* Subtle Brand */}
             <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-4 opacity-10 z-10">
-                <Brain className="text-red-500 w-4 h-4" />
-                <span className="text-[9px] font-black uppercase tracking-[0.8em] text-red-500">Echo</span>
+                <Brain className="text-orange-500 w-4 h-4" />
+                <span className="text-[9px] font-black uppercase tracking-[0.8em] text-orange-500">Echo</span>
             </div>
         </div>
     );

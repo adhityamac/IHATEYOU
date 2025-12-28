@@ -1,132 +1,74 @@
 'use client';
-// Rebuild trigger 1
 
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, Gamepad2, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/components/shared/GradientThemeProvider';
+import { useSignals } from '@/hooks/useSignals';
+// import { useAlgorithm } from '@/lib/algorithm';
 
-import { useState, useRef, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import SplashScreen from '@/features/auth/components/SplashScreen';
+type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music';
+import Dock from '@/components/shared/Dock';
+import Dashboard from '@/components/shared/Dashboard';
+import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
+import SocialFeed from '@/features/social/components/SocialFeed';
+import SearchSection from '@/components/shared/SearchSection';
+import SoulGuide from '@/features/wellness/components/SoulGuide';
+import SettingsSection from '@/components/shared/SettingsSection';
+import FunZone from '@/features/games/components/FunZone';
 import LoadingScreen from '@/features/auth/components/LoadingScreen';
+import SplashScreen from '@/features/auth/components/SplashScreen';
 import AuthScreen from '@/features/auth/components/AuthScreen';
 import OnboardingFlow from '@/features/auth/components/OnboardingFlow';
 import LiquidBackground from '@/components/backgrounds/LiquidBackground';
 import SpiralBackground from '@/components/backgrounds/SpiralBackground';
-import FunZone from '@/features/games/components/FunZone';
-import Dock from '@/components/shared/Dock';
-import SocialFeed from '@/features/social/components/SocialFeed';
-import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
-import SettingsSection from '@/components/shared/SettingsSection';
-import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
-import Dashboard from '@/components/shared/Dashboard';
+import LightBackground from '@/components/backgrounds/LightBackground';
+import RetroBackground from '@/components/backgrounds/RetroBackground';
+import RetroMinimalBackground from '@/components/backgrounds/RetroMinimalBackground';
 import InteractiveGrid from '@/components/backgrounds/InteractiveGrid';
-import DynamicInfoBox from '@/components/ui/DynamicInfoBox';
-import NeuralRipples from '@/components/shared/NeuralRipples';
-import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import NeuralAudio from '@/components/shared/NeuralAudio';
-import NeuralNotifications from '@/components/shared/NeuralNotifications';
-import SearchSection from '@/components/shared/SearchSection';
-import SoulGuide from '@/features/wellness/components/SoulGuide';
-import WellnessSection from '@/features/wellness/components/WellnessSection';
+import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import ScrollProgress from '@/components/ui/ScrollProgress';
-import { Conversation, Message, User, Story, Group, Section } from '../types/types';
-import { Settings, Gamepad2, RefreshCw } from 'lucide-react';
-import { useTheme } from '../components/shared/GradientThemeProvider';
-import { useAuth } from '../contexts/AuthContext';
-import { useSignals } from '../hooks/useSignals';
-import { useAlgorithm } from '../hooks/useAlgorithm';
-
+import NeuralNotifications from '@/components/shared/NeuralNotifications';
+import DynamicInfoBox from '@/components/ui/DynamicInfoBox';
+import { Conversation, Message, User, Story, Group } from '@/types/types';
 
 // Mock Data
-const DEFAULT_USER: User = {
-  id: 'user-1',
-  name: 'You',
-  username: 'you',
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You',
-  isOnline: true,
-  currentEmotion: 'static',
-};
-
 const mockUsers: User[] = [
   {
     id: 'user-2',
-    name: 'Alex',
-    username: 'alex_flow',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-    isOnline: true,
-    currentEmotion: 'joyful'
+    name: 'Luna',
+    username: 'Luna',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+    isOnline: true
   },
   {
     id: 'user-3',
-    name: 'Sarah',
-    username: 'sarah',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    isOnline: false,
-    currentEmotion: 'static'
-  },
-  {
-    id: 'user-4',
-    name: 'Mike',
-    username: 'mike',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-    isOnline: true,
-    currentEmotion: 'anxious'
-  },
-  {
-    id: 'user-5',
-    name: 'Emma',
-    username: 'emma',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
-    isOnline: true,
-    currentEmotion: 'loved'
-  },
-  {
-    id: 'user-6',
-    name: 'James',
-    username: 'james',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
-    isOnline: false,
-    currentEmotion: 'angry'
+    name: 'Ghost',
+    username: 'Ghost',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ghost',
+    isOnline: false
   },
 ];
 
 const createMockMessages = (userId: string): Message[] => [
   {
-    id: '1',
+    id: 'm1',
     senderId: userId,
-    content: 'Hey! How are you doing? 👋',
+    content: 'Have you felt the shift in the digital wind?',
     timestamp: new Date(Date.now() - 3600000),
     isRead: true,
+    size: 'small',
+    reactions: []
   },
   {
-    id: '2',
-    senderId: DEFAULT_USER.id,
-    content: "I'm doing great! Just working on this new chat app 🚀",
-    timestamp: new Date(Date.now() - 3500000),
-    isRead: true,
-  },
-  {
-    id: '3',
-    senderId: userId,
-    content: 'That sounds awesome! What features are you adding?',
-    timestamp: new Date(Date.now() - 3400000),
-    isRead: true,
-  },
-  {
-    id: '4',
-    senderId: DEFAULT_USER.id,
-    content: 'Emoji support, real-time messaging, and a sleek dark mode design! 😎✨',
-    timestamp: new Date(Date.now() - 3300000),
-    isRead: true,
-    reactions: [
-      { emoji: '🔥', userId: 'user-2' },
-      { emoji: '❤️', userId: 'user-3' }
-    ],
-  },
-  {
-    id: '5',
-    senderId: userId,
-    content: "Love it! Can't wait to try it out! 🎉",
+    id: 'm2',
+    senderId: 'user-1',
+    content: 'Every day. It resonates.',
     timestamp: new Date(Date.now() - 1800000),
     isRead: true,
+    size: 'small',
+    reactions: []
   },
 ];
 
@@ -134,8 +76,8 @@ const initialConversations: Conversation[] = mockUsers.map((user, index) => ({
   id: `conv-${user.id}`,
   participant: user,
   messages: createMockMessages(user.id),
-  lastMessage: createMockMessages(user.id)[createMockMessages(user.id).length - 1],
-  unreadCount: index === 0 ? 0 : Math.floor(Math.random() * 3),
+  lastMessage: createMockMessages(user.id)[1],
+  unreadCount: index === 0 ? 0 : 1,
 }));
 
 const INITIAL_POSTS = [
@@ -153,7 +95,7 @@ export default function Home() {
 
   const currentUserId = user?.id || 'user-1';
   const { trackConnection } = useSignals(currentUserId);
-  const { state: emotionalState, decision: algoDecision } = useAlgorithm(currentUserId);
+  // const { state: emotionalState, decision: algoDecision } = useAlgorithm(currentUserId);
 
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [showFunZone, setShowFunZone] = useState(false);
@@ -165,6 +107,8 @@ export default function Home() {
   const [pullStartY, setPullStartY] = useState(0);
   const [pullProgress, setPullProgress] = useState(0);
   const dashboardRef = useRef<HTMLDivElement>(null);
+
+  const [feedPosts, setFeedPosts] = useState(INITIAL_POSTS);
 
   // Handle splash screen timing
   useEffect(() => {
@@ -191,74 +135,31 @@ export default function Home() {
     }
   }, [user, showSplash, showLoading]);
 
-  // Messages state
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(conversations[0]?.id || null);
-  const [stories, setStories] = useState<Story[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-
-  // Feed State
-  const [feedPosts, setFeedPosts] = useState(INITIAL_POSTS);
-  const [newPostContent, setNewPostContent] = useState('');
-
-  const handleAuthSuccess = (userData: { id: string; name: string; email?: string; phone?: string; avatar: string; authMethod: 'google' | 'phone' | 'email' }) => {
-    setUser({
-      id: userData.id,
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      avatar: userData.avatar,
-      authMethod: userData.authMethod,
-      onboardingComplete: false,
-      createdAt: new Date()
-    });
+  const handleAuthSuccess = () => {
+    // Auth success handled by context
   };
 
-  const handleOnboardingComplete = (data: { name: string; moodBaseline: string; intent: string[] }) => {
-    completeOnboarding(data);
+  const handleOnboardingComplete = async (data: any) => {
+    await completeOnboarding(data);
     setShowOnboarding(false);
   };
 
-  const getBreadcrumbs = () => {
-    const items = [];
-    if (activeSection === 'messages') {
-      items.push({ label: 'Messages', href: '#messages' });
-      items.push({ label: 'Chat', href: '#chat' });
-    } else if (activeSection === 'settings') {
-      items.push({ label: 'Settings', href: '#settings' });
-      items.push({ label: 'System', href: '#system' });
-    } else if (activeSection === 'home') {
-      items.push({ label: 'Check-In', href: '#checkin' });
-    } else if (activeSection === 'dashboard') {
-      items.push({ label: 'Dashboard', href: '#dashboard' });
-      items.push({ label: 'My Mood', href: '#my-mood' });
-    } else if (activeSection === 'search') {
-      items.push({ label: 'Search', href: '#search' });
-    } else if (activeSection === 'guide') {
-      items.push({ label: 'Soul Guide', href: '#guide' });
-    } else if (activeSection === 'social') {
-      items.push({ label: 'Social Feed', href: '#social' });
-      items.push({ label: 'Stories', href: '#stories' });
+  // Intelligent Header Hide/Show
+  const handleScroll = (e: any) => {
+    const currentScrollY = e.target.scrollTop || window.scrollY || 0;
+
+    // Smooth threshold logic
+    if (Math.abs(currentScrollY - lastScrollY.current) < 10) return;
+
+    if (currentScrollY > lastScrollY.current && currentScrollY > 20) {
+      setShowHeader(false); // Scrolling down
+    } else if (currentScrollY < lastScrollY.current || currentScrollY < 20) {
+      setShowHeader(true);  // Scrolling up or near top
     }
-    return items;
+    lastScrollY.current = currentScrollY;
   };
 
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const currentScrollY = e.currentTarget.scrollTop;
-    const diff = currentScrollY - lastScrollY.current;
-
-    // Optimized: Only update state if difference is significant and state actually changes
-    if (Math.abs(diff) > 20) {
-      if (diff > 0 && currentScrollY > 50 && showHeader) {
-        setShowHeader(false);
-      } else if (diff < 0 && !showHeader) {
-        setShowHeader(true);
-      }
-      lastScrollY.current = currentScrollY;
-    }
-  };
-
+  // Pull to Refresh Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     if (dashboardRef.current?.scrollTop === 0) {
       setPullStartY(e.touches[0].clientY);
@@ -266,19 +167,17 @@ export default function Home() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (pullStartY === 0 || isRefreshing) return;
-    const touchY = e.touches[0].clientY;
-    const pullDistance = touchY - pullStartY;
-
-    if (pullDistance > 0 && dashboardRef.current?.scrollTop === 0) {
-      setPullProgress(Math.min(pullDistance * 0.4, 120));
+    if (pullStartY > 0) {
+      const pull = e.touches[0].clientY - pullStartY;
+      if (pull > 0) {
+        setPullProgress(Math.min(pull * 0.5, 100));
+      }
     }
   };
 
   const handleTouchEnd = () => {
     if (pullProgress > 60) {
       setIsRefreshing(true);
-      setPullProgress(60);
       setTimeout(() => {
         setIsRefreshing(false);
         setPullProgress(0);
@@ -290,53 +189,54 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <NeuralRipples />
+    <div className="min-h-screen bg-black text-white relative overflow-hidden font-sans selection:bg-purple-500/30">
 
-
-      {/* 1. Splash Screen - Always First */}
+      {/* 1. Splash Screen */}
       <AnimatePresence>
         {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       </AnimatePresence>
 
-      {/* 2. Loading Screen - Show while checking auth OR if explicitly loading */}
+      {/* 2. Loading Screen */}
       {!showSplash && (authLoading || showLoading) && (
         <LoadingScreen message={authLoading ? "Connecting to Neural Core..." : "Loading Experience..."} />
       )}
 
-      {/* 3. Auth Screen - Show if ready and no user */}
+      {/* 3. Auth Screen */}
       {!showSplash && !authLoading && !showLoading && !user && (
         <AuthScreen onAuthSuccess={handleAuthSuccess} />
       )}
 
-      {/* 4. Main App - Show if ready and has user */}
+      {/* 4. Main App */}
       {!showSplash && !authLoading && !showLoading && user && (
         <>
-          {/* Onboarding Overlay */}
           <AnimatePresence>
             {showOnboarding && (
               <OnboardingFlow onComplete={handleOnboardingComplete} userName={user.name} />
             )}
           </AnimatePresence>
 
-
           {/* Dynamic Background */}
           {theme === 'liquid' ? (
             <LiquidBackground />
           ) : theme === 'spiral' ? (
             <SpiralBackground />
+          ) : theme === 'light' ? (
+            <LightBackground />
+          ) : theme === 'retro' ? (
+            <RetroBackground />
+          ) : theme === 'retro-minimal' ? (
+            <RetroMinimalBackground />
           ) : (
             <InteractiveGrid />
           )}
 
-          {/* Modals */}
           <AnimatePresence>
             {showFunZone && <FunZone onClose={() => setShowFunZone(false)} />}
           </AnimatePresence>
 
           <div className="flex flex-col h-screen overflow-hidden relative">
-            {/* Minimal Header - Hidden in Home for immersion */}
-            {/* Premium Header - Neural Update */}
+
+            {/* Header */}
             <AnimatePresence>
               {showHeader && (
                 <motion.header
@@ -352,7 +252,6 @@ export default function Home() {
                   <div className="flex items-center gap-6 pointer-events-auto relative z-10">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
                         <h1 className="text-xl font-black italic text-white uppercase tracking-tighter">Neural Core</h1>
                       </div>
                       <div className="mt-1 flex items-center gap-2">
@@ -369,7 +268,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Desktop Center Dynamic Info Box */}
                   <div className="hidden lg:flex items-center pointer-events-auto relative z-10">
                     <DynamicInfoBox />
                   </div>
@@ -380,15 +278,15 @@ export default function Home() {
                         setShowFunZone(true);
                         setHasNewGames(false);
                       }}
-                      className="group relative h-12 px-6 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white transition-all overflow-hidden"
+                      className="group relative h-12 px-6 flex items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-white/10 text-white transition-all overflow-hidden hover:border-white/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]"
                     >
                       <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="flex items-center gap-3">
-                        <Gamepad2 className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all duration-500" />
-                        <span className="text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300">Playzone</span>
+                        <Gamepad2 className="w-5 h-5 text-fuchsia-300 group-hover:text-white transition-colors duration-300" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white transition-colors duration-300">Playzone</span>
                       </div>
                       {hasNewGames && (
-                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
+                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-fuchsia-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
                       )}
                     </button>
 
@@ -403,15 +301,9 @@ export default function Home() {
               )}
             </AnimatePresence>
 
-            {/* Main Section Content */}
+            {/* Main Content */}
             <main className="flex-1 relative flex flex-col overflow-hidden">
               <NeuralNotifications />
-              <NeuralAudio
-                emotion={activeSection === 'home' ? 'joyful' : (algoDecision?.scrollSpeed === 'slow' ? 'calm' : 'calm')}
-                intensity={algoDecision?.notificationIntensity === 'minimal' ? 0.1 : 0.3}
-              />
-
-              {/* Global Neural Texture Overlay */}
               <div className="fixed inset-0 pointer-events-none z-[300] opacity-[0.03] overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-50" />
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px]" />
@@ -423,16 +315,12 @@ export default function Home() {
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.02 }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 200,
-                    damping: 25,
-                    mass: 0.5
-                  }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 25, mass: 0.5 }}
                   className="flex-1 flex flex-col will-change-transform overflow-hidden"
                 >
                   {activeSection === 'home' && (
                     <div
+                      data-scrollable="true"
                       className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative"
                       onScroll={handleScroll}
                     >
@@ -445,13 +333,13 @@ export default function Home() {
                       <ScrollProgress color="rgb(168, 85, 247)" position="right" thickness={3} />
                       <div
                         ref={dashboardRef}
+                        data-scrollable="true"
                         className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
                         onScroll={handleScroll}
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                       >
-                        {/* Refresh Indicator */}
                         <div
                           className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
                           style={{ transform: `translateY(${pullProgress - 50}px)` }}
@@ -470,8 +358,6 @@ export default function Home() {
                       </div>
                     </>
                   )}
-
-
 
                   {activeSection === 'messages' && (
                     <MessagesSectionWrapper onScroll={handleScroll} />
@@ -495,20 +381,20 @@ export default function Home() {
               </AnimatePresence>
             </main>
 
-            {/* Premium Dock Navigation */}
             <Dock
               activeSection={activeSection}
               onSectionChange={(section) => {
-                setActiveSection(section);
-                setShowHeader(true);
+                if (section === 'games') {
+                  setShowFunZone(true);
+                } else {
+                  setActiveSection(section);
+                  setShowHeader(true);
+                }
               }}
-            // Add 'wellness' to Dock navigation if not present
             />
           </div>
-
         </>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }
