@@ -1,26 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    eslint: {
-        ignoreDuringBuilds: true,
+    images: {
+        domains: [
+            'api.dicebear.com',
+            'picsum.photos',
+            'grainy-gradients.vercel.app'
+        ],
     },
-    async headers() {
-        return [
-            {
-                // Apply these headers to all routes
-                source: '/:path*',
-                headers: [
-                    {
-                        key: 'Cross-Origin-Opener-Policy',
-                        value: 'same-origin-allow-popups',
-                    },
-                    {
-                        key: 'Cross-Origin-Embedder-Policy',
-                        value: 'unsafe-none',
-                    },
-                ],
-            },
-        ];
-    },
+    // Disable strict mode for development to prevent double-rendering
+    reactStrictMode: false,
+
+    // Optimize for production
+    swcMinify: true,
 };
 
 export default nextConfig;

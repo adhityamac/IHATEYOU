@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useSpring } from 'framer-motion';
-import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain } from 'lucide-react';
+import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain, Camera } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useRef, useEffect, useState } from 'react';
 
@@ -18,6 +18,7 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
     const items = [
         { id: 'home' as Section, icon: Home },
         { id: 'dashboard' as Section, icon: LayoutGrid },
+        { id: 'social' as Section, icon: Camera },
         { id: 'messages' as Section, icon: MessageCircle },
         { id: 'guide' as Section, icon: Brain },
         { id: 'search' as Section, icon: Search },

@@ -29,15 +29,17 @@ export const useChat = () => {
         const unsubscribe = getUserConversations(user.id, (convs) => {
             setConversations(convs);
             setLoading(false);
-
-            // Auto-select first conversation if none selected
-            if (!activeConversationId && convs.length > 0) {
-                setActiveConversationId(convs[0].id);
-            }
         });
 
         return () => unsubscribe();
     }, [user?.id]);
+
+    // Auto-select first conversation when conversations load
+    useEffect(() => {
+        if (!activeConversationId && conversations.length > 0) {
+            setActiveConversationId(conversations[0].id);
+        }
+    }, [conversations, activeConversationId]);
 
     // Listen to messages in active conversation
     useEffect(() => {

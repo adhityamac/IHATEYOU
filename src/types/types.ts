@@ -1,4 +1,4 @@
-export type Section = 'home' | 'dashboard' | 'messages' | 'settings' | 'search' | 'guide';
+export type Section = 'home' | 'dashboard' | 'messages' | 'settings' | 'search' | 'guide' | 'social';
 
 export interface User {
   id: string;
@@ -40,8 +40,11 @@ export interface Conversation {
 export interface Story {
   id: string;
   userId: string;
+  username: string; // Added for UI
+  userAvatar: string; // Added for UI
   imageUrl: string;
   isViewed: boolean;
+  timestamp: Date; // Added for sorting
 }
 
 export interface EmojiAvatar {
@@ -60,9 +63,13 @@ export interface Group {
 export interface Post {
   id: number;
   user: string;
+  username?: string; // Added
+  avatar?: string; // Added
   content: string;
+  image?: string; // Added for media posts
   time: string;
-  color: string;
-  echoes: number;
-  replies: number;
+  color?: string; // Optional now
+  echoes: number; // Likes
+  replies: number; // Comments
+  isLiked?: boolean; // UI state
 }

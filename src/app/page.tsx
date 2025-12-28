@@ -12,6 +12,7 @@ import LiquidBackground from '@/components/backgrounds/LiquidBackground';
 import SpiralBackground from '@/components/backgrounds/SpiralBackground';
 import FunZone from '@/features/games/components/FunZone';
 import Dock from '@/components/shared/Dock';
+import SocialFeed from '@/features/social/components/SocialFeed';
 import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
 import SettingsSection from '@/components/shared/SettingsSection';
 import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
@@ -235,6 +236,9 @@ export default function Home() {
       items.push({ label: 'Search', href: '#search' });
     } else if (activeSection === 'guide') {
       items.push({ label: 'Soul Guide', href: '#guide' });
+    } else if (activeSection === 'social') {
+      items.push({ label: 'Social Feed', href: '#social' });
+      items.push({ label: 'Stories', href: '#stories' });
     }
     return items;
   };
@@ -471,6 +475,10 @@ export default function Home() {
 
                   {activeSection === 'messages' && (
                     <MessagesSectionWrapper onScroll={handleScroll} />
+                  )}
+
+                  {activeSection === 'social' && (
+                    <SocialFeed onScroll={handleScroll} />
                   )}
 
                   {activeSection === 'search' && (
