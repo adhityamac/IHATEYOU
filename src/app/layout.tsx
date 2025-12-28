@@ -26,6 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className="bg-[#000000] text-zinc-400 antialiased font-sans"
+        suppressHydrationWarning
       >
         <GradientThemeProvider>
           <AuthProvider>
