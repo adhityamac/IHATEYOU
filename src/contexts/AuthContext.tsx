@@ -17,6 +17,7 @@ interface UserProfile {
     intent?: string[];
     ghostName?: string;
     theme?: string;
+    bio?: string;
     createdAt: Date;
 }
 

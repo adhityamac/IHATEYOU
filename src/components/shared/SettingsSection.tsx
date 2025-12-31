@@ -18,7 +18,7 @@ interface SettingsSectionProps {
 }
 
 export default function SettingsSection({ onScroll }: SettingsSectionProps) {
-    const { user, signOut } = useAuth();
+    const { user, logout } = useAuth();
     const { mode, setMode } = useThemeMode();
     const [activeView, setActiveView] = useState<SettingsView>('main');
     const [isEditing, setIsEditing] = useState(false);
@@ -46,7 +46,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
 
     const handleLogout = async () => {
         if (confirm('Are you sure you want to log out?')) {
-            await signOut();
+            await logout();
         }
     };
 
@@ -360,8 +360,8 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                                 key={option}
                                                 onClick={() => setAllowMessages(option as typeof allowMessages)}
                                                 className={`w-full p-3 rounded-xl border transition-all text-left ${allowMessages === option
-                                                        ? 'bg-theme-primary border-accent-primary'
-                                                        : 'bg-theme-tertiary border-theme-primary hover:border-theme-focus'
+                                                    ? 'bg-theme-primary border-accent-primary'
+                                                    : 'bg-theme-tertiary border-theme-primary hover:border-theme-focus'
                                                     }`}
                                             >
                                                 <span className="font-semibold text-theme-primary capitalize">{option}</span>
@@ -408,8 +408,8 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                         <button
                                             onClick={() => setMode('dark')}
                                             className={`p-4 rounded-xl border-2 transition-all ${mode === 'dark'
-                                                    ? 'border-accent-primary bg-theme-primary'
-                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                ? 'border-accent-primary bg-theme-primary'
+                                                : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
                                                 }`}
                                         >
                                             <Moon size={24} className="mx-auto mb-2 text-theme-primary" />
@@ -419,8 +419,8 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                         <button
                                             onClick={() => setMode('light')}
                                             className={`p-4 rounded-xl border-2 transition-all ${mode === 'light'
-                                                    ? 'border-accent-primary bg-theme-primary'
-                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                ? 'border-accent-primary bg-theme-primary'
+                                                : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
                                                 }`}
                                         >
                                             <Sun size={24} className="mx-auto mb-2 text-theme-primary" />
@@ -430,8 +430,8 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                         <button
                                             onClick={() => setMode('retro')}
                                             className={`p-4 rounded-xl border-2 transition-all ${mode === 'retro'
-                                                    ? 'border-accent-primary bg-theme-primary'
-                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                ? 'border-accent-primary bg-theme-primary'
+                                                : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
                                                 }`}
                                         >
                                             <Sparkles size={24} className="mx-auto mb-2 text-theme-primary" />

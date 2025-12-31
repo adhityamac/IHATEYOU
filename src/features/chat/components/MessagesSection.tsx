@@ -219,6 +219,10 @@ export default function MessagesSection({
     }
 
     // Active Chat View
+    if (!activeConversation) {
+        return null;
+    }
+
     return (
         <div className="flex-1 flex flex-col h-full bg-black relative">
             {/* Chat Header - Instagram Style */}
@@ -339,8 +343,8 @@ export default function MessagesSection({
                         type="submit"
                         disabled={!messageInput.trim()}
                         className={`w-9 h-9 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${messageInput.trim()
-                                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                                : 'bg-white/5 text-white/30 cursor-not-allowed'
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-white/5 text-white/30 cursor-not-allowed'
                             }`}
                     >
                         <Send size={18} />
@@ -362,8 +366,8 @@ export default function MessagesSection({
                                         key={cat.id}
                                         onClick={() => setActiveEmojiCategory(cat.id)}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${activeEmojiCategory === cat.id
-                                                ? 'bg-white text-black'
-                                                : 'text-white/60 hover:bg-white/10'
+                                            ? 'bg-white text-black'
+                                            : 'text-white/60 hover:bg-white/10'
                                             }`}
                                     >
                                         {cat.name}
