@@ -1,709 +1,527 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
 import {
-    User,
-    Bell,
-    Lock,
-    Globe,
-    HelpCircle,
-    LogOut,
-    ChevronRight,
-    Info,
-    Palette,
-    Shield,
-    Terminal,
-    X,
-    Check,
-    Mail,
-    Phone,
-    Calendar,
-    MapPin,
-    Briefcase,
-    Heart,
-    Trash2,
-    Download,
-    Upload,
+    User, Lock, Bell, Palette, Database, HelpCircle,
+    ChevronRight, Moon, Sun, Sparkles, LogOut, Trash2,
+    Download, Shield, Eye, EyeOff, Mail, Phone, Camera,
+    Edit3, Check, X
 } from 'lucide-react';
-import ThemeSelector from './ThemeSelector';
-import { useTheme, Theme } from './GradientThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateUserPreferences, getUserPreferences, updateUserBio, UserPreferences } from '@/lib/firebase/preferences';
+import { useThemeMode } from '@/contexts/ThemeModeContext';
+
+type SettingsView = 'main' | 'account' | 'privacy' | 'notifications' | 'appearance' | 'data' | 'help';
 
 interface SettingsSectionProps {
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export default function SettingsSection({ onScroll }: SettingsSectionProps) {
-    const { theme, setTheme } = useTheme();
-    const { user, logout, updateUserGhostName, updateTheme } = useAuth();
+    const { user, signOut } = useAuth();
+    const { mode, setMode } = useThemeMode();
+    const [activeView, setActiveView] = useState<SettingsView>('main');
+    const [isEditing, setIsEditing] = useState(false);
 
-    // Modals
-    const [showProfileEdit, setShowProfileEdit] = useState(false);
-    const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-    const [showAccountModal, setShowAccountModal] = useState(false);
-    const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-    const [showDataModal, setShowDataModal] = useState(false);
-    const [showAppearanceModal, setShowAppearanceModal] = useState(false);
-    const [showHelpModal, setShowHelpModal] = useState(false);
-
-    // Profile data
-    const [tempGhostName, setTempGhostName] = useState('');
-    const [tempBio, setTempBio] = useState('');
-    const [tempLocation, setTempLocation] = useState('');
-    const [tempOccupation, setTempOccupation] = useState('');
-    const [saving, setSaving] = useState(false);
+    // Account settings state
+    const [displayName, setDisplayName] = useState(user?.name || '');
+    const [ghostName, setGhostName] = useState(user?.ghostName || '');
+    const [bio, setBio] = useState(user?.bio || '');
 
     // Privacy settings state
-    const [preferences, setPreferences] = useState<UserPreferences>({
-        readReceipts: true,
-        onlineStatus: true,
-        typingIndicators: true,
-        profileVisibility: true,
-        notifications: true,
-        soundEnabled: true,
-    });
+    const [showOnlineStatus, setShowOnlineStatus] = useState(true);
+    const [readReceipts, setReadReceipts] = useState(true);
+    const [allowMessages, setAllowMessages] = useState<'everyone' | 'connections' | 'none'>('everyone');
 
-    // Load user data and preferences
-    useEffect(() => {
-        if (user?.id) {
-            setTempGhostName(user.ghostName || user.name);
-            setTempBio('Living authentically, feeling deeply');
-            setTempLocation('The Void');
-            setTempOccupation('Soul Explorer');
+    // Notification settings state
+    const [pushNotifications, setPushNotifications] = useState(true);
+    const [emailNotifications, setEmailNotifications] = useState(false);
+    const [messageNotifications, setMessageNotifications] = useState(true);
+    const [emotionalCheckIns, setEmotionalCheckIns] = useState(true);
 
-            getUserPreferences(user.id).then(prefs => {
-                if (prefs) {
-                    setPreferences(prefs);
-                }
-            }).catch(err => {
-                console.error('Error loading preferences:', err);
-            });
-        }
-    }, [user]);
-
-    const handleSaveProfile = async () => {
-        if (!user?.id) return;
-
-        setSaving(true);
-        try {
-            if (tempGhostName !== user.ghostName) {
-                await updateUserGhostName(tempGhostName);
-            }
-
-            await updateUserBio(user.id, tempBio);
-
-            setShowProfileEdit(false);
-        } catch (error) {
-            console.error('Error saving profile:', error);
-            alert('Failed to save profile. Please try again.');
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    const handleTogglePreference = async (key: keyof UserPreferences) => {
-        if (!user?.id) return;
-
-        const newPreferences = {
-            ...preferences,
-            [key]: !preferences[key],
-        };
-
-        setPreferences(newPreferences);
-
-        try {
-            await updateUserPreferences(user.id, newPreferences);
-        } catch (error) {
-            console.error('Error updating preferences:', error);
-            setPreferences(preferences);
-        }
-    };
-
-    const handleThemeChange = async (newTheme: Theme) => {
-        setTheme(newTheme);
-        if (user?.id) {
-            try {
-                await updateTheme(newTheme);
-            } catch (error) {
-                console.error('Error saving theme:', error);
-            }
-        }
+    const handleSaveAccount = () => {
+        // TODO: Save to Firebase
+        setIsEditing(false);
     };
 
     const handleLogout = async () => {
-        if (confirm('Are you sure you want to logout?')) {
-            try {
-                await logout();
-            } catch (error) {
-                console.error('Error logging out:', error);
-                alert('Failed to logout. Please try again.');
-            }
+        if (confirm('Are you sure you want to log out?')) {
+            await signOut();
         }
     };
 
-    if (!user) return null;
+    const handleDeleteAccount = () => {
+        if (confirm('⚠️ This will permanently delete your account and all data. This cannot be undone. Are you sure?')) {
+            // TODO: Implement account deletion
+            alert('Account deletion will be implemented with backend');
+        }
+    };
+
+    const handleDownloadData = () => {
+        // TODO: Implement data export
+        alert('Your data export will be ready shortly and sent to your email');
+    };
+
+    // Main settings menu
+    const mainMenuItems = [
+        {
+            id: 'account',
+            icon: User,
+            label: 'Account',
+            description: 'Manage your profile and personal info',
+            color: 'from-blue-500 to-cyan-500'
+        },
+        {
+            id: 'privacy',
+            icon: Lock,
+            label: 'Privacy & Security',
+            description: 'Control who sees what',
+            color: 'from-purple-500 to-pink-500'
+        },
+        {
+            id: 'notifications',
+            icon: Bell,
+            label: 'Notifications',
+            description: 'Manage alerts and reminders',
+            color: 'from-orange-500 to-red-500'
+        },
+        {
+            id: 'appearance',
+            icon: Palette,
+            label: 'Appearance',
+            description: 'Themes and visual preferences',
+            color: 'from-emerald-500 to-teal-500'
+        },
+        {
+            id: 'data',
+            icon: Database,
+            label: 'Data & Storage',
+            description: 'Download or delete your data',
+            color: 'from-rose-500 to-pink-500'
+        },
+        {
+            id: 'help',
+            icon: HelpCircle,
+            label: 'Help & Support',
+            description: 'FAQs, contact, and feedback',
+            color: 'from-violet-500 to-purple-500'
+        }
+    ];
 
     return (
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-transparent p-6" onScroll={onScroll}>
-            <div className="max-w-2xl mx-auto space-y-12 pb-32">
-
-                {/* Profile Edit Modal */}
-                <AnimatePresence>
-                    {showProfileEdit && (
-                        <DetailModal
-                            title="Edit Profile"
-                            onClose={() => setShowProfileEdit(false)}
+        <div className="flex-1 h-full overflow-y-auto bg-theme-primary" onScroll={onScroll}>
+            <div className="max-w-2xl mx-auto px-6 py-8 pb-32">
+                <AnimatePresence mode="wait">
+                    {activeView === 'main' && (
+                        <motion.div
+                            key="main"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
                         >
+                            {/* Header */}
+                            <div className="mb-8">
+                                <h1 className="text-3xl font-black text-theme-primary mb-2">Settings</h1>
+                                <p className="text-theme-tertiary">Manage your account and preferences</p>
+                            </div>
+
+                            {/* User Card */}
+                            <div className="mb-8 p-6 rounded-3xl bg-theme-secondary border border-theme-primary">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-black text-white">
+                                        {user?.name?.charAt(0) || 'U'}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-theme-primary text-lg">{user?.name || 'User'}</h3>
+                                        <p className="text-theme-tertiary text-sm">{user?.email || user?.phone || 'No contact info'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Settings Menu */}
+                            <div className="space-y-3">
+                                {mainMenuItems.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => setActiveView(item.id as SettingsView)}
+                                        className="w-full p-4 rounded-2xl bg-theme-secondary border border-theme-primary hover:border-theme-focus transition-all group"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center`}>
+                                                <item.icon size={20} className="text-white" />
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <h4 className="font-bold text-theme-primary">{item.label}</h4>
+                                                <p className="text-sm text-theme-tertiary">{item.description}</p>
+                                            </div>
+                                            <ChevronRight size={20} className="text-theme-quaternary group-hover:text-theme-tertiary transition-colors" />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Logout Button */}
+                            <button
+                                onClick={handleLogout}
+                                className="w-full mt-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center justify-center gap-2 text-red-500 font-bold"
+                            >
+                                <LogOut size={20} />
+                                Log Out
+                            </button>
+                        </motion.div>
+                    )}
+
+                    {/* Account Settings */}
+                    {activeView === 'account' && (
+                        <motion.div
+                            key="account"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                        >
+                            <button
+                                onClick={() => setActiveView('main')}
+                                className="mb-6 flex items-center gap-2 text-theme-tertiary hover:text-theme-primary transition-colors"
+                            >
+                                <ChevronRight size={20} className="rotate-180" />
+                                Back
+                            </button>
+
+                            <h2 className="text-2xl font-black text-theme-primary mb-6">Account Settings</h2>
+
                             <div className="space-y-6">
-                                <div>
-                                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">
-                                        Ghost Name
-                                    </label>
+                                {/* Profile Picture */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <label className="block text-sm font-bold text-theme-secondary mb-3">Profile Picture</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl font-black text-white">
+                                            {user?.name?.charAt(0) || 'U'}
+                                        </div>
+                                        <button className="px-4 py-2 rounded-xl bg-theme-tertiary border border-theme-primary hover:bg-theme-elevated transition-all flex items-center gap-2 text-theme-primary font-semibold">
+                                            <Camera size={16} />
+                                            Change Photo
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Display Name */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <label className="block text-sm font-bold text-theme-secondary mb-3">Display Name</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            value={displayName}
+                                            onChange={(e) => setDisplayName(e.target.value)}
+                                            disabled={!isEditing}
+                                            className="flex-1 px-4 py-3 rounded-xl bg-theme-primary border border-theme-primary focus:border-theme-focus outline-none text-theme-primary disabled:opacity-50"
+                                        />
+                                        {isEditing ? (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={handleSaveAccount}
+                                                    className="w-10 h-10 rounded-xl bg-green-500 hover:bg-green-600 flex items-center justify-center text-white transition-colors"
+                                                >
+                                                    <Check size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsEditing(false);
+                                                        setDisplayName(user?.name || '');
+                                                    }}
+                                                    className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center text-white transition-colors"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setIsEditing(true)}
+                                                className="w-10 h-10 rounded-xl bg-theme-tertiary border border-theme-primary hover:bg-theme-elevated flex items-center justify-center text-theme-primary transition-colors"
+                                            >
+                                                <Edit3 size={18} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Ghost Name */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <label className="block text-sm font-bold text-theme-secondary mb-3">Ghost Name (Username)</label>
                                     <input
                                         type="text"
-                                        value={tempGhostName}
-                                        onChange={(e) => setTempGhostName(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-all"
-                                        placeholder="Your ghost name"
+                                        value={ghostName}
+                                        onChange={(e) => setGhostName(e.target.value)}
+                                        disabled={!isEditing}
+                                        className="w-full px-4 py-3 rounded-xl bg-theme-primary border border-theme-primary focus:border-theme-focus outline-none text-theme-primary disabled:opacity-50"
+                                        placeholder="@username"
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">
-                                        Bio
-                                    </label>
+                                {/* Bio */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <label className="block text-sm font-bold text-theme-secondary mb-3">Bio</label>
                                     <textarea
-                                        value={tempBio}
-                                        onChange={(e) => setTempBio(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-all resize-none"
-                                        placeholder="Tell us about yourself"
+                                        value={bio}
+                                        onChange={(e) => setBio(e.target.value)}
+                                        disabled={!isEditing}
                                         rows={3}
+                                        className="w-full px-4 py-3 rounded-xl bg-theme-primary border border-theme-primary focus:border-theme-focus outline-none text-theme-primary disabled:opacity-50 resize-none"
+                                        placeholder="Tell us about yourself..."
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">
-                                        Location
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={tempLocation}
-                                        onChange={(e) => setTempLocation(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-all"
-                                        placeholder="Where are you from?"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">
-                                        Occupation
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={tempOccupation}
-                                        onChange={(e) => setTempOccupation(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 transition-all"
-                                        placeholder="What do you do?"
-                                    />
-                                </div>
-
-                                <div className="flex gap-3 pt-4">
-                                    <button
-                                        onClick={() => setShowProfileEdit(false)}
-                                        disabled={saving}
-                                        className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 disabled:opacity-50 rounded-xl text-white font-bold transition-all"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSaveProfile}
-                                        disabled={saving || !tempGhostName.trim()}
-                                        className="flex-1 px-6 py-3 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-bold transition-all"
-                                    >
-                                        {saving ? 'Saving...' : 'Save Changes'}
-                                    </button>
-                                </div>
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Privacy Modal */}
-                <AnimatePresence>
-                    {showPrivacyModal && (
-                        <DetailModal
-                            title="Privacy & Safety"
-                            subtitle="Control your visibility and data"
-                            onClose={() => setShowPrivacyModal(false)}
-                        >
-                            <div className="space-y-4">
-                                <PrivacyToggle
-                                    label="Read Receipts"
-                                    description="Let others know when you've read their messages"
-                                    isEnabled={preferences.readReceipts}
-                                    onToggle={() => handleTogglePreference('readReceipts')}
-                                />
-                                <PrivacyToggle
-                                    label="Online Status"
-                                    description="Show when you're active"
-                                    isEnabled={preferences.onlineStatus}
-                                    onToggle={() => handleTogglePreference('onlineStatus')}
-                                />
-                                <PrivacyToggle
-                                    label="Typing Indicators"
-                                    description="Show when you're typing"
-                                    isEnabled={preferences.typingIndicators}
-                                    onToggle={() => handleTogglePreference('typingIndicators')}
-                                />
-                                <PrivacyToggle
-                                    label="Profile Visibility"
-                                    description="Allow others to view your profile"
-                                    isEnabled={preferences.profileVisibility}
-                                    onToggle={() => handleTogglePreference('profileVisibility')}
-                                />
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Account Details Modal */}
-                <AnimatePresence>
-                    {showAccountModal && (
-                        <DetailModal
-                            title="Account Details"
-                            subtitle="Your personal information"
-                            onClose={() => setShowAccountModal(false)}
-                        >
-                            <div className="space-y-4">
-                                <InfoRow icon={User} label="Ghost Name" value={user.ghostName || user.name} />
-                                <InfoRow icon={Mail} label="Email" value={user.email || 'Not provided'} />
-                                <InfoRow icon={Phone} label="Phone" value={user.phone || 'Not provided'} />
-                                <InfoRow icon={Calendar} label="Member Since" value={new Date(user.createdAt).toLocaleDateString()} />
-                                <InfoRow icon={MapPin} label="Location" value={tempLocation} />
-                                <InfoRow icon={Briefcase} label="Occupation" value={tempOccupation} />
-
-                                <div className="pt-4 border-t border-white/10">
-                                    <button
-                                        onClick={() => {
-                                            setShowAccountModal(false);
-                                            setShowProfileEdit(true);
-                                        }}
-                                        className="w-full px-6 py-3 bg-purple-500 hover:bg-purple-600 rounded-xl text-white font-bold transition-all"
-                                    >
-                                        Edit Profile
-                                    </button>
-                                </div>
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Notifications Modal */}
-                <AnimatePresence>
-                    {showNotificationsModal && (
-                        <DetailModal
-                            title="Notifications"
-                            subtitle="Manage your alerts"
-                            onClose={() => setShowNotificationsModal(false)}
-                        >
-                            <div className="space-y-4">
-                                <PrivacyToggle
-                                    label="Push Notifications"
-                                    description="Receive notifications on your device"
-                                    isEnabled={preferences.notifications}
-                                    onToggle={() => handleTogglePreference('notifications')}
-                                />
-                                <PrivacyToggle
-                                    label="Sound Effects"
-                                    description="Play sounds for new messages"
-                                    isEnabled={preferences.soundEnabled}
-                                    onToggle={() => handleTogglePreference('soundEnabled')}
-                                />
-
-                                <div className="pt-4 border-t border-white/10">
-                                    <p className="text-xs text-white/40 text-center">
-                                        More notification options coming soon
-                                    </p>
-                                </div>
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Data & Storage Modal */}
-                <AnimatePresence>
-                    {showDataModal && (
-                        <DetailModal
-                            title="Data & Storage"
-                            subtitle="Manage your data"
-                            onClose={() => setShowDataModal(false)}
-                        >
-                            <div className="space-y-4">
-                                <button className="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-between transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <Download className="w-5 h-5 text-blue-400" />
-                                        <div className="text-left">
-                                            <div className="text-sm font-bold text-white">Download Your Data</div>
-                                            <div className="text-xs text-white/40">Export all your information</div>
-                                        </div>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-white/20" />
-                                </button>
-
-                                <button className="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-between transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <Upload className="w-5 h-5 text-green-400" />
-                                        <div className="text-left">
-                                            <div className="text-sm font-bold text-white">Storage Usage</div>
-                                            <div className="text-xs text-white/40">View your storage details</div>
-                                        </div>
-                                    </div>
-                                    <span className="text-xs text-white/40">2.3 MB</span>
-                                </button>
-
-                                <button className="w-full p-4 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl flex items-center justify-between transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <Trash2 className="w-5 h-5 text-rose-400" />
-                                        <div className="text-left">
-                                            <div className="text-sm font-bold text-rose-400">Delete Account</div>
-                                            <div className="text-xs text-rose-400/60">Permanently remove your account</div>
-                                        </div>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-rose-400/40" />
-                                </button>
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Appearance Modal */}
-                <AnimatePresence>
-                    {showAppearanceModal && (
-                        <DetailModal
-                            title="App Appearance"
-                            subtitle="Customize your visual experience"
-                            onClose={() => setShowAppearanceModal(false)}
-                        >
-                            <div className="space-y-8">
-                                <div>
-                                    <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Color Theme</h3>
-                                    <ThemeSelector currentTheme={theme} onThemeChange={handleThemeChange} />
-                                </div>
-
-                                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-2">More Options</h3>
-                                    <p className="text-sm text-white/60">Font scaling and reduced motion settings coming soon.</p>
-                                </div>
-                            </div>
-                        </DetailModal>
-                    )}
-                </AnimatePresence>
-
-                {/* Help Modal */}
-                <AnimatePresence>
-                    {showHelpModal && (
-                        <DetailModal
-                            title="Help Center"
-                            subtitle="How can we assist you?"
-                            onClose={() => setShowHelpModal(false)}
-                        >
-                            <div className="space-y-4">
-                                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                                    <h4 className="font-bold text-white mb-2">Frequently Asked Questions</h4>
+                                {/* Contact Info */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <label className="block text-sm font-bold text-theme-secondary mb-3">Contact Information</label>
                                     <div className="space-y-3">
-                                        <details className="group">
-                                            <summary className="text-sm text-white/80 cursor-pointer list-none flex items-center justify-between">
-                                                <span>How do I change my ghost name?</span>
-                                                <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
-                                            </summary>
-                                            <p className="text-xs text-white/50 mt-2 pl-2 border-l-2 border-white/10">
-                                                Go to Account Details &gt; Edit Profile to update your ghost name.
-                                            </p>
-                                        </details>
-                                        <details className="group">
-                                            <summary className="text-sm text-white/80 cursor-pointer list-none flex items-center justify-between">
-                                                <span>Is my chat private?</span>
-                                                <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
-                                            </summary>
-                                            <p className="text-xs text-white/50 mt-2 pl-2 border-l-2 border-white/10">
-                                                Yes, all messages are end-to-end encrypted and stored securely.
-                                            </p>
-                                        </details>
+                                        {user?.email && (
+                                            <div className="flex items-center gap-3 text-theme-tertiary">
+                                                <Mail size={18} />
+                                                <span>{user.email}</span>
+                                            </div>
+                                        )}
+                                        {user?.phone && (
+                                            <div className="flex items-center gap-3 text-theme-tertiary">
+                                                <Phone size={18} />
+                                                <span>{user.phone}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <button className="w-full py-3 bg-purple-500 rounded-xl text-white font-bold text-sm hover:bg-purple-600 transition-all">
-                                    Contact Support
-                                </button>
                             </div>
-                        </DetailModal>
+                        </motion.div>
+                    )}
+
+                    {/* Privacy Settings */}
+                    {activeView === 'privacy' && (
+                        <motion.div
+                            key="privacy"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                        >
+                            <button
+                                onClick={() => setActiveView('main')}
+                                className="mb-6 flex items-center gap-2 text-theme-tertiary hover:text-theme-primary transition-colors"
+                            >
+                                <ChevronRight size={20} className="rotate-180" />
+                                Back
+                            </button>
+
+                            <h2 className="text-2xl font-black text-theme-primary mb-6">Privacy & Security</h2>
+
+                            <div className="space-y-4">
+                                {/* Online Status */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-theme-primary mb-1">Show Online Status</h4>
+                                            <p className="text-sm text-theme-tertiary">Let others see when you're active</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowOnlineStatus(!showOnlineStatus)}
+                                            className={`w-14 h-8 rounded-full transition-colors ${showOnlineStatus ? 'bg-green-500' : 'bg-theme-tertiary'
+                                                } relative`}
+                                        >
+                                            <div
+                                                className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${showOnlineStatus ? 'translate-x-7' : 'translate-x-1'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Read Receipts */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-theme-primary mb-1">Read Receipts</h4>
+                                            <p className="text-sm text-theme-tertiary">Show when you've read messages</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setReadReceipts(!readReceipts)}
+                                            className={`w-14 h-8 rounded-full transition-colors ${readReceipts ? 'bg-green-500' : 'bg-theme-tertiary'
+                                                } relative`}
+                                        >
+                                            <div
+                                                className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-transform ${readReceipts ? 'translate-x-7' : 'translate-x-1'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Who Can Message */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-3">Who Can Message You</h4>
+                                    <div className="space-y-2">
+                                        {['everyone', 'connections', 'none'].map((option) => (
+                                            <button
+                                                key={option}
+                                                onClick={() => setAllowMessages(option as typeof allowMessages)}
+                                                className={`w-full p-3 rounded-xl border transition-all text-left ${allowMessages === option
+                                                        ? 'bg-theme-primary border-accent-primary'
+                                                        : 'bg-theme-tertiary border-theme-primary hover:border-theme-focus'
+                                                    }`}
+                                            >
+                                                <span className="font-semibold text-theme-primary capitalize">{option}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Blocked Users */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-2">Blocked Users</h4>
+                                    <p className="text-sm text-theme-tertiary mb-4">Manage blocked accounts</p>
+                                    <button className="px-4 py-2 rounded-xl bg-theme-tertiary border border-theme-primary hover:bg-theme-elevated transition-all text-theme-primary font-semibold">
+                                        View Blocked List
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Appearance Settings */}
+                    {activeView === 'appearance' && (
+                        <motion.div
+                            key="appearance"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                        >
+                            <button
+                                onClick={() => setActiveView('main')}
+                                className="mb-6 flex items-center gap-2 text-theme-tertiary hover:text-theme-primary transition-colors"
+                            >
+                                <ChevronRight size={20} className="rotate-180" />
+                                Back
+                            </button>
+
+                            <h2 className="text-2xl font-black text-theme-primary mb-6">Appearance</h2>
+
+                            <div className="space-y-4">
+                                {/* Theme Selection */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-4">Theme</h4>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <button
+                                            onClick={() => setMode('dark')}
+                                            className={`p-4 rounded-xl border-2 transition-all ${mode === 'dark'
+                                                    ? 'border-accent-primary bg-theme-primary'
+                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                }`}
+                                        >
+                                            <Moon size={24} className="mx-auto mb-2 text-theme-primary" />
+                                            <span className="text-sm font-semibold text-theme-primary">Dark</span>
+                                        </button>
+
+                                        <button
+                                            onClick={() => setMode('light')}
+                                            className={`p-4 rounded-xl border-2 transition-all ${mode === 'light'
+                                                    ? 'border-accent-primary bg-theme-primary'
+                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                }`}
+                                        >
+                                            <Sun size={24} className="mx-auto mb-2 text-theme-primary" />
+                                            <span className="text-sm font-semibold text-theme-primary">Light</span>
+                                        </button>
+
+                                        <button
+                                            onClick={() => setMode('retro')}
+                                            className={`p-4 rounded-xl border-2 transition-all ${mode === 'retro'
+                                                    ? 'border-accent-primary bg-theme-primary'
+                                                    : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
+                                                }`}
+                                        >
+                                            <Sparkles size={24} className="mx-auto mb-2 text-theme-primary" />
+                                            <span className="text-sm font-semibold text-theme-primary">Retro</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Theme Preview */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-3">Preview</h4>
+                                    <div className="p-4 rounded-xl bg-theme-primary border border-theme-primary">
+                                        <p className="text-theme-primary mb-2">Primary Text</p>
+                                        <p className="text-theme-secondary mb-2">Secondary Text</p>
+                                        <p className="text-theme-tertiary">Tertiary Text</p>
+                                        <div className="mt-4 flex gap-2">
+                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: 'var(--accent-primary)' }} />
+                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: 'var(--accent-secondary)' }} />
+                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: 'var(--accent-tertiary)' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Data & Storage */}
+                    {activeView === 'data' && (
+                        <motion.div
+                            key="data"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                        >
+                            <button
+                                onClick={() => setActiveView('main')}
+                                className="mb-6 flex items-center gap-2 text-theme-tertiary hover:text-theme-primary transition-colors"
+                            >
+                                <ChevronRight size={20} className="rotate-180" />
+                                Back
+                            </button>
+
+                            <h2 className="text-2xl font-black text-theme-primary mb-6">Data & Storage</h2>
+
+                            <div className="space-y-4">
+                                {/* Download Data */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-2">Download Your Data</h4>
+                                    <p className="text-sm text-theme-tertiary mb-4">
+                                        Get a copy of all your messages, profile info, and activity
+                                    </p>
+                                    <button
+                                        onClick={handleDownloadData}
+                                        className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold flex items-center gap-2 transition-colors"
+                                    >
+                                        <Download size={18} />
+                                        Request Download
+                                    </button>
+                                </div>
+
+                                {/* Clear Cache */}
+                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
+                                    <h4 className="font-bold text-theme-primary mb-2">Clear Cache</h4>
+                                    <p className="text-sm text-theme-tertiary mb-4">
+                                        Free up space by clearing temporary files
+                                    </p>
+                                    <button className="px-4 py-2 rounded-xl bg-theme-tertiary border border-theme-primary hover:bg-theme-elevated text-theme-primary font-semibold transition-all">
+                                        Clear Cache
+                                    </button>
+                                </div>
+
+                                {/* Delete Account */}
+                                <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20">
+                                    <h4 className="font-bold text-red-500 mb-2">Delete Account</h4>
+                                    <p className="text-sm text-red-400 mb-4">
+                                        ⚠️ This action is permanent and cannot be undone
+                                    </p>
+                                    <button
+                                        onClick={handleDeleteAccount}
+                                        className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold flex items-center gap-2 transition-colors"
+                                    >
+                                        <Trash2 size={18} />
+                                        Delete Account
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
                     )}
                 </AnimatePresence>
-
-                {/* Profile Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-10 bg-white shadow-2xl rounded-[60px] relative overflow-hidden group hover:scale-[1.01] transition-all duration-500"
-                >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05)_1px,transparent_1px)] bg-[size:20px_20px] opacity-10" />
-                    <div className="flex items-center gap-8 relative z-10">
-                        <div className="w-24 h-24 rounded-[32px] bg-black flex items-center justify-center text-white text-4xl font-black italic shadow-[0_20px_40px_rgba(0,0,0,0.3)] rotate-3 group-hover:rotate-0 transition-all duration-500 border-2 border-white/10">
-                            {(user.ghostName || user.name)[0].toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-4xl font-black italic text-black tracking-widest uppercase leading-none">{user.ghostName || user.name}</h2>
-                            <p className="text-sm text-black/60 font-medium mt-2">{tempBio}</p>
-                            <div className="flex gap-2 mt-4">
-                                <button
-                                    onClick={() => setShowProfileEdit(true)}
-                                    className="px-4 py-2 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-black/80 transition-all"
-                                >
-                                    Edit Profile
-                                </button>
-                                <button
-                                    onClick={() => setShowAccountModal(true)}
-                                    className="px-4 py-2 bg-black/10 text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-black/20 transition-all"
-                                >
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-
-
-                {/* Settings Groups */}
-                <div className="space-y-16 px-2">
-                    {/* Preferences */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="space-y-6"
-                    >
-                        <h3 className="text-[10px] font-black italic text-white/20 uppercase tracking-[0.5em] px-4">Account Preferences</h3>
-                        <div className="space-y-2">
-                            <SettingItem
-                                icon={User}
-                                label="Account Details"
-                                subLabel="Manage your profile info"
-                                onClick={() => setShowAccountModal(true)}
-                            />
-                            <SettingItem
-                                icon={Palette}
-                                label="App Appearance"
-                                subLabel="Customize your interface"
-                                onClick={() => setShowAppearanceModal(true)}
-                            />
-                            <SettingItem
-                                icon={Bell}
-                                label="Notifications"
-                                subLabel="Manage message alerts"
-                                onClick={() => setShowNotificationsModal(true)}
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Security & System */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="space-y-6"
-                    >
-                        <h3 className="text-[10px] font-black italic text-white/20 uppercase tracking-[0.5em] px-4">Privacy & System</h3>
-                        <div className="space-y-2">
-                            <SettingItem
-                                icon={Shield}
-                                label="Privacy Controls"
-                                subLabel="Manage visibility and status"
-                                onClick={() => setShowPrivacyModal(true)}
-                            />
-                            <SettingItem
-                                icon={Globe}
-                                label="Data & Storage"
-                                subLabel="Manage your data"
-                                onClick={() => setShowDataModal(true)}
-                            />
-                            <SettingItem
-                                icon={Terminal}
-                                label="Developer Mode"
-                                subLabel="Advanced system tools"
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Support & Legal */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="space-y-6"
-                    >
-                        <h3 className="text-[10px] font-black italic text-white/20 uppercase tracking-[0.5em] px-4">Support & Info</h3>
-                        <div className="space-y-2">
-                            <SettingItem
-                                icon={HelpCircle}
-                                label="Help Center"
-                                subLabel="Get support and guidance"
-                                onClick={() => setShowHelpModal(true)}
-                            />
-                            <SettingItem icon={Info} label="About IHATEYOU" subLabel="Version 1.0.0-BETA" />
-                        </div>
-                    </motion.div>
-
-                    {/* Log Out */}
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-between p-8 bg-rose-500/5 border border-rose-500/10 rounded-[40px] group hover:bg-rose-500/10 transition-all active:scale-[0.98]"
-                    >
-                        <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 flex items-center justify-center rounded-[24px] bg-rose-500/10 text-rose-500 group-hover:scale-110 transition-transform">
-                                <LogOut size={24} />
-                            </div>
-                            <div className="text-left">
-                                <div className="text-base font-black italic text-rose-500 uppercase tracking-widest">End Session</div>
-                                <div className="text-[9px] text-rose-500/40 font-bold uppercase tracking-widest mt-1">Sign out of IHATEYOU</div>
-                            </div>
-                        </div>
-                        <ChevronRight className="text-rose-500/20 group-hover:text-rose-500/40 transition-colors" size={24} />
-                    </motion.button>
-                </div>
             </div>
         </div>
-    );
-}
-
-// Detail Modal Component
-function DetailModal({
-    title,
-    subtitle,
-    children,
-    onClose
-}: {
-    title: string;
-    subtitle?: string;
-    children: React.ReactNode;
-    onClose: () => void;
-}) {
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[200] flex items-center justify-center p-6"
-            onClick={onClose}
-        >
-            <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-[#1a1a1c] border border-white/10 rounded-3xl p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scrollbar"
-            >
-                <div className="flex items-start justify-between mb-6">
-                    <div>
-                        <h2 className="text-2xl font-bold text-white">{title}</h2>
-                        {subtitle && <p className="text-sm text-white/40 mt-1">{subtitle}</p>}
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
-                {children}
-            </motion.div>
-        </motion.div>
-    );
-}
-
-// Info Row Component
-function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
-    return (
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white/60">
-                <Icon size={20} />
-            </div>
-            <div className="flex-1">
-                <div className="text-xs text-white/40 uppercase tracking-wider">{label}</div>
-                <div className="text-sm font-bold text-white mt-0.5">{value}</div>
-            </div>
-        </div>
-    );
-}
-
-// Setting Item Component
-interface SettingItemProps {
-    icon: any;
-    label: string;
-    subLabel: string;
-    onClick?: () => void;
-}
-
-function SettingItem({ icon: Icon, label, subLabel, onClick }: SettingItemProps) {
-    return (
-        <button
-            onClick={onClick}
-            className="w-full flex items-center justify-between p-6 bg-white/[0.02] border border-white/5 rounded-[32px] group hover:bg-white/[0.05] hover:border-white/10 transition-all active:scale-[0.98]"
-        >
-            <div className="flex items-center gap-6">
-                <div className="w-14 h-14 flex items-center justify-center rounded-[24px] bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60 transition-all">
-                    <Icon size={24} />
-                </div>
-                <div className="text-left">
-                    <div className="text-base font-black italic text-white/80 uppercase tracking-widest">{label}</div>
-                    <div className="text-[9px] text-white/20 font-bold uppercase tracking-widest mt-1">{subLabel}</div>
-                </div>
-            </div>
-            <ChevronRight className="text-white/10 group-hover:text-white/20 group-hover:translate-x-1 transition-all" size={24} />
-        </button>
-    );
-}
-
-// Privacy Toggle Component
-function PrivacyToggle({
-    label,
-    description,
-    isEnabled,
-    onToggle
-}: {
-    label: string;
-    description: string;
-    isEnabled: boolean;
-    onToggle: () => void;
-}) {
-    return (
-        <motion.div
-            whileHover={{ scale: 1.01 }}
-            className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.04] hover:border-white/10 transition-all"
-        >
-            <div className="flex items-center justify-between">
-                <div className="flex-1">
-                    <div className="text-sm font-bold text-white mb-1">{label}</div>
-                    <div className="text-xs text-white/40">{description}</div>
-                </div>
-                <button
-                    onClick={onToggle}
-                    className={`relative w-14 h-8 rounded-full transition-all ${isEnabled ? 'bg-purple-500' : 'bg-white/10'
-                        }`}
-                >
-                    <motion.div
-                        animate={{
-                            x: isEnabled ? 26 : 2
-                        }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    />
-                </button>
-            </div>
-        </motion.div>
     );
 }

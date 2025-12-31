@@ -7,11 +7,11 @@ import { useRef, useEffect, useState } from 'react';
 
 interface DockProps {
     activeSection: Section;
+    showDock?: boolean; // Optional, defaults to true
     onSectionChange: (section: Section) => void;
 }
 
-export default function Dock({ activeSection, onSectionChange }: DockProps) {
-    const [isVisible, setIsVisible] = useState(true);
+export default function Dock({ activeSection, showDock = true, onSectionChange }: DockProps) {
     const [isHovered, setIsHovered] = useState(false);
     const lastScrollY = useRef(0);
 
@@ -28,47 +28,8 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
     const activeIndex = items.findIndex(item => item.id === activeSection);
     const [bubbleLeft, setBubbleLeft] = useState(32);
 
-    // Intelligent Scroll Hide/Show - Improved for all sections
-    useEffect(() => {
-        const handleScroll = () => {
-            // Find all scrollable containers
-            const scrollableElements = document.querySelectorAll('[data-scrollable="true"]');
-            let currentScrollY = 0;
-
-            // Get the maximum scroll position from all scrollable elements
-            scrollableElements.forEach((el) => {
-                const scrollTop = el.scrollTop;
-                if (scrollTop > currentScrollY) {
-                    currentScrollY = scrollTop;
-                }
-            });
-
-            // Also check window scroll as fallback
-            if (currentScrollY === 0) {
-                currentScrollY = window.scrollY || document.documentElement.scrollTop;
-            }
-
-            // Basic direction check with improved threshold
-            if (currentScrollY > lastScrollY.current && currentScrollY > 20) {
-                setIsVisible(false); // Scrolling down
-            } else if (currentScrollY < lastScrollY.current || currentScrollY < 20) {
-                setIsVisible(true);  // Scrolling up or near top
-            }
-            lastScrollY.current = currentScrollY;
-        };
-
-        // Listen to scroll events on window and capture phase for child elements
-        window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-
-        // Also add a custom event listener for manual scroll tracking
-        const customScrollHandler = (e: Event) => handleScroll();
-        document.addEventListener('custom-scroll', customScrollHandler);
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll, { capture: true });
-            document.removeEventListener('custom-scroll', customScrollHandler);
-        };
-    }, []);
+    // Intelligent Scroll Hide/Show is now handled by parent component
+    // Dock visibility is controlled via showDock prop
 
     useEffect(() => {
         if (containerRef.current) {
@@ -90,7 +51,8 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
         bubbleX.set(bubbleLeft);
     }, [bubbleLeft, bubbleX]);
 
-    const showDock = isHovered || isVisible;
+    const isVisible = isHovered || showDock; // Show on hover OR when parent says to show
+
 
     return (
         <div
@@ -106,10 +68,10 @@ export default function Dock({ activeSection, onSectionChange }: DockProps) {
             <motion.div
                 initial={false}
                 animate={{
-                    y: showDock ? -20 : 120, // Slide down further when hidden
-                    opacity: showDock ? 1 : 0,
-                    scale: showDock ? 1 : 0.95,
-                    filter: showDock ? 'blur(0px)' : 'blur(4px)'
+                    y: isVisible ? -20 : 120, // Slide down further when hidden
+                    opacity: isVisible ? 1 : 0,
+                    scale: isVisible ? 1 : 0.95,
+                    filter: isVisible ? 'blur(0px)' : 'blur(4px)'
                 }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}

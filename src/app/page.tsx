@@ -26,6 +26,7 @@ import SpiralBackground from '@/components/backgrounds/SpiralBackground';
 import LightBackground from '@/components/backgrounds/LightBackground';
 import RetroBackground from '@/components/backgrounds/RetroBackground';
 import RetroMinimalBackground from '@/components/backgrounds/RetroMinimalBackground';
+import RetroCoupleBackground from '@/components/backgrounds/RetroCoupleBackground';
 import InteractiveGrid from '@/components/backgrounds/InteractiveGrid';
 import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import ScrollProgress from '@/components/ui/ScrollProgress';
@@ -101,6 +102,7 @@ export default function Home() {
   const [showFunZone, setShowFunZone] = useState(false);
   const { theme } = useTheme();
   const [showHeader, setShowHeader] = useState(true);
+  const [showDock, setShowDock] = useState(true);
   const [hasNewGames, setHasNewGames] = useState(true);
   const lastScrollY = useRef(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -144,7 +146,7 @@ export default function Home() {
     setShowOnboarding(false);
   };
 
-  // Intelligent Header Hide/Show
+  // Intelligent Header & Dock Hide/Show
   const handleScroll = (e: any) => {
     const currentScrollY = e.target.scrollTop || window.scrollY || 0;
 
@@ -152,9 +154,11 @@ export default function Home() {
     if (Math.abs(currentScrollY - lastScrollY.current) < 10) return;
 
     if (currentScrollY > lastScrollY.current && currentScrollY > 20) {
-      setShowHeader(false); // Scrolling down
+      setShowHeader(false); // Scrolling down - hide UI
+      setShowDock(false);
     } else if (currentScrollY < lastScrollY.current || currentScrollY < 20) {
-      setShowHeader(true);  // Scrolling up or near top
+      setShowHeader(true);  // Scrolling up - show UI
+      setShowDock(true);
     }
     lastScrollY.current = currentScrollY;
   };
@@ -226,6 +230,8 @@ export default function Home() {
             <RetroBackground />
           ) : theme === 'retro-minimal' ? (
             <RetroMinimalBackground />
+          ) : theme === 'retro-couple' ? (
+            <RetroCoupleBackground />
           ) : (
             <InteractiveGrid />
           )}
@@ -383,12 +389,14 @@ export default function Home() {
 
             <Dock
               activeSection={activeSection}
+              showDock={showDock}
               onSectionChange={(section) => {
                 if (section === 'games') {
                   setShowFunZone(true);
                 } else {
                   setActiveSection(section);
                   setShowHeader(true);
+                  setShowDock(true); // Always show dock when changing sections
                 }
               }}
             />

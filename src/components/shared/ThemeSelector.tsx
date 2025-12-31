@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Moon, Zap, Sun, Music, Type } from 'lucide-react';
-export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro' | 'retro-minimal';
+import { Check, Sparkles, Moon, Zap, Sun, Music, Type, Heart } from 'lucide-react';
+export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro' | 'retro-minimal' | 'retro-couple';
 
 interface ThemeSelectorProps {
     currentTheme: Theme;
@@ -51,6 +51,13 @@ const themeData = [
         description: 'Journal aesthetic',
         icon: Type,
         colors: 'from-orange-200 via-stone-200 to-teal-200'
+    },
+    {
+        id: 'retro-couple' as Theme,
+        label: 'Retro Love',
+        description: 'Couple\'s special theme',
+        icon: Heart,
+        colors: 'from-pink-400 via-orange-300 to-rose-400'
     }
 ];
 

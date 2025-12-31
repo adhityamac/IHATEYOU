@@ -2,10 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   THEME SYSTEM - Dark, Light, Retro
+   ============================================ */
+
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 15, 12, 41;
   --background-end-rgb: 36, 36, 62;
+}
+
+/* DARK THEME (Default) */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #1a1a1a;
+  --bg-elevated: #1f1f1f;
+  --bg-glass: rgba(0, 0, 0, 0.8);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --text-quaternary: rgba(255, 255, 255, 0.3);
+
+  /* Borders */
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(255, 255, 255, 0.3);
+
+  /* Accents */
+  --accent-primary: #00ff88;
+  --accent-secondary: #ff6b6b;
+  --accent-tertiary: #a78bfa;
+
+  /* Semantic */
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.8);
+}
+
+/* LIGHT THEME */
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-elevated: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --text-quaternary: #9ca3af;
+
+  /* Borders */
+  --border-primary: #e5e7eb;
+  --border-secondary: #f3f4f6;
+  --border-focus: #d1d5db;
+
+  /* Accents */
+  --accent-primary: #10b981;
+  --accent-secondary: #ef4444;
+  --accent-tertiary: #8b5cf6;
+
+  /* Semantic */
+  --success: #059669;
+  --error: #dc2626;
+  --warning: #d97706;
+  --info: #2563eb;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* RETRO THEME (90s Nostalgia) */
+[data-theme="retro"] {
+  /* Backgrounds */
+  --bg-primary: #fef3c7;
+  --bg-secondary: #fde68a;
+  --bg-tertiary: #fcd34d;
+  --bg-elevated: #fff7ed;
+  --bg-glass: rgba(254, 243, 199, 0.9);
+
+  /* Text */
+  --text-primary: #1a1a2e;
+  --text-secondary: #16213e;
+  --text-tertiary: #0f3460;
+  --text-quaternary: #533483;
+
+  /* Borders */
+  --border-primary: #f59e0b;
+  --border-secondary: #fbbf24;
+  --border-focus: #d97706;
+
+  /* Accents */
+  --accent-primary: #ff00ff;
+  --accent-secondary: #00ffff;
+  --accent-tertiary: #ff6b9d;
+
+  /* Semantic */
+  --success: #10b981;
+  --error: #ff1744;
+  --warning: #ff9800;
+  --info: #00bcd4;
+
+  /* Shadows */
+  --shadow-sm: 2px 2px 0px rgba(0, 0, 0, 0.3);
+  --shadow-md: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 6px 6px 0px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 8px 8px 0px rgba(0, 0, 0, 0.3);
 }
 
 /* Smooth scrolling and interaction physics */
@@ -15,31 +134,18 @@ html {
   overscroll-behavior-y: none;
 }
 
+/* Apply theme to body */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: black;
+  color: var(--text-primary);
+  background: var(--bg-primary);
   min-height: 100vh;
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  /* Mobile performance optimizations */
   -webkit-overflow-scrolling: touch;
   transform: translateZ(0);
   backface-visibility: hidden;
-}
-
-/* Light theme text colors */
-body[data-theme="light"],
-body[data-theme="retro"] {
-  --foreground-rgb: 0, 0, 0;
-}
-
-body[data-theme="light"] {
-  background: #f9fafb;
-}
-
-body[data-theme="retro"] {
-  background: #fef3c7;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -47,6 +153,88 @@ body[data-theme="retro"] {
     cursor: none;
   }
 }
+
+/* ============================================
+   THEME-AWARE UTILITY CLASSES
+   ============================================ */
+
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.bg-theme-elevated {
+  background-color: var(--bg-elevated);
+}
+
+.bg-theme-glass {
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(20px);
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-tertiary {
+  color: var(--text-tertiary);
+}
+
+.text-theme-quaternary {
+  color: var(--text-quaternary);
+}
+
+.border-theme-primary {
+  border-color: var(--border-primary);
+}
+
+.border-theme-secondary {
+  border-color: var(--border-secondary);
+}
+
+.border-theme-focus {
+  border-color: var(--border-focus);
+}
+
+.accent-primary {
+  color: var(--accent-primary);
+}
+
+.accent-secondary {
+  color: var(--accent-secondary);
+}
+
+.accent-tertiary {
+  color: var(--accent-tertiary);
+}
+
+.shadow-theme-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-theme-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-theme-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-theme-xl {
+  box-shadow: var(--shadow-xl);
+}
+
 
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -121,4 +309,101 @@ body[data-theme="retro"] {
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 100;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+
+  /* Ensure minimum touch target size */
+  button,
+  a,
+  [role="button"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Optimize font sizes for mobile */
+  input,
+  textarea {
+    font-size: 16px !important;
+    /* Prevents iOS zoom */
+  }
+
+  /* Reduce animations on mobile for performance */
+  * {
+    animation-duration: 0.3s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* Optimize scrolling */
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar on mobile for cleaner UI */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Lazy loading optimization */
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+/* Prevent layout shift */
+.aspect-ratio-box {
+  position: relative;
+  width: 100%;
+}
+
+.aspect-ratio-box::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+  /* 1:1 aspect ratio */
+}
+
+.aspect-ratio-box>* {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

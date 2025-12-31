@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./mobile.css";
 import { GradientThemeProvider } from "@/components/shared/GradientThemeProvider";
+import { ThemeModeProvider } from "@/contexts/ThemeModeContext";
 import { CursorProvider } from "@/components/shared/CursorContext";
 import { SoundProvider } from "@/components/shared/SoundProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -28,17 +29,19 @@ export default function RootLayout({
         className="bg-[#000000] text-zinc-400 antialiased font-sans"
         suppressHydrationWarning
       >
-        <GradientThemeProvider>
-          <AuthProvider>
-            <CommandMenu />
-            <CursorProvider>
-              <SoundProvider>
-                <CustomCursor />
-                <main className="relative z-10">{children}</main>
-              </SoundProvider>
-            </CursorProvider>
-          </AuthProvider>
-        </GradientThemeProvider>
+        <ThemeModeProvider>
+          <GradientThemeProvider>
+            <AuthProvider>
+              <CommandMenu />
+              <CursorProvider>
+                <SoundProvider>
+                  <CustomCursor />
+                  <main className="relative z-10">{children}</main>
+                </SoundProvider>
+              </CursorProvider>
+            </AuthProvider>
+          </GradientThemeProvider>
+        </ThemeModeProvider>
       </body>
     </html>
   );

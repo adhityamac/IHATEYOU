@@ -5,45 +5,98 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, SkipBack, Disc, Music, Mic, Heart, List, CassetteTape } from 'lucide-react';
 
 const OLD_SONGS = [
-    { id: 1, title: "Dream A Little Dream", artist: "Ella Fitzgerald", duration: "3:05", color: "from-rose-400 to-orange-300" },
-    { id: 2, title: "Fly Me To The Moon", artist: "Frank Sinatra", duration: "2:27", color: "from-blue-400 to-indigo-400" },
-    { id: 3, title: "Can't Help Falling in Love", artist: "Elvis Presley", duration: "3:00", color: "from-amber-200 to-yellow-400" },
-    { id: 4, title: "La Vie En Rose", artist: "Édith Piaf", duration: "3:06", color: "from-pink-400 to-rose-400" },
-    { id: 5, title: "Moon River", artist: "Audrey Hepburn", duration: "3:41", color: "from-cyan-200 to-blue-300" },
-    { id: 6, title: "Unchained Melody", artist: "The Righteous Brothers", duration: "3:37", color: "from-purple-300 to-indigo-400" },
-    { id: 7, title: "My Way", artist: "Frank Sinatra", duration: "4:35", color: "from-emerald-300 to-teal-400" },
+    { id: 1, title: "Dream A Little Dream", artist: "Ella Fitzgerald", duration: "3:05", color: "from-rose-400 to-orange-300", audioUrl: null },
+    { id: 2, title: "Fly Me To The Moon", artist: "Frank Sinatra", duration: "2:27", color: "from-blue-400 to-indigo-400", audioUrl: null },
+    { id: 3, title: "Can't Help Falling in Love", artist: "Elvis Presley", duration: "3:00", color: "from-amber-200 to-yellow-400", audioUrl: null },
+    { id: 4, title: "La Vie En Rose", artist: "Édith Piaf", duration: "3:06", color: "from-pink-400 to-rose-400", audioUrl: null },
+    { id: 5, title: "Moon River", artist: "Audrey Hepburn", duration: "3:41", color: "from-cyan-200 to-blue-300", audioUrl: null },
+    { id: 6, title: "Unchained Melody", artist: "The Righteous Brothers", duration: "3:37", color: "from-purple-300 to-indigo-400", audioUrl: null },
+    { id: 7, title: "My Way", artist: "Frank Sinatra", duration: "4:35", color: "from-emerald-300 to-teal-400", audioUrl: null },
+    { id: 8, title: "Ambalapuzhe Unni Kannanodu", artist: "Kavya Ajit", duration: "4:12", color: "from-orange-400 to-amber-500", audioUrl: "/audio/ambalapuzhe-unni-kannanodu.mp3" },
 ];
 
 export default function RetroPlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(7); // Start with the uploaded song
     const [progress, setProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
     const [view, setView] = useState<'player' | 'list'>('player');
     const [liked, setLiked] = useState<number[]>([]);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const currentTrack = OLD_SONGS[currentTrackIndex];
 
+    // Initialize audio element
+    useEffect(() => {
+        if (currentTrack.audioUrl) {
+            audioRef.current = new Audio(currentTrack.audioUrl);
+
+            const audio = audioRef.current;
+
+            const handleTimeUpdate = () => {
+                if (audio.duration) {
+                    setCurrentTime(audio.currentTime);
+                    setProgress((audio.currentTime / audio.duration) * 100);
+                }
+            };
+
+            const handleLoadedMetadata = () => {
+                setDuration(audio.duration);
+            };
+
+            const handleEnded = () => {
+                handleNext();
+            };
+
+            audio.addEventListener('timeupdate', handleTimeUpdate);
+            audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.addEventListener('ended', handleEnded);
+
+            return () => {
+                audio.removeEventListener('timeupdate', handleTimeUpdate);
+                audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.removeEventListener('ended', handleEnded);
+                audio.pause();
+                audio.src = '';
+            };
+        }
+    }, [currentTrackIndex]);
+
+    // Handle play/pause
+    useEffect(() => {
+        if (audioRef.current && currentTrack.audioUrl) {
+            if (isPlaying) {
+                audioRef.current.play().catch(err => console.error('Playback error:', err));
+            } else {
+                audioRef.current.pause();
+            }
+        }
+    }, [isPlaying, currentTrack.audioUrl]);
+
+    // Mock progress for songs without audio files
     useEffect(() => {
         let timer: NodeJS.Timeout;
-        if (isPlaying) {
+        if (isPlaying && !currentTrack.audioUrl) {
             timer = setInterval(() => {
-                setProgress(p => (p >= 100 ? 0 : p + 0.5)); // fast mock progress
+                setProgress(p => (p >= 100 ? 0 : p + 0.5));
             }, 100);
         }
         return () => clearInterval(timer);
-    }, [isPlaying]);
+    }, [isPlaying, currentTrack.audioUrl]);
 
     useEffect(() => {
-        if (progress >= 100) {
+        if (progress >= 100 && !currentTrack.audioUrl) {
             handleNext();
         }
-    }, [progress]);
+    }, [progress, currentTrack.audioUrl]);
 
     const handleNext = () => {
         setIsPlaying(false);
         setTimeout(() => {
             setCurrentTrackIndex(prev => (prev + 1) % OLD_SONGS.length);
             setProgress(0);
+            setCurrentTime(0);
             setIsPlaying(true);
         }, 300);
     };
@@ -53,12 +106,19 @@ export default function RetroPlayer() {
         setTimeout(() => {
             setCurrentTrackIndex(prev => (prev - 1 + OLD_SONGS.length) % OLD_SONGS.length);
             setProgress(0);
+            setCurrentTime(0);
             setIsPlaying(true);
         }, 300);
     };
 
     const toggleLike = (id: number) => {
         setLiked(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${String(secs).padStart(2, '0')}`;
     };
 
     return (
@@ -150,8 +210,8 @@ export default function RetroPlayer() {
                                 />
                             </div>
                             <div className="flex justify-between text-xs text-white/30 font-mono">
-                                <span>{Math.floor((progress / 100) * 180 / 60)}:{String(Math.floor((progress / 100) * 180 % 60)).padStart(2, '0')}</span>
-                                <span>{currentTrack.duration}</span>
+                                <span>{currentTrack.audioUrl ? formatTime(currentTime) : `${Math.floor((progress / 100) * 180 / 60)}:${String(Math.floor((progress / 100) * 180 % 60)).padStart(2, '0')}`}</span>
+                                <span>{currentTrack.audioUrl && duration ? formatTime(duration) : currentTrack.duration}</span>
                             </div>
                         </div>
 
@@ -200,8 +260,14 @@ export default function RetroPlayer() {
                             {OLD_SONGS.map((song, idx) => (
                                 <button
                                     key={song.id}
-                                    onClick={() => { setCurrentTrackIndex(idx); setView('player'); setIsPlaying(true); }}
-                                    className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all ${currentTrackIndex === idx ? 'bg-white/10 border border-white/10' : 'bg-transparent hover:bg-white/5 border border-transparent'}`}
+                                    onClick={() => {
+                                        setCurrentTrackIndex(idx);
+                                        setProgress(0);
+                                        setCurrentTime(0);
+                                        setView('player');
+                                        setIsPlaying(true);
+                                    }}
+                                    className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all cursor-pointer ${currentTrackIndex === idx ? 'bg-white/10 border border-white/10' : 'bg-transparent hover:bg-white/5 border border-transparent hover:border-white/5'}`}
                                 >
                                     <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">
                                         {isPlaying && currentTrackIndex === idx ? (
