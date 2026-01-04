@@ -10,7 +10,7 @@ import {
     Conversation,
 } from '@/lib/firebase/chat';
 import { Timestamp } from 'firebase/firestore';
-import { handleEchoBotResponse, isEchoBotConversation, ECHO_BOT_ID } from '@/lib/bots/echo';
+import { handleEchoBotResponse, isEchoBotConversation } from '@/lib/bots/echo';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const useChat = () => {

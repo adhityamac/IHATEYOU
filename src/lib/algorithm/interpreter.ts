@@ -86,7 +86,7 @@ export class StateInterpreter {
     }
 
     private inferPrimaryState(context: InferenceContext): EmotionalState {
-        const { timeOfDay, recentMoods, toolUsage, socialBehavior, interactionPatterns, signals } = context;
+        const { timeOfDay, recentMoods, toolUsage, socialBehavior, interactionPatterns } = context;
 
         // Late night + introspective emoji = likely introspective
         if (timeOfDay === 'late_night' && recentMoods.some((m: string) => ['😶‍🌫️', 'pensive', 'thoughtful'].includes(m))) {

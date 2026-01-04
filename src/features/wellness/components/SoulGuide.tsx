@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Send, Brain } from 'lucide-react';
 import { useSignals } from '@/hooks/useSignals';
 import { useAlgorithm } from '@/hooks/useAlgorithm';
+import Image from 'next/image';
 
 import PixelHoverGrid from '@/components/backgrounds/PixelHoverGrid';
 
@@ -171,10 +172,11 @@ export default function SoulGuide() {
                             : 'drop-shadow(0 0 15px rgba(249, 115, 22, 0.2))'
                     }}
                 >
-                    <img
+                    <Image
                         src="/echo-tangerine.jpg"
                         alt="Echo Tangerine"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                     />
                 </motion.div>
             </div>

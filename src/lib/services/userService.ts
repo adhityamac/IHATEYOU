@@ -11,19 +11,19 @@ import {
     Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { UserProfile } from '@/types/user';
 
-export interface FirebaseUser {
-    id: string;
-    name: string;
-    email?: string;
-    phone?: string;
-    avatar: string;
+/**
+ * @deprecated This interface is deprecated. Use UserProfile from @/types/user instead.
+ * Kept for backward compatibility only.
+ */
+export interface FirebaseUser extends UserProfile {
+    id: string; // Alias for uid
+    name: string; // Alias for displayName
+    avatar: string; // Alias for photoURL
     mood: string;
-    moodBaseline: string;
-    intent: string[];
     authMethod: 'google' | 'phone' | 'email';
     onboardingComplete: boolean;
-    createdAt: Timestamp;
     lastActive: Timestamp;
     isOnline: boolean;
 }
@@ -36,17 +36,23 @@ export async function createUser(userId: string, userData: Partial<FirebaseUser>
         const userRef = doc(db, 'users', userId);
 
         const newUser: FirebaseUser = {
+            // Core UserProfile fields
+            uid: userId,
+            email: userData.email || null,
+            displayName: userData.name || 'Anonymous',
+            photoURL: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+            createdAt: serverTimestamp() as Timestamp,
+            lastLoginAt: serverTimestamp() as Timestamp,
+
+            // FirebaseUser specific fields (aliases)
             id: userId,
             name: userData.name || 'Anonymous',
-            email: userData.email,
-            phone: userData.phone,
             avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
             mood: userData.mood || '😶',
             moodBaseline: userData.moodBaseline || 'calm',
             intent: userData.intent || [],
             authMethod: userData.authMethod || 'email',
             onboardingComplete: userData.onboardingComplete || false,
-            createdAt: serverTimestamp() as Timestamp,
             lastActive: serverTimestamp() as Timestamp,
             isOnline: true,
         };

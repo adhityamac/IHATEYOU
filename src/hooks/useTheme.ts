@@ -31,7 +31,7 @@ export const useTheme = () => {
         if (typeof window !== 'undefined') {
             document.documentElement.setAttribute('data-theme', theme);
         }
-    }, []);
+    }, [theme]);
 
     const toggleTheme = useCallback(() => {
         const newTheme = theme === 'light' ? 'dark' : 'light';

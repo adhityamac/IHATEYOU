@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Heart, Wind, BookOpen, Brain, TrendingUp, Sparkles } from 'lucide-react';
+import { Heart, Wind, BookOpen, Brain, Sparkles } from 'lucide-react';
 import DailyAffirmations from './DailyAffirmations';
 import BreathingExercise from './BreathingExercise';
 import JournalPrompts from './JournalPrompts';

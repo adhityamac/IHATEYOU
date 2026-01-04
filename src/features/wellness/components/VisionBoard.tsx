@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Image as ImageIcon, Type, Trash2, X, Sparkles, Filter, Save, Upload, Compass } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
+import Image from 'next/image';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 
 type ItemType = 'image' | 'text' | 'sticker';
@@ -164,16 +165,16 @@ export default function VisionBoard() {
                                 }`}>
                                 {item.type === 'text' && (
                                     <p className={`text-center font-bold max-w-[200px] leading-relaxed ${isRetro ? 'text-black font-vt323 text-xl' : 'text-white'}`}>
-                                        "{item.content}"
+                                        &quot;{item.content}&quot;
                                     </p>
                                 )}
                                 {item.type === 'sticker' && (
                                     <span>{item.content}</span>
                                 )}
                                 {item.type === 'image' && (
-                                    <div className="w-48 h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    <div className="w-48 h-48 bg-gray-200 flex items-center justify-center overflow-hidden relative">
                                         {/* Placeholder for actual image logic */}
-                                        <img src={`https://api.dicebear.com/7.x/shapes/svg?seed=${item.content}`} alt="vision" className="w-full h-full object-cover" />
+                                        <Image src={`https://api.dicebear.com/7.x/shapes/svg?seed=${item.content}`} alt="vision" fill className="object-cover" />
                                     </div>
                                 )}
 

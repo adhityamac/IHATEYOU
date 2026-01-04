@@ -2,7 +2,7 @@
 // This is the algorithm users FEEL (never see)
 
 import { UserState, EmotionalState } from './interpreter';
-import { ContentItem, InferenceContext } from './types';
+import { ContentItem } from './types';
 
 export interface FeedDecision {
     postsPerPage: number;
@@ -203,7 +203,6 @@ export class DecisionEngine {
     private calculateTiming(item: ContentItem, currentTime: Date, userState: UserState): number {
         // Context > content: same post at different times = different impact
 
-        const hourOfDay = currentTime.getHours();
         const itemAge = currentTime.getTime() - new Date(item.createdAt || item.timestamp).getTime();
         const ageInHours = itemAge / (1000 * 60 * 60);
 

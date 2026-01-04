@@ -3,7 +3,7 @@
 
 import { SignalCollector, signalCollector } from './signals';
 import { StateInterpreter, UserState } from './interpreter';
-import { DecisionEngine, ContentScore } from './decisions';
+import { DecisionEngine } from './decisions';
 import { ContentItem, RankedContent } from './types';
 
 // Main algorithm orchestrator (server-side ONLY)

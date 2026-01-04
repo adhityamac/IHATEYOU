@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { emotionalAlgorithm } from '../lib/algorithm';
 import { UserState } from '../lib/algorithm/interpreter';
 import { FeedDecision } from '../lib/algorithm/decisions';
@@ -12,7 +12,7 @@ export function useAlgorithm(userId: string) {
     const [isLoading, setIsLoading] = useState(true);
 
     // Refresh state periodically or on demand
-    const refresh = () => {
+    const refresh = useCallback(() => {
         // In a real app, this would be a server call
         // Here we simulate the server-side logic on the client for demo purposes
         const interpreter = (emotionalAlgorithm as any).interpreter;
@@ -26,14 +26,14 @@ export function useAlgorithm(userId: string) {
             setDecision(newDecision);
             setIsLoading(false);
         }
-    };
+    }, [userId]);
 
     useEffect(() => {
         refresh();
         // Refresh every 30 seconds to adjust to timing/recent signals
         const interval = setInterval(refresh, 30000);
         return () => clearInterval(interval);
-    }, [userId]);
+    }, [refresh, userId]);
 
     return {
         state,

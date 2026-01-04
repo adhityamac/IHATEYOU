@@ -1,8 +1,6 @@
 // Component-specific type definitions
 
 import { LucideIcon } from 'lucide-react';
-import { EmotionData, Post } from '@/lib/algorithm/types';
-import { Message } from './types';
 
 // Auth types
 export interface AuthUser {

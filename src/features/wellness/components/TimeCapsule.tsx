@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Unlock, Calendar, Send, Clock } from 'lucide-react';
+import { Lock, Unlock, Clock } from 'lucide-react';
 
 interface Capsule {
     id: string;

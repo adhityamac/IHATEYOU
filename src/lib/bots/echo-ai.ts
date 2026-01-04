@@ -1,4 +1,3 @@
-import { Message } from '@/types/types';
 import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 export const ECHO_BOT = {
@@ -167,7 +166,7 @@ function getContextualResponse(message: string): string {
 }
 
 // Main response generator (Headspace-style AI)
-export function generateEchoResponse(userMessage: string, conversationHistory?: Message[]): string {
+export function generateEchoResponse(userMessage: string): string {
     // Check for contextual responses first
     const contextual = getContextualResponse(userMessage);
     if (contextual) return contextual;

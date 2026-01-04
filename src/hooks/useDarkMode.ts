@@ -32,20 +32,20 @@ export const useDarkMode = (): UseDarkModeReturn => {
     const [mounted, setMounted] = useState(false);
 
     // Get time-based theme
-    const getTimeBasedTheme = (): CurrentTheme => {
+    const getTimeBasedTheme = useCallback((): CurrentTheme => {
         const hour = new Date().getHours();
         // 6 AM (6) to 6 PM (18) = Light mode
         // 6 PM (18) to 6 AM (6) = Dark mode
         return hour >= 6 && hour < 18 ? 'light' : 'dark';
-    };
+    }, []);
 
     // Calculate current theme based on mode
-    const calculateCurrentTheme = (themeMode: ThemeMode): CurrentTheme => {
+    const calculateCurrentTheme = useCallback((themeMode: ThemeMode): CurrentTheme => {
         if (themeMode === 'auto') {
             return getTimeBasedTheme();
         }
         return themeMode;
-    };
+    }, [getTimeBasedTheme]);
 
     // Set initial theme based on mode
     const [currentTheme, setCurrentTheme] = useState<CurrentTheme>(() => {
@@ -74,7 +74,7 @@ export const useDarkMode = (): UseDarkModeReturn => {
 
         // Save to localStorage
         localStorage.setItem('themeMode', mode);
-    }, [mode, mounted]);
+    }, [mode, mounted, calculateCurrentTheme]);
 
     // Auto-update theme every minute if in auto mode
     useEffect(() => {
@@ -89,7 +89,7 @@ export const useDarkMode = (): UseDarkModeReturn => {
         }, 60000); // Check every minute
 
         return () => clearInterval(interval);
-    }, [mode, currentTheme, mounted]);
+    }, [mode, currentTheme, mounted, getTimeBasedTheme]);
 
     const setMode = (newMode: ThemeMode) => {
         setModeState(newMode);

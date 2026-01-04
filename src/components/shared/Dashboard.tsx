@@ -176,6 +176,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('home')}
+                    aria-label="Daily Check-In: Track your mood and emotions"
                     className="md:col-span-3 md:row-span-2 rounded-[32px] p-8 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#c4b5fd' : '#c4b5fd' }}
                 >
@@ -267,6 +268,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('dashboard')}
+                    aria-label="Wellness Hub: Access self-care tools including breathe, journal, and timer"
                     className="md:col-span-2 rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#fda4af' : '#fda4af' }}
                 >
@@ -298,6 +300,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('messages')}
+                    aria-label="Messages: View your conversations. You have 3 unread messages"
                     className="rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#fde047' : '#fde047' }}
                 >
@@ -325,6 +328,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('vision')}
+                    aria-label="Vision Board: Create and view your dream pixels manifestation board"
                     className="rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#5eead4' : '#5eead4' }}
                 >
@@ -350,6 +354,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('search')}
+                    aria-label="Discovery: Find and explore new connections"
                     className="md:col-span-2 rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#fdba74' : '#fdba74' }}
                 >
@@ -368,6 +373,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('guide')}
+                    aria-label="Soul Guide: Chat with your AI wellness companion"
                     className="rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#93c5fd' : '#93c5fd' }}
                 >
@@ -386,6 +392,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowMusicPlayer(true)}
+                    aria-label="Retro Tunes: Open 90s music station player"
                     className="rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#fb7185' : '#fb7185' }}
                 >
@@ -404,6 +411,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => onSectionChange('settings')}
+                    aria-label="Settings: Manage app preferences and configuration"
                     className="rounded-[32px] p-6 text-left relative overflow-hidden group"
                     style={{ backgroundColor: isRetro ? '#d1d5db' : '#d1d5db' }}
                 >

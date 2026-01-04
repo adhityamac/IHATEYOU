@@ -1,5 +1,4 @@
 import { createConversation, sendMessage } from '../firebase/chat';
-import { getUserProfile } from '../firebase/auth';
 import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 // Echo bot details
@@ -131,8 +130,6 @@ const needsGuidance = (message: string): boolean => {
 
 // Generate Headspace-style AI response
 export const generateEchoResponse = (userMessage: string): string => {
-    const lowerMsg = userMessage.toLowerCase();
-
     // 1. Detect deep emotional state
     const emotionalState = detectEmotionalState(userMessage);
     if (emotionalState && MINDFUL_RESPONSES[emotionalState]) {
@@ -219,7 +216,7 @@ export const isEchoBotConversation = (participantIds: string[]): boolean => {
 };
 
 // Get Echo bot conversation for user
-export const getEchoBotConversationId = async (userId: string): Promise<string | null> => {
+export const getEchoBotConversationId = async (): Promise<string | null> => {
     // This would query Firestore for existing Echo conversation
     // For now, we'll handle this in the main chat logic
     return null;

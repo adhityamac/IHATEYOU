@@ -1,4 +1,4 @@
-import { User, Message, Conversation, Post } from '@/types/types';
+import { User, Message, Conversation } from '@/types/types';
 
 // Mock Data
 export const DEFAULT_USER: User = {

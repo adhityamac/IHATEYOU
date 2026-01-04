@@ -16,24 +16,7 @@ import {
     Timestamp,
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-
-// User profile interface
-export interface UserProfile {
-    uid: string;
-    email: string | null;
-    displayName: string | null;
-    photoURL: string | null;
-    ghostName?: string;
-    moodBaseline?: string;
-    intent?: string[];
-    createdAt: Timestamp;
-    lastLoginAt: Timestamp;
-    theme?: string;
-    preferences?: {
-        notifications?: boolean;
-        soundEnabled?: boolean;
-    };
-}
+import { UserProfile, OnboardingData } from '@/types/user';
 
 // Google Sign-In
 export const signInWithGoogle = async (): Promise<UserCredential> => {
@@ -104,7 +87,7 @@ export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
 // Update user's onboarding data
 export const updateUserOnboardingData = async (
     uid: string,
-    data: { ghostName: string; moodBaseline: string; intent: string[] }
+    data: OnboardingData
 ): Promise<void> => {
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, {
