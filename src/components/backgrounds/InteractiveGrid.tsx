@@ -1,50 +1,109 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { nanoid } from 'nanoid'; // Import nanoid for unique IDs
-import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 export default function InteractiveGrid() {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const lastUpdateTime = useRef(0);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const mouseRef = useRef({ x: 0, y: 0 });
 
-    const handleMouseMove = useCallback(({ currentTarget, clientX, clientY }: React.MouseEvent) => {
-        // Throttle to 60fps max
-        const now = Date.now();
-        if (now - lastUpdateTime.current < 16) return;
-        lastUpdateTime.current = now;
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-        const { left, top } = currentTarget.getBoundingClientRect();
-        mouseX.set(clientX - left);
-        mouseY.set(clientY - top);
-    }, [mouseX, mouseY]);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let animationFrameId: number;
+        let width = 0;
+        let height = 0;
+
+        const handleResize = () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            mouseRef.current = { x: e.clientX, y: e.clientY };
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('mousemove', handleMouseMove);
+        handleResize();
+
+        const draw = () => {
+            ctx.clearRect(0, 0, width, height);
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, 'rgba(30, 27, 75, 0.2)'); // indigo-950
+            gradient.addColorStop(0.5, 'rgba(0, 0, 0, 1)');
+            gradient.addColorStop(1, 'rgba(74, 4, 78, 0.2)'); // fuchsia-950
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Grid settings
+            const gridSize = 60;
+            const revealRadius = 250;
+
+            // Draw Grid
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x <= width; x += gridSize) {
+                for (let y = 0; y <= height; y += gridSize) {
+                    // Calculate distance to mouse
+                    const dx = x - mouseRef.current.x;
+                    const dy = y - mouseRef.current.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Base opacity
+                    let opacity = 0.05;
+
+                    // Reveal effect
+                    if (distance < revealRadius) {
+                        opacity += (1 - distance / revealRadius) * 0.3;
+                    }
+
+                    // Draw vertical line segment
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, y + gridSize);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.stroke();
+
+                    // Draw horizontal line segment
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + gridSize, y);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.stroke();
+
+                    // Highlight intersection if close
+                    if (distance < revealRadius) {
+                        const highlightOpacity = (1 - distance / revealRadius) * 0.5;
+                        ctx.fillStyle = `rgba(168, 85, 247, ${highlightOpacity})`; // Purple highlight
+                        ctx.fillRect(x - 1, y - 1, 2, 2);
+                    }
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(draw);
+        };
+
+        draw();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('mousemove', handleMouseMove);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
 
     return (
-        <div
-            className="fixed inset-0 z-0 bg-[#030303] overflow-hidden will-change-transform"
-            onMouseMove={handleMouseMove}
-        >
-            {/* Deep Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/20 via-black to-fuchsia-950/20" />
-
-            {/* Floating Orbs for depth - optimized */}
-            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
-
-            {/* Base Grid (Subtle) */}
-            <div
-                className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_40%,transparent_100%)]"
-            />
-
-            {/* Interactive Glowing Grid (Revealed on Hover) */}
-            <motion.div
-                className="absolute inset-0 bg-[linear-gradient(to_right,#a855f7_0.5px,transparent_0.5px),linear-gradient(to_bottom,#a855f7_0.5px,transparent_0.5px)] bg-[size:60px_60px] mix-blend-screen"
-                style={{
-                    maskImage: useMotionTemplate`radial-gradient(250px circle at ${mouseX}px ${mouseY}px, black, transparent)`,
-                    WebkitMaskImage: useMotionTemplate`radial-gradient(250px circle at ${mouseX}px ${mouseY}px, black, transparent)`,
-                }}
-            />
-        </div>
+        <canvas
+            ref={canvasRef}
+            className="fixed inset-0 z-0 bg-[#030303]"
+        />
     );
 }

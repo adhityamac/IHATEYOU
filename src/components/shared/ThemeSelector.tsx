@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Moon, Zap, Sun, Music, Type, Heart } from 'lucide-react';
-export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro' | 'retro-minimal' | 'retro-couple';
+import { Check, Sparkles, Moon, Zap, Sun, Music, Type, Heart, Layers, Gamepad2 } from 'lucide-react';
+import { useThemeMode } from '@/contexts/ThemeModeContext';
+
+export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro-soul' | 'retro-minimal' | 'retro-couple' | 'shader-gradient';
 
 interface ThemeSelectorProps {
     currentTheme: Theme;
@@ -16,6 +18,13 @@ const themeData = [
         description: 'Fluid dreamscape',
         icon: Sparkles,
         colors: 'from-purple-500 via-pink-500 to-orange-500'
+    },
+    {
+        id: 'retro-soul' as Theme,
+        label: 'Retro Soul',
+        description: '8-Bit Nostalgia',
+        icon: Gamepad2,
+        colors: 'from-[#9bbc0f] via-[#8bac0f] to-[#306230]'
     },
     {
         id: 'spiral' as Theme,
@@ -39,13 +48,6 @@ const themeData = [
         colors: 'from-blue-200 via-purple-200 to-pink-200'
     },
     {
-        id: 'retro' as Theme,
-        label: 'Retro Vibes',
-        description: 'Vintage warmth',
-        icon: Music,
-        colors: 'from-amber-400 via-orange-400 to-rose-400'
-    },
-    {
         id: 'retro-minimal' as Theme,
         label: 'Retro Minimalist',
         description: 'Journal aesthetic',
@@ -58,10 +60,33 @@ const themeData = [
         description: 'Couple\'s special theme',
         icon: Heart,
         colors: 'from-pink-400 via-orange-300 to-rose-400'
-    }
+    },
+    {
+        id: 'shader-gradient' as Theme,
+        label: 'Cosmic Aurora',
+        description: 'Holographic energy',
+        icon: Layers,
+        colors: 'from-purple-600 via-fuchsia-500 to-purple-300'
+    },
+
 ];
 
 export default function ThemeSelector({ currentTheme, onThemeChange }: ThemeSelectorProps) {
+    const { setMode } = useThemeMode();
+
+    const handleThemeSelect = (themeId: Theme) => {
+        onThemeChange(themeId);
+
+        // Simultaneously update the global mode
+        if (themeId === 'retro-soul') {
+            setMode('retro-soul');
+        } else if (themeId === 'light') {
+            setMode('light');
+        } else {
+            setMode('dark');
+        }
+    };
+
     return (
         <div className="space-y-3">
             {themeData.map((theme) => {
@@ -71,7 +96,7 @@ export default function ThemeSelector({ currentTheme, onThemeChange }: ThemeSele
                 return (
                     <button
                         key={theme.id}
-                        onClick={() => onThemeChange(theme.id)}
+                        onClick={() => handleThemeSelect(theme.id)}
                         className={`w-full group relative overflow-hidden rounded-[32px] p-0.5 transition-all duration-500 ${isActive ? 'scale-[1.02] shadow-2xl shadow-white/5' : 'hover:scale-[1.01]'
                             }`}
                     >

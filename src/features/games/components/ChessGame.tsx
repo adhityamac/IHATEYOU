@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, RefreshCw, Cpu, Users, Crown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Cpu, Users, Crown, ChevronRight, Trophy, Flag, Settings } from 'lucide-react';
 
-// --- Chess Logic Types & Constants ---
+// --- Chess Logic Types & Constants (PRESERVED) ---
 
 type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
 type PieceColor = 'w' | 'b';
 
 interface Piece {
-    id: string; // Unique ID for Framer Motion tracking
+    id: string;
     type: PieceType;
     color: PieceColor;
     hasMoved: boolean;
@@ -32,7 +32,7 @@ const PIECE_SYMBOLS: Record<PieceType, React.ReactNode> = {
     p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚"
 };
 
-// --- Helper Functions ---
+// --- Helper Functions (PRESERVED) ---
 
 function createInitialBoard(): (Piece | null)[][] {
     const board: (Piece | null)[][] = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -266,7 +266,7 @@ function getBestMove(board: (Piece | null)[][], color: PieceColor): Move | null 
 }
 
 
-// --- Component ---
+// --- New UI Component ---
 
 interface ChessGameProps {
     onBack: () => void;
@@ -276,7 +276,7 @@ export default function ChessGame({ onBack }: ChessGameProps) {
     const [board, setBoard] = useState(createInitialBoard);
     const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
     const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
-    const [gameStatus, setGameStatus] = useState("Your Command");
+    const [gameStatus, setGameStatus] = useState("Your Turn");
     const [isThinking, setIsThinking] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [gameMode, setGameMode] = useState<'ai' | 'pvp'>('ai');
@@ -287,6 +287,10 @@ export default function ChessGame({ onBack }: ChessGameProps) {
     const playerColor = "w";
     const aiColor = "b";
 
+    // --- Stats ---
+    const [whiteTime, setWhiteTime] = useState(600); // 10 mins
+    const [blackTime, setBlackTime] = useState(600);
+
     const legalMoves = useMemo(() => {
         if (!selectedSquare) return [];
         const piece = board[selectedSquare.row][selectedSquare.col];
@@ -294,10 +298,20 @@ export default function ChessGame({ onBack }: ChessGameProps) {
         return getLegalMoves(board, selectedSquare, piece);
     }, [board, selectedSquare]);
 
+    // Timer Effect
+    useEffect(() => {
+        if (selection !== 'game' || gameOver) return;
+        const timer = setInterval(() => {
+            if (currentTurn === 'w') setWhiteTime(t => Math.max(0, t - 1));
+            else setBlackTime(t => Math.max(0, t - 1));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [currentTurn, selection, gameOver]);
+
     const handleSquareClick = useCallback((row: number, col: number) => {
         if (gameOver) return;
         if (gameMode === 'ai' && isThinking && currentTurn === aiColor) return;
-        if (gameMode === 'ai' && currentTurn !== playerColor && !selectedSquare) return; // Prevent selecting AI pieces if no selection
+        if (gameMode === 'ai' && currentTurn !== playerColor && !selectedSquare) return;
 
         const clickedPiece = board[row][col];
 
@@ -305,14 +319,11 @@ export default function ChessGame({ onBack }: ChessGameProps) {
         if (selectedSquare) {
             const isLegalMove = legalMoves.some(m => m.row === row && m.col === col);
 
-            // If clicking same piece, deselect
             if (row === selectedSquare.row && col === selectedSquare.col) {
                 setSelectedSquare(null);
                 return;
             }
 
-            // If clicking another own piece, select that instead (unless in middle of move logic?) 
-            // Standard chess UI allows changing selection
             if (clickedPiece && clickedPiece.color === currentTurn) {
                 setSelectedSquare({ row, col });
                 return;
@@ -330,7 +341,6 @@ export default function ChessGame({ onBack }: ChessGameProps) {
                 setBoard(newBoard);
                 setSelectedSquare(null);
 
-                // Track captures
                 if (clickedPiece) {
                     if (clickedPiece.color === 'w') setCapturedWhite(prev => [...prev, clickedPiece.type]);
                     else setCapturedBlack(prev => [...prev, clickedPiece.type]);
@@ -340,14 +350,13 @@ export default function ChessGame({ onBack }: ChessGameProps) {
                 setCurrentTurn(nextTurn);
 
                 if (gameMode === 'ai') {
-                    setGameStatus("Neural Net Calculating...");
+                    setGameStatus("Opponent thinking...");
                     setIsThinking(true);
                 } else {
-                    setGameStatus(nextTurn === 'w' ? "White Sector Active" : "Black Sector Active");
+                    setGameStatus(nextTurn === 'w' ? "White's Turn" : "Black's Turn");
                 }
                 return;
             } else {
-                // Illegal move attempted, if empty square, just deselect
                 if (!clickedPiece) setSelectedSquare(null);
             }
         }
@@ -367,182 +376,247 @@ export default function ChessGame({ onBack }: ChessGameProps) {
                     const newBoard = makeMove(board, aiMove);
                     setBoard(newBoard);
                     if (aiMove.captured) {
-                        // AI captured player's piece (White)
                         setCapturedWhite(prev => [...prev, aiMove.captured!.type]);
                     }
                     setCurrentTurn(playerColor);
-                    setGameStatus("Your Command");
+                    setGameStatus("Your Turn");
                     setIsThinking(false);
                 } else {
                     setGameOver(true);
-                    setGameStatus("Stalemate / Checkmate");
+                    setGameStatus("Checkmate!");
                 }
             }, 800);
             return () => clearTimeout(timer);
         }
     }, [currentTurn, gameMode, board, gameOver]);
 
-    // --- Visual Helpers ---
-
-    const getSquareColor = (r: number, c: number) => {
-        const isDark = (r + c) % 2 === 1;
-        return isDark ? 'bg-slate-900/80' : 'bg-slate-800/40';
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
     };
+
+    // --- Themes ---
+    // Using a "Duolingo style" vibrant palette
+    const squareLight = 'bg-[#eeeed2]'; // Cream
+    const squareDark = 'bg-[#769656]';  // Green
+    const highlight = 'bg-[#baca44]';   // Yellow-Green
 
     if (selection === 'menu') {
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center p-8 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#050505] to-[#050505] -z-10" />
-
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-center mb-12">
-                    <div className="mx-auto mb-6 w-20 h-20 bg-indigo-500/10 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.2)] border border-indigo-500/30">
-                        <Crown size={40} className="text-indigo-400" />
+            <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-stone-100 font-sans">
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="text-center mb-12"
+                >
+                    <div className="mx-auto mb-6 w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-[0_8px_0_rgba(0,0,0,0.1)] border-2 border-stone-100">
+                        <Crown size={48} className="text-yellow-500 fill-yellow-500" />
                     </div>
-                    <h1 className="text-5xl font-black text-white italic tracking-tighter mb-2">QUANTUM CHESS</h1>
-                    <p className="text-indigo-200/60 font-mono tracking-widest text-xs uppercase">Advanced Neural Interface</p>
+                    <h1 className="text-4xl font-black text-stone-800 tracking-tight mb-2">CHESS ARENA</h1>
+                    <p className="text-stone-400 font-medium font-mono uppercase tracking-widest text-xs">Select Game Mode</p>
                 </motion.div>
 
-                <div className="grid gap-4 w-full max-w-xs">
+                <div className="grid gap-4 w-full max-w-sm">
                     <button
                         onClick={() => { setGameMode('ai'); setSelection('game'); }}
-                        className="group relative p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/50 rounded-2xl transition-all flex items-center justify-between"
+                        className="group relative p-4 bg-white hover:bg-stone-50 border-2 border-b-4 border-stone-200 hover:border-blue-400 rounded-2xl transition-all active:border-b-2 active:translate-y-[2px] flex items-center gap-4 w-full"
                     >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-500/20 rounded-xl text-indigo-400 group-hover:scale-110 transition-transform"><Cpu size={24} /></div>
-                            <div className="text-left">
-                                <div className="text-white font-bold text-lg">Vs Neural Net</div>
-                                <div className="text-white/40 text-xs">Single Player</div>
-                            </div>
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-500">
+                            <Cpu size={24} />
                         </div>
-                        <ChevronRight className="text-white/20 group-hover:text-white" />
+                        <div className="text-left flex-1">
+                            <div className="text-stone-700 font-bold text-lg">Play vs Bot</div>
+                            <div className="text-stone-400 text-xs font-bold uppercase">Single Player</div>
+                        </div>
                     </button>
 
                     <button
                         onClick={() => { setGameMode('pvp'); setSelection('game'); }}
-                        className="group relative p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-500/50 rounded-2xl transition-all flex items-center justify-between"
+                        className="group relative p-4 bg-white hover:bg-stone-50 border-2 border-b-4 border-stone-200 hover:border-green-400 rounded-2xl transition-all active:border-b-2 active:translate-y-[2px] flex items-center gap-4 w-full"
                     >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-fuchsia-500/20 rounded-xl text-fuchsia-400 group-hover:scale-110 transition-transform"><Users size={24} /></div>
-                            <div className="text-left">
-                                <div className="text-white font-bold text-lg">PVP Sector</div>
-                                <div className="text-white/40 text-xs">Local Multiplayer</div>
-                            </div>
+                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-500">
+                            <Users size={24} />
                         </div>
-                        <ChevronRight className="text-white/20 group-hover:text-white" />
+                        <div className="text-left flex-1">
+                            <div className="text-stone-700 font-bold text-lg">Pass & Play</div>
+                            <div className="text-stone-400 text-xs font-bold uppercase">Multiplayer</div>
+                        </div>
                     </button>
                 </div>
 
-                <button onClick={onBack} className="mt-12 text-white/30 hover:text-white text-sm flex items-center gap-2 transition-colors">
-                    <ArrowLeft size={14} /> EXIT SIMULATION
+                <button onClick={onBack} className="mt-12 text-stone-400 hover:text-stone-600 font-bold text-sm flex items-center gap-2 transition-colors uppercase tracking-widest">
+                    <ArrowLeft size={16} /> Exit
                 </button>
             </div>
         );
     }
 
     return (
-        <div className="w-full h-full flex flex-col items-center bg-[#050505] relative p-4 overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+        <div className="w-full h-full flex flex-col items-center bg-stone-100 p-4 md:p-8 overflow-hidden font-sans">
 
-            <div className="w-full max-w-[420px] mb-6 flex justify-between items-center z-10">
-                <button onClick={() => setSelection('menu')} className="p-3 bg-white/5 rounded-2xl text-white/60 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-                    <ArrowLeft size={20} />
-                </button>
-                <div className="text-center">
-                    <div className="text-[10px] font-mono text-indigo-400 mb-1 tracking-[0.2em] uppercase opacity-70">Status</div>
-                    <div className="text-white font-black text-xl tracking-tight">{gameStatus}</div>
-                </div>
-                <button onClick={() => { setBoard(createInitialBoard()); setCurrentTurn('w'); setGameOver(false); }} className="p-3 bg-white/5 rounded-2xl text-white/60 hover:text-white hover:bg-white/10 transition-all border border-white/5">
-                    <RefreshCw size={20} />
-                </button>
-            </div>
+            <div className="w-full max-w-[480px] h-full flex flex-col gap-4">
 
-            {/* Board Container */}
-            <div className="w-full max-w-[420px] aspect-square relative rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(79,70,229,0.15)] border border-white/10 z-10">
-                {/* Grid Renders */}
-                <div className="absolute inset-0 grid grid-cols-8 grid-rows-8">
-                    {board.map((rowArr, rowIndex) => (
-                        rowArr.map((_, colIndex) => {
-                            const isSelected = selectedSquare?.row === rowIndex && selectedSquare?.col === colIndex;
-                            const isMoveTarget = legalMoves.some(m => m.row === rowIndex && m.col === colIndex);
-                            return (
-                                <div
-                                    key={`cell-${rowIndex}-${colIndex}`}
-                                    onClick={() => handleSquareClick(rowIndex, colIndex)}
-                                    className={`relative ${getSquareColor(rowIndex, colIndex)} transition-colors backdrop-blur-md`}
-                                >
-                                    {/* Selection Highlight */}
-                                    {isSelected && (
-                                        <motion.div layoutId="selection" className="absolute inset-0 border-[3px] border-indigo-400 shadow-[inset_0_0_20px_rgba(129,140,248,0.5)] z-0" />
-                                    )}
-
-                                    {/* Move Indicator */}
-                                    {isMoveTarget && (
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                                            {board[rowIndex][colIndex] ? (
-                                                <div className="absolute inset-1 border-[4px] border-rose-500/60 rounded-xl" /> // Capture Target
-                                            ) : (
-                                                <div className="w-3 h-3 bg-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.8)]" /> // Move Target
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ))}
+                {/* Header Actions */}
+                <div className="flex justify-between items-center px-2">
+                    <button onClick={() => setSelection('menu')} className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200/50 rounded-xl transition-all">
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div className="font-bold text-stone-400 text-xs tracking-widest uppercase">
+                        {gameMode === 'ai' ? 'Bot Match' : 'PvP Match'}
+                    </div>
+                    <button onClick={() => alert("Settings unimplemented")} className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200/50 rounded-xl transition-all">
+                        <Settings size={24} />
+                    </button>
                 </div>
 
-                {/* Pieces Layer */}
-                <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 pointer-events-none">
-                    {board.map((rowArr, rowIndex) => (
-                        rowArr.map((piece, colIndex) => (
-                            <div key={`p-cell-${rowIndex}-${colIndex}`} className="flex items-center justify-center w-full h-full">
-                                <AnimatePresence mode='popLayout'>
-                                    {piece && (
-                                        <motion.div
-                                            layoutId={piece.id}
-                                            initial={{ opacity: 0, scale: 0.5 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0 }}
-                                            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                                            className="relative z-30 cursor-pointer pointer-events-auto w-full h-full flex items-center justify-center"
-                                            onClick={(e) => { e.stopPropagation(); handleSquareClick(rowIndex, colIndex); }}
-                                        >
-                                            <span
-                                                className={`text-[2.5rem] md:text-[3rem] select-none filter drop-shadow-lg leading-none
-                                                    ${piece.color === 'w' ? 'text-cyan-200 drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]' : 'text-fuchsia-400 drop-shadow-[0_0_15px_rgba(232,121,249,0.6)]'}
-                                                `}
-                                                style={{ textShadow: piece.color === 'w' ? '0 0 20px rgba(34,211,238,0.5)' : '0 0 20px rgba(232,121,249,0.5)' }}
-                                            >
-                                                {PIECE_SYMBOLS[piece.type]}
-                                            </span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                {/* Opponent Card (Black) */}
+                <div className={`
+                    flex items-center gap-4 p-3 bg-white rounded-2xl border-2 border-b-4 
+                    ${currentTurn === 'b' ? 'border-green-400 bg-green-50/50' : 'border-stone-200'}
+                    transition-colors duration-300
+                `}>
+                    <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-white shadow-inner">
+                        {gameMode === 'ai' ? <Cpu size={24} /> : <Users size={24} />}
+                    </div>
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <span className="font-black text-stone-800 text-lg">{gameMode === 'ai' ? 'Bot Opponent' : 'Player 2'}</span>
+                            <div className="flex gap-1">
+                                {capturedWhite.map((p, i) => (
+                                    <span key={i} className="text-lg text-stone-800">{PIECE_SYMBOLS[p]}</span>
+                                ))}
                             </div>
-                        ))
-                    ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className={`h-2 rounded-full flex-1 ${currentTurn === 'b' ? 'bg-green-400' : 'bg-stone-200'}`} />
+                            <span className="font-mono font-bold text-stone-400">{formatTime(blackTime)}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Captured Pieces Display */}
-            <div className="w-full max-w-[420px] mt-6 grid grid-cols-2 gap-4 z-10">
-                <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/5 flex flex-col gap-2">
-                    <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold">White Captured</div>
-                    <div className="flex flex-wrap gap-1 min-h-[24px]">
-                        {capturedBlack.map((p, i) => (
-                            <span key={i} className="text-fuchsia-400/50 text-xl leading-none">{PIECE_SYMBOLS[p]}</span>
-                        ))}
+                {/* BOARD */}
+                <div className="flex-1 flex items-center justify-center my-2">
+                    <div className="w-full aspect-square bg-[#302E2B] rounded-xl p-1 shadow-xl">
+                        <div className="w-full h-full rounded-lg overflow-hidden grid grid-cols-8 grid-rows-8 relative">
+                            {board.map((rowArr, rowIndex) => (
+                                rowArr.map((_, colIndex) => {
+                                    const isSelected = selectedSquare?.row === rowIndex && selectedSquare?.col === colIndex;
+                                    const isMoveTarget = legalMoves.some(m => m.row === rowIndex && m.col === colIndex);
+                                    const isDark = (rowIndex + colIndex) % 2 === 1;
+
+                                    // Highlight logic
+                                    let bgClass = isDark ? squareDark : squareLight;
+                                    if (isSelected) bgClass = highlight; // Selected color
+                                    // if (isLastMove) bgClass = ...
+
+                                    return (
+                                        <div
+                                            key={`cell-${rowIndex}-${colIndex}`}
+                                            onClick={() => handleSquareClick(rowIndex, colIndex)}
+                                            className={`${bgClass} relative flex items-center justify-center select-none`}
+                                        >
+                                            {/* Coordinate Labels */}
+                                            {colIndex === 0 && (
+                                                <span className={`absolute top-0.5 left-0.5 text-[9px] font-bold ${isDark ? 'text-[#eeeed2]' : 'text-[#769656]'}`}>
+                                                    {8 - rowIndex}
+                                                </span>
+                                            )}
+                                            {rowIndex === 7 && (
+                                                <span className={`absolute bottom-0 right-0.5 text-[9px] font-bold ${isDark ? 'text-[#eeeed2]' : 'text-[#769656]'}`}>
+                                                    {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'][colIndex]}
+                                                </span>
+                                            )}
+
+                                            {/* Move Hints */}
+                                            {isMoveTarget && (
+                                                <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                                                    {board[rowIndex][colIndex] ? (
+                                                        <div className="w-full h-full border-[6px] border-black/10 rounded-full" />
+                                                    ) : (
+                                                        <div className="w-4 h-4 bg-black/10 rounded-full" />
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Piece */}
+                                            <div className="relative z-20 w-full h-full flex items-center justify-center">
+                                                <AnimatePresence>
+                                                    {board[rowIndex][colIndex] && (
+                                                        <motion.div
+                                                            layoutId={board[rowIndex][colIndex]!.id}
+                                                            initial={{ scale: 0 }}
+                                                            animate={{ scale: 1 }}
+                                                            exit={{ scale: 0 }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                            className="w-full h-full flex items-center justify-center cursor-pointer"
+                                                        >
+                                                            <span
+                                                                className={`
+                                                                    text-[2.8rem] leading-none mb-1 filter select-none
+                                                                    ${board[rowIndex][colIndex]!.color === 'w'
+                                                                        ? 'text-white drop-shadow-[0_2px_1px_rgba(0,0,0,0.5)]'
+                                                                        : 'text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                {PIECE_SYMBOLS[board[rowIndex][colIndex]!.type]}
+                                                            </span>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ))}
+                        </div>
                     </div>
                 </div>
-                <div className="bg-white/[0.03] rounded-2xl p-4 border border-white/5 flex flex-col gap-2">
-                    <div className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Black Captured</div>
-                    <div className="flex flex-wrap gap-1 min-h-[24px]">
-                        {capturedWhite.map((p, i) => (
-                            <span key={i} className="text-cyan-300/50 text-xl leading-none">{PIECE_SYMBOLS[p]}</span>
-                        ))}
+
+                {/* Player Card (White) */}
+                <div className={`
+                    flex items-center gap-4 p-3 bg-white rounded-2xl border-2 border-b-4 
+                    ${currentTurn === 'w' ? 'border-green-400 bg-green-50/50' : 'border-stone-200'}
+                    transition-colors duration-300
+                `}>
+                    <div className="w-12 h-12 rounded-xl bg-white border-2 border-stone-100 flex items-center justify-center text-stone-800 shadow-sm relative overflow-hidden">
+                        {/* Placeholder Avatar */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-purple-100" />
+                        <span className="relative font-bold text-lg">YOU</span>
+                    </div>
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <span className="font-black text-stone-800 text-lg">Player 1</span>
+                            <div className="flex gap-1">
+                                {capturedBlack.map((p, i) => (
+                                    <span key={i} className="text-lg text-stone-800">{PIECE_SYMBOLS[p]}</span>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className={`h-2 rounded-full flex-1 ${currentTurn === 'w' ? 'bg-green-400' : 'bg-stone-200'}`} />
+                            <span className="font-mono font-bold text-stone-400">{formatTime(whiteTime)}</span>
+                        </div>
                     </div>
                 </div>
+
+                {/* Game Controls */}
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => { setBoard(createInitialBoard()); setCurrentTurn('w'); setGameOver(false); }}
+                        className="flex-1 p-3 bg-stone-200 hover:bg-stone-300 text-stone-600 rounded-xl font-bold text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition-colors"
+                    >
+                        <RefreshCw size={16} /> New Game
+                    </button>
+                    <button
+                        onClick={() => alert("Resign unimplemented")}
+                        className="flex-1 p-3 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl font-bold text-sm uppercase tracking-wide flex items-center justify-center gap-2 transition-colors"
+                    >
+                        <Flag size={16} /> Resign
+                    </button>
+                </div>
+
             </div>
         </div>
     );

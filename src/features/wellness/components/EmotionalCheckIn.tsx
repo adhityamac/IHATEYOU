@@ -1,12 +1,14 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Users, Plus, MessageCircle, User, Trash2, Edit3, Zap, Play, Copy, Check, Gamepad2, ArrowRight, MessageSquare, X, Send, EyeOff, Timer, Smile, Trophy } from 'lucide-react';
+import { Home, Users, Plus, MessageCircle, User, Trash2, Edit3, Zap, Play, Copy, Check, Gamepad2, ArrowRight, MessageSquare, X, Send, EyeOff, Timer, Smile, Trophy, Calendar } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import SynapseMap from '@/components/shared/SynapseMap';
-import NeuralAura from '@/components/backgrounds/NeuralAura';
+import { useTheme } from '@/components/shared/GradientThemeProvider';
 import { useSignals } from '@/hooks/useSignals';
 import HerWorld from '@/features/games/components/HerWorld';
+import YearInPixels from './YearInPixels';
+
 
 // Yellow Emoji Grid Configuration
 const SPRITE_CONFIG = {
@@ -15,46 +17,27 @@ const SPRITE_CONFIG = {
     scale: 1.1, // Slight zoom to remove borders
 };
 
-// Emotional Mapping - Updated for 6x6 Grid
+// Emotional Mapping - 3x4 Grid (12 emotions)
 const emotions = [
-    // Row 0
+    // Row 0 - Positive
     { id: 'joyful', name: 'Joyful', color: '#F5A8C8', sentence: 'Light feels possible today.', prompt: 'Share a moment of light.', gridPos: { row: 0, col: 0 } },
     { id: 'loved', name: 'Loved', color: '#F8B8C8', sentence: 'Held by something bigger.', prompt: 'Who makes you feel seen?', gridPos: { row: 0, col: 1 } },
     { id: 'excited', name: 'Excited', color: '#F8D8A8', sentence: 'Buzzing with possibility.', prompt: 'What has you energized?', gridPos: { row: 0, col: 2 } },
-    { id: 'grateful', name: 'Grateful', color: '#E8D8A8', sentence: 'Small things feel big today.', prompt: 'What are you thankful for?', gridPos: { row: 0, col: 3 } },
-    { id: 'hopeful', name: 'Hopeful', color: '#A8E8C0', sentence: 'Waiting for the sunrise.', prompt: 'What are you waiting for?', gridPos: { row: 0, col: 4 } },
-    { id: 'playful', name: 'Playful', color: '#87CEEB', sentence: 'Ready to have fun.', prompt: 'What sounds fun?', gridPos: { row: 0, col: 5 } },
 
-    // Row 1
+    // Row 1 - Calm/Neutral
     { id: 'calm', name: 'Calm', color: '#A8C5E0', sentence: 'Quiet, but not at peace.', prompt: 'What is keeping you still?', gridPos: { row: 1, col: 0 } },
-    { id: 'peaceful', name: 'Peaceful', color: '#B8E8D8', sentence: 'Finally, a moment of quiet.', prompt: 'Where did you find peace?', gridPos: { row: 1, col: 1 } },
-    { id: 'confident', name: 'Confident', color: '#F8C888', sentence: 'I know who I am.', prompt: 'What is your strength today?', gridPos: { row: 1, col: 2 } },
-    { id: 'brave', name: 'Brave', color: '#F8A888', sentence: 'Doing it even with the fear.', prompt: 'What are you facing today?', gridPos: { row: 1, col: 3 } },
-    { id: 'proud', name: 'Proud', color: '#FFD700', sentence: 'Standing tall.', prompt: 'What did you achieve?', gridPos: { row: 1, col: 4 } }, // New
-    { id: 'curious', name: 'Curious', color: '#E0B0FF', sentence: 'Wondering about the details.', prompt: 'What caught your eye?', gridPos: { row: 1, col: 5 } }, // New
+    { id: 'grateful', name: 'Grateful', color: '#E8D8A8', sentence: 'Small things feel big today.', prompt: 'What are you thankful for?', gridPos: { row: 1, col: 1 } },
+    { id: 'hopeful', name: 'Hopeful', color: '#A8E8C0', sentence: 'Waiting for the sunrise.', prompt: 'What are you waiting for?', gridPos: { row: 1, col: 2 } },
 
-    // Row 2
-    { id: 'nostalgic', name: 'Nostalgic', color: '#D8B8A8', sentence: 'Visiting places that don\'t exist.', prompt: 'Where have you gone back to?', gridPos: { row: 2, col: 0 } },
-    { id: 'silly', name: 'Silly', color: '#FFD700', sentence: 'Just being goofy today.', prompt: 'What made you laugh?', gridPos: { row: 2, col: 1 } },
-    { id: 'shy', name: 'Shy', color: '#FFB6C1', sentence: 'Feeling a bit bashful.', prompt: 'What makes you shy?', gridPos: { row: 2, col: 2 } },
-    { id: 'overthinking', name: 'Overthinking', color: '#C8A8E8', sentence: 'Stuck in loops again.', prompt: 'What loop are you stuck in?', gridPos: { row: 2, col: 3 } },
-    { id: 'confused', name: 'Confused', color: '#C8C8D8', sentence: 'Lost in the fog.', prompt: 'What is unclear?', gridPos: { row: 2, col: 4 } },
-    { id: 'restless', name: 'Restless', color: '#C0C0E8', sentence: 'Skin feels too tight.', prompt: 'What is pulling at you?', gridPos: { row: 2, col: 5 } },
+    // Row 2 - Confused/Restless
+    { id: 'confused', name: 'Confused', color: '#C8C8D8', sentence: 'Lost in the fog.', prompt: 'What is unclear?', gridPos: { row: 2, col: 0 } },
+    { id: 'anxious', name: 'Anxious', color: '#E8B898', sentence: 'Everything feels too much.', prompt: 'Focus on one small thing.', gridPos: { row: 2, col: 1 } },
+    { id: 'overwhelmed', name: 'Overwhelmed', color: '#D8A8B8', sentence: 'Drowning in everything.', prompt: 'What is too much right now?', gridPos: { row: 2, col: 2 } },
 
-    // Row 3
-    { id: 'anxious', name: 'Anxious', color: '#E8B898', sentence: 'Everything feels too much.', prompt: 'Focus on one small thing.', gridPos: { row: 3, col: 0 } },
-    { id: 'overwhelmed', name: 'Overwhelmed', color: '#D8A8B8', sentence: 'Drowning in everything.', prompt: 'What is too much right now?', gridPos: { row: 3, col: 1 } },
-    { id: 'drained', name: 'Drained', color: '#A8B8C8', sentence: 'Running on empty.', prompt: 'What took your energy today?', gridPos: { row: 3, col: 2 } },
-    { id: 'hurt', name: 'Hurt', color: '#E8A898', sentence: 'Still processing the ache.', prompt: 'Where does it hurt the most?', gridPos: { row: 3, col: 3 } },
-    { id: 'angry', name: 'Angry', color: '#E89888', sentence: 'Fire beneath the surface.', prompt: 'Let the fire speak.', gridPos: { row: 3, col: 4 } },
-    { id: 'lonely', name: 'Lonely', color: '#8898B8', sentence: 'Surrounded, still alone.', prompt: 'What does the silence say?', gridPos: { row: 3, col: 5 } },
-
-    // Row 4
-    { id: 'detached', name: 'Detached', color: '#B8B8C8', sentence: 'Here, but not really.', prompt: 'Where is your mind drifting?', gridPos: { row: 4, col: 0 } },
-    { id: 'numb', name: 'Numb', color: '#A8A8A8', sentence: 'Feeling nothing at all.', prompt: 'Describe the void.', gridPos: { row: 4, col: 1 } },
-    { id: 'empty', name: 'Empty', color: '#98A8A8', sentence: 'Hollow inside.', prompt: 'What is missing?', gridPos: { row: 4, col: 2 } },
-    { id: 'invisible', name: 'Invisible', color: '#98A8B8', sentence: 'No one sees me today.', prompt: 'Speak to the space around you.', gridPos: { row: 4, col: 3 } },
-    // Extra slots for future use
+    // Row 3 - Heavy/Dark (includes secret sequence)
+    { id: 'lonely', name: 'Lonely', color: '#8898B8', sentence: 'Surrounded, still alone.', prompt: 'What does the silence say?', gridPos: { row: 3, col: 0 } },
+    { id: 'numb', name: 'Numb', color: '#A8A8A8', sentence: 'Feeling nothing at all.', prompt: 'Describe the void.', gridPos: { row: 3, col: 1 } },
+    { id: 'empty', name: 'Empty', color: '#98A8A8', sentence: 'Hollow inside.', prompt: 'What is missing?', gridPos: { row: 3, col: 2 } },
 ];
 
 const EmotionFace = ({ emotion, isSelected }: { emotion: any, isSelected: boolean }) => {
@@ -86,9 +69,19 @@ const getChannelForEmotion = (emotionId: string) => {
 };
 
 export default function EmotionalCheckIn() {
+    const { theme } = useTheme();
+    const isRetro = theme.startsWith('retro');
+
+    // Theme-aware styles
+    // Retro Espresso Palette
+    const textColor = isRetro ? 'text-[#2c1810]' : 'text-white'; // Deep Coffee Brown
+    const mutedText = isRetro ? 'text-[#5d4037]' : 'text-white/30'; // Muted Cocoa
+    const borderColor = isRetro ? 'border-[#2c1810]' : 'border-white/10';
+    const containerBg = isRetro ? 'bg-[#2c1810]/5' : 'bg-white/[0.03]';
+
     const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
     const { trackMood, trackTool } = useSignals('user-1'); // Using fixed ID for demo
-    const [activeNav, setActiveNav] = useState('checkin');
+    const [activeNav, setActiveNav] = useState('checkin'); // Start with Check-in
     const [showPostingArea, setShowPostingArea] = useState(false);
     const [postText, setPostText] = useState('');
     const [myPosts, setMyPosts] = useState<any[]>([]);
@@ -123,8 +116,12 @@ export default function EmotionalCheckIn() {
     const [clickSequence, setClickSequence] = useState<string[]>([]);
     const [terminalStep, setTerminalStep] = useState(0);
     const [typedText, setTypedText] = useState('');
+    const [hintLevel, setHintLevel] = useState(0); // Progressive hints
+    const [showHintOverlay, setShowHintOverlay] = useState(false);
+    const [discoveredSecrets, setDiscoveredSecrets] = useState<string[]>([]);
 
-    const TOGGLE_GATE_SEQUENCE = 'empty,numb,lonely';
+    const TOGGLE_GATE_SEQUENCE = 'overwhelmed,lonely,calm'; // Emotional journey: chaos → isolation → peace
+    const SEQUENCE_ARRAY = TOGGLE_GATE_SEQUENCE.split(',');
 
     const ECHO_MESSAGES = [
         "Initializing restricted frequency...",
@@ -140,6 +137,9 @@ export default function EmotionalCheckIn() {
         // Sequence detection
         const sequence = clickSequence.slice(-3);
         if (sequence.join(',') === TOGGLE_GATE_SEQUENCE) {
+            if (!discoveredSecrets.includes('the_gate')) {
+                setDiscoveredSecrets(prev => [...prev, 'the_gate']);
+            }
             setTimeout(() => {
                 setGlitchMode(true);
                 setTerminalStep(0);
@@ -147,6 +147,18 @@ export default function EmotionalCheckIn() {
             }, 800);
         }
     }, [clickSequence]);
+
+    // Progressive hint system
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const visits = parseInt(localStorage.getItem('checkin_visits') || '0');
+        localStorage.setItem('checkin_visits', (visits + 1).toString());
+
+        // Unlock hints progressively
+        if (visits >= 3) setHintLevel(1);
+        if (visits >= 7) setHintLevel(2);
+        if (visits >= 14) setHintLevel(3);
+    }, []);
 
     // Typewriter effect logic
     useEffect(() => {
@@ -215,10 +227,28 @@ export default function EmotionalCheckIn() {
 
         // PUZZLE: The Midnight Sun
         if (emotion.id === 'hopeful' && isMidnight) {
-            return "The sun speaks when the world sleeps. You are close.";
+            if (!discoveredSecrets.includes('midnight_sun')) {
+                setDiscoveredSecrets(prev => [...prev, 'midnight_sun']);
+            }
+            return "✨ The sun speaks when the world sleeps. You found it. ✨";
+        }
+
+        // Hint for midnight puzzle during daytime
+        if (emotion.id === 'hopeful' && !isMidnight && hintLevel >= 2) {
+            return "Waiting for the sunrise... but what if you looked at midnight?";
         }
 
         return emotion.sentence;
+    };
+
+    // Check sequence progress and give hints
+    const getSequenceHint = () => {
+        const recent = clickSequence.slice(-3).join(',');
+        const progress = SEQUENCE_ARRAY.filter((step, i) => clickSequence.slice(-3)[i] === step).length;
+
+        if (progress === 1) return "The journey begins... chaos acknowledged.";
+        if (progress === 2) return "Through the darkness... one more step to peace.";
+        return null;
     };
 
     const selectedEmotionData = emotions.find(e => e.id === selectedEmotion);
@@ -313,7 +343,7 @@ export default function EmotionalCheckIn() {
     const baseFeedPosts = [
         { id: 1, username: 'luna_sky', emotion: emotions[3], content: 'The silence here is different today.', timestamp: '2h ago' },
         { id: 2, username: 'pixel_drifter', emotion: emotions[0], content: 'Found a fragment of joy in the day.', timestamp: '5h ago' },
-        { id: 3, username: 'echo_zero', emotion: emotions[22], content: 'Disconnected but present.', timestamp: '1d ago' },
+        { id: 3, username: 'echo_zero', emotion: emotions[11], content: 'Disconnected but present.', timestamp: '1d ago' },
     ];
 
     const feedPosts = [...myPosts, ...baseFeedPosts];
@@ -382,29 +412,51 @@ export default function EmotionalCheckIn() {
                 {showPostingArea ? (
                     <motion.div key="posting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-3xl p-8 flex flex-col items-center justify-center">
                         <div className="max-w-lg w-full">
-                            <h2 className="text-white/40 text-[10px] font-black uppercase tracking-[0.4em] mb-12 text-center">Sharing your {selectedEmotionData?.name} Energy</h2>
+                            <h2 className={`${mutedText} text-[10px] font-black uppercase tracking-[0.4em] mb-12 text-center`}>Sharing your {selectedEmotionData?.name} Energy</h2>
                             <textarea
                                 value={postText}
                                 onChange={(e) => setPostText(e.target.value)}
                                 autoFocus
-                                className="w-full bg-transparent text-4xl font-black text-center text-white focus:outline-none resize-none min-h-[200px] italic"
+                                className={`w-full bg-transparent text-4xl font-black text-center ${textColor} focus:outline-none resize-none min-h-[200px] italic placeholder:${isRetro ? 'text-stone-400' : 'text-white/20'}`}
                                 placeholder="What's on your mind?"
                             />
                             <div className="flex gap-4 mt-12">
-                                <button onClick={() => setShowPostingArea(false)} className="flex-1 py-5 rounded-2xl bg-white/5 text-white/40 font-black uppercase tracking-widest hover:text-white transition-all">Cancel</button>
-                                <button onClick={handlePost} disabled={!postText.trim()} className="flex-1 py-5 rounded-2xl bg-white text-black font-black uppercase tracking-widest disabled:opacity-20 transition-all flex items-center justify-center gap-3">Share Post <ArrowRight size={18} /></button>
+                                <button onClick={() => setShowPostingArea(false)} className={`flex-1 py-5 rounded-2xl ${isRetro ? 'bg-stone-200 text-stone-500 hover:text-stone-900' : 'bg-white/5 text-white/40 hover:text-white'} font-black uppercase tracking-widest transition-all`}>Cancel</button>
+                                <button onClick={handlePost} disabled={!postText.trim()} className={`flex-1 py-5 rounded-2xl ${isRetro ? 'bg-stone-900 text-white' : 'bg-white text-black'} font-black uppercase tracking-widest disabled:opacity-20 transition-all flex items-center justify-center gap-3`}>Share Post <ArrowRight size={18} /></button>
                             </div>
                         </div>
                     </motion.div>
+                ) : activeNav === 'pixels' ? (
+                    <motion.div key="pixels" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-8 pt-20">
+                        <div className="max-w-6xl mx-auto mb-8">
+                            <button
+                                onClick={() => setActiveNav('checkin')}
+                                className={`flex items-center gap-2 ${mutedText} hover:${textColor} transition-colors uppercase tracking-widest text-xs font-bold mb-4`}
+                            >
+                                <ArrowRight className="rotate-180" size={16} /> Back to Check-in
+                            </button>
+                        </div>
+                        <YearInPixels />
+                    </motion.div>
                 ) : activeNav === 'checkin' ? (
                     <motion.div key="checkin" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 max-w-xl mx-auto pt-20">
-                        <div className="text-center mb-16">
-                            <h1 className="text-5xl font-black italic tracking-tighter uppercase text-white mb-4">Daily Check-In</h1>
-                            <p className="text-white/30 font-bold tracking-widest uppercase text-[10px]">How are you feeling today, {username}?</p>
+                        <div className="text-center mb-16 relative">
+                            <h1 className={`text-5xl font-black italic tracking-tighter uppercase ${textColor} mb-4`}>Daily Check-In</h1>
+                            <p className={`${mutedText} font-bold tracking-widest uppercase text-[10px] mb-8`}>How are you feeling today, {username}?</p>
+
+                            {/* Year In Pixels Entry */}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setActiveNav('pixels')}
+                                className={`inline-flex items-center gap-2 px-6 py-2 rounded-full ${isRetro ? 'bg-stone-100 border-2 border-stone-900 text-stone-900 shadow-[2px_2px_0px_#2d2a2e]' : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10'} transition-all font-bold uppercase tracking-widest text-[10px]`}
+                            >
+                                <Calendar size={14} />
+                                View My Year in Pixels
+                            </motion.button>
                         </div>
 
-
-                        <div className="grid grid-cols-4 gap-6 mb-20">
+                        <div className="grid grid-cols-3 gap-6 mb-20">
                             {emotions.map((emotion, i) => (
                                 <motion.div
                                     key={emotion.id}
@@ -439,14 +491,17 @@ export default function EmotionalCheckIn() {
                                             scale: selectedEmotion === emotion.id ? 1.2 : 1,
                                             boxShadow: selectedEmotion === emotion.id
                                                 ? `0 0 40px ${emotion.color}80`
-                                                : '0 0 0px rgba(255,255,255,0)'
+                                                : (hintLevel >= 3 && SEQUENCE_ARRAY.includes(emotion.id))
+                                                    ? `0 0 20px rgba(168,85,247,0.3)` // Purple glow for sequence emotions
+                                                    : '0 0 0px rgba(255,255,255,0)'
                                         }}
                                         className={`w-full aspect-square rounded-full group relative transition-all duration-300 ${selectedEmotion === emotion.id
                                             ? 'ring-4 ring-white/30'
                                             : 'hover:ring-2 hover:ring-white/20'
-                                            }`}
+                                            } ${hintLevel >= 3 && SEQUENCE_ARRAY.includes(emotion.id) ? 'ring-1 ring-purple-500/20' : ''}`}
                                         style={{
-                                            backgroundColor: selectedEmotion === emotion.id ? `${emotion.color}20` : 'transparent'
+                                            backgroundColor: selectedEmotion === emotion.id ? `${emotion.color}20` : 'transparent',
+                                            borderColor: isRetro ? '#2c1810' : 'transparent'
                                         }}
                                     >
                                         <EmotionFace emotion={emotion} isSelected={selectedEmotion === emotion.id} />
@@ -464,8 +519,9 @@ export default function EmotionalCheckIn() {
                                     </motion.button>
                                     <motion.span
                                         animate={{
-                                            color: selectedEmotion === emotion.id ? '#ffffff' : 'rgba(255,255,255,0.3)',
-                                            scale: selectedEmotion === emotion.id ? 1.1 : 1
+                                            color: selectedEmotion === emotion.id ? (isRetro ? '#2c1810' : '#ffffff') : (isRetro ? '#2c1810' : 'rgba(255,255,255,0.3)'),
+                                            scale: selectedEmotion === emotion.id ? 1.1 : 1,
+                                            opacity: isRetro ? 1 : (selectedEmotion === emotion.id ? 1 : 0.5)
                                         }}
                                         className="text-[9px] font-black uppercase tracking-[0.2em]"
                                     >
@@ -477,13 +533,104 @@ export default function EmotionalCheckIn() {
 
                         <AnimatePresence>
                             {selectedEmotionData && (
-                                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: 20 }} className="p-12 rounded-[56px] bg-white/[0.03] border border-white/10 backdrop-blur-3xl text-center shadow-3xl">
+                                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: 20 }} className={`p-12 rounded-[56px] ${containerBg} border ${borderColor} backdrop-blur-3xl text-center shadow-3xl`}>
                                     <h2 className="text-6xl font-black mb-6 tracking-tighter" style={{ color: selectedEmotionData.color }}>{selectedEmotionData.name}</h2>
-                                    <p className="text-2xl text-white/50 mb-12 italic font-bold leading-tight">"{activeMessage}"</p>
+                                    <p className={`text-2xl ${mutedText} mb-12 italic font-bold leading-tight`}>"{activeMessage}"</p>
+
+                                    {/* Sequence Progress Hint */}
+                                    <AnimatePresence>
+                                        {getSequenceHint() && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="mb-8 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-200 text-sm font-mono"
+                                            >
+                                                {getSequenceHint()}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
                                     <div className="flex flex-col gap-4">
-                                        <button onClick={() => setShowPostingArea(true)} className="w-full py-6 rounded-3xl bg-white text-black font-black text-xl uppercase tracking-widest hover:scale-[1.02] transition-transform flex items-center justify-center gap-4">Tell more <ArrowRight size={24} /></button>
-                                        <button onClick={() => setActiveNav('feed')} className="w-full py-6 rounded-3xl bg-white/5 text-white/40 font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">Just browse</button>
+                                        <button onClick={() => setShowPostingArea(true)} className={`w-full py-6 rounded-3xl ${isRetro ? 'bg-stone-900 text-white' : 'bg-white text-black'} font-black text-xl uppercase tracking-widest hover:scale-[1.02] transition-transform flex items-center justify-center gap-4`}>Tell more <ArrowRight size={24} /></button>
+                                        <button onClick={() => setActiveNav('feed')} className={`w-full py-6 rounded-3xl ${isRetro ? 'bg-stone-200 text-stone-500 hover:bg-stone-300' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'} font-black uppercase tracking-widest transition-all`}>Just browse</button>
                                     </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Secret Discovery Counter */}
+                        {discoveredSecrets.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="fixed bottom-32 right-8 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-white/10 backdrop-blur-xl text-white text-xs font-black uppercase tracking-widest shadow-2xl"
+                            >
+                                🔓 {discoveredSecrets.length}/3 Secrets Found
+                            </motion.div>
+                        )}
+
+                        {/* Hint System Indicator */}
+                        {hintLevel > 0 && (
+                            <motion.button
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={() => setShowHintOverlay(!showHintOverlay)}
+                                className="fixed top-32 right-8 w-12 h-12 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl flex items-center justify-center text-white hover:bg-white/10 transition-all group"
+                            >
+                                <span className="text-xl">💡</span>
+                                {hintLevel >= 3 && (
+                                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full animate-pulse" />
+                                )}
+                            </motion.button>
+                        )}
+
+                        {/* Hint Overlay */}
+                        <AnimatePresence>
+                            {showHintOverlay && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    className="fixed inset-0 z-[90] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8"
+                                    onClick={() => setShowHintOverlay(false)}
+                                >
+                                    <motion.div
+                                        initial={{ y: 20 }}
+                                        animate={{ y: 0 }}
+                                        className="max-w-md w-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-white/10 rounded-3xl p-8 shadow-2xl"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">Hidden Frequencies</h3>
+                                        <div className="space-y-4 text-white/60 text-sm">
+                                            <div className={`p-4 rounded-xl ${discoveredSecrets.includes('the_gate') ? 'bg-green-500/10 border border-green-500/20' : 'bg-white/5 border border-white/5'}`}>
+                                                <div className="font-bold text-white mb-2">🌑 The Gate</div>
+                                                {hintLevel >= 1 && <p>An emotional journey, when walked in order, opens hidden doors...</p>}
+                                                {hintLevel >= 2 && !discoveredSecrets.includes('the_gate') && <p className="text-white/40 text-xs mt-2 italic">From chaos, through darkness, to peace.</p>}
+                                                {hintLevel >= 3 && !discoveredSecrets.includes('the_gate') && <p className="text-purple-300 text-xs mt-2">Try: Overwhelmed → Lonely → Calm</p>}
+                                                {discoveredSecrets.includes('the_gate') && <p className="text-green-300 text-xs mt-2">✓ Discovered!</p>}
+                                            </div>
+
+                                            <div className={`p-4 rounded-xl ${discoveredSecrets.includes('midnight_sun') ? 'bg-green-500/10 border border-green-500/20' : 'bg-white/5 border border-white/5'}`}>
+                                                <div className="font-bold text-white mb-2">🌅 The Midnight Sun</div>
+                                                {hintLevel >= 2 && <p>Hope shines brightest in the darkest hours...</p>}
+                                                {hintLevel >= 3 && !discoveredSecrets.includes('midnight_sun') && <p className="text-purple-300 text-xs mt-2">Select "Hopeful" between 11 PM - 1 AM</p>}
+                                                {discoveredSecrets.includes('midnight_sun') && <p className="text-green-300 text-xs mt-2">✓ Discovered!</p>}
+                                            </div>
+
+                                            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                                                <div className="font-bold text-white mb-2">🎮 The Quiet World</div>
+                                                {hintLevel >= 2 && <p>Your archetype holds more than you think...</p>}
+                                                {hintLevel >= 3 && <p className="text-purple-300 text-xs mt-2">Click your archetype 5 times quickly (Profile tab)</p>}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowHintOverlay(false)}
+                                            className="mt-8 w-full py-4 rounded-xl bg-white text-black font-black uppercase tracking-widest hover:bg-white/90 transition-all"
+                                        >
+                                            Close
+                                        </button>
+                                    </motion.div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -697,12 +844,7 @@ export default function EmotionalCheckIn() {
                                 setUserAvatar(emotions[nextIndex].id);
                                 localStorage.setItem('user_avatar', emotions[nextIndex].id);
                             }}>
-                                <NeuralAura
-                                    recentEmotions={myPosts.length > 0 ? myPosts.slice(0, 7).map(p => p.emotion) : [avatarEmotionData]}
-                                    size={240}
-                                    className="absolute inset-0"
-                                    onArchetypeDetected={setCurrentArchetype}
-                                />
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" />
                                 <div className="w-32 h-32 rounded-full border-4 border-white/10 relative z-10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/40 backdrop-blur-md">
                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`} alt="Avatar" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Edit3 size={32} className="text-white" /></div>
@@ -771,6 +913,6 @@ export default function EmotionalCheckIn() {
             <AnimatePresence>
                 {showHerWorld && <HerWorld onClose={() => setShowHerWorld(false)} />}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }

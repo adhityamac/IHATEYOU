@@ -5,16 +5,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Gamepad2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
+import { useThemeMode } from '@/contexts/ThemeModeContext';
 import { useSignals } from '@/hooks/useSignals';
 // import { useAlgorithm } from '@/lib/algorithm';
 
-type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music';
+type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music' | 'vision';
 import Dock from '@/components/shared/Dock';
 import Dashboard from '@/components/shared/Dashboard';
 import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
 import SocialFeed from '@/features/social/components/SocialFeed';
 import SearchSection from '@/components/shared/SearchSection';
 import SoulGuide from '@/features/wellness/components/SoulGuide';
+import VisionBoard from '@/features/wellness/components/VisionBoard';
 import SettingsSection from '@/components/shared/SettingsSection';
 import FunZone from '@/features/games/components/FunZone';
 import LoadingScreen from '@/features/auth/components/LoadingScreen';
@@ -22,11 +24,12 @@ import SplashScreen from '@/features/auth/components/SplashScreen';
 import AuthScreen from '@/features/auth/components/AuthScreen';
 import OnboardingFlow from '@/features/auth/components/OnboardingFlow';
 import LiquidBackground from '@/components/backgrounds/LiquidBackground';
-import SpiralBackground from '@/components/backgrounds/SpiralBackground';
 import LightBackground from '@/components/backgrounds/LightBackground';
 import RetroBackground from '@/components/backgrounds/RetroBackground';
 import RetroMinimalBackground from '@/components/backgrounds/RetroMinimalBackground';
 import RetroCoupleBackground from '@/components/backgrounds/RetroCoupleBackground';
+import ShaderGradientBackground from '@/components/backgrounds/ShaderGradientBackground';
+
 import InteractiveGrid from '@/components/backgrounds/InteractiveGrid';
 import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import ScrollProgress from '@/components/ui/ScrollProgress';
@@ -93,6 +96,8 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [showLoading, setShowLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const { mode } = useThemeMode();
+  const isRetro = mode === 'retro-soul';
 
   const currentUserId = user?.id || 'user-1';
   const { trackConnection } = useSignals(currentUserId);
@@ -109,6 +114,11 @@ export default function Home() {
   const [pullStartY, setPullStartY] = useState(0);
   const [pullProgress, setPullProgress] = useState(0);
   const dashboardRef = useRef<HTMLDivElement>(null);
+
+  // Debug: Log theme changes to console
+  useEffect(() => {
+    console.log('🎨 Current Active Theme:', theme);
+  }, [theme]);
 
   const [feedPosts, setFeedPosts] = useState(INITIAL_POSTS);
 
@@ -137,8 +147,11 @@ export default function Home() {
     }
   }, [user, showSplash, showLoading]);
 
-  const handleAuthSuccess = () => {
-    // Auth success handled by context
+  const handleAuthSuccess = (userData: any) => {
+    // Manually update context if not handled by Firebase listener (e.g. Ghost Mode)
+    if (userData.authMethod === 'ghost') {
+      setUser(userData);
+    }
   };
 
   const handleOnboardingComplete = async (data: any) => {
@@ -193,7 +206,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden font-sans selection:bg-purple-500/30">
+    <div className={`min-h-screen text-white relative overflow-hidden font-sans selection:bg-purple-500/30 ${isRetro ? 'bg-[#422006] font-vt323' : 'bg-black'}`}>
 
       {/* 1. Splash Screen */}
       <AnimatePresence>
@@ -220,186 +233,227 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Dynamic Background */}
-          {theme === 'liquid' ? (
-            <LiquidBackground />
-          ) : theme === 'spiral' ? (
-            <SpiralBackground />
-          ) : theme === 'light' ? (
-            <LightBackground />
-          ) : theme === 'retro' ? (
-            <RetroBackground />
-          ) : theme === 'retro-minimal' ? (
-            <RetroMinimalBackground />
-          ) : theme === 'retro-couple' ? (
-            <RetroCoupleBackground />
-          ) : (
-            <InteractiveGrid />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={theme}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="fixed inset-0 -z-10"
+            >
+              {theme === 'liquid' ? (
+                <LiquidBackground />
+              ) : theme === 'light' ? (
+                <LightBackground />
+              ) : theme === 'retro' ? (
+                <RetroBackground />
+              ) : theme === 'retro-minimal' ? (
+                <RetroMinimalBackground />
+              ) : theme === 'retro-couple' ? (
+                <RetroCoupleBackground />
+              ) : (
+                <InteractiveGrid />
+              )}
+            </motion.div>
+          </AnimatePresence>
 
           <AnimatePresence>
             {showFunZone && <FunZone onClose={() => setShowFunZone(false)} />}
           </AnimatePresence>
 
-          <div className="flex flex-col h-screen overflow-hidden relative">
+          <div className={`transition-all duration-500 h-screen w-full ${isRetro ? 'p-4 md:p-8 bg-[#422006]' : ''}`}>
+            <div className={`flex flex-col h-full overflow-hidden relative transition-all duration-500 ${isRetro
+              ? 'bg-[#fef9c3] rounded-2xl border-8 border-[#854d0e] shadow-[inset_0_0_40px_rgba(66,32,6,0.1)]'
+              : ''
+              }`}>
 
-            {/* Header */}
-            <AnimatePresence>
-              {showHeader && (
-                <motion.header
-                  initial={{ y: -100, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -100, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 30 }}
-                  className="fixed top-0 left-0 right-0 z-[100] h-24 px-8 flex items-center justify-between pointer-events-none"
-                >
-                  <div className="absolute inset-0 glass-premium opacity-90 border-b border-white/5 pointer-events-auto" />
-                  <div className="noise-overlay opacity-[0.02] pointer-events-none" />
+              {/* Header */}
+              <AnimatePresence>
+                {showHeader && (
+                  <motion.header
+                    initial={{ y: -100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -100, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 30 }}
+                    className={`fixed top-0 left-0 right-0 z-[100] h-24 px-8 flex items-center justify-between pointer-events-none ${isRetro ? 'top-4 md:top-8 left-4 right-4 md:left-8 md:right-8 w-auto rounded-t-xl bg-[#fef9c3] border-b-4 border-[#eab308]' : ''
+                      }`}
+                  >
+                    {!isRetro && (
+                      <>
+                        <div className="absolute inset-0 glass-premium opacity-90 border-b border-white/5 pointer-events-auto" />
+                        <div className="noise-overlay opacity-[0.02] pointer-events-none" />
+                      </>
+                    )}
 
-                  <div className="flex items-center gap-6 pointer-events-auto relative z-10">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-black italic text-white uppercase tracking-tighter">Neural Core</h1>
-                      </div>
-                      <div className="mt-1 flex items-center gap-2">
-                        <span className="text-[8px] text-white/20 font-black uppercase tracking-[0.4em]">Section:</span>
-                        <motion.span
-                          key={activeSection}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="text-[8px] text-white/40 font-black uppercase tracking-[0.4em] glitch-text-sm"
-                        >
-                          {activeSection}
-                        </motion.span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="hidden lg:flex items-center pointer-events-auto relative z-10">
-                    <DynamicInfoBox />
-                  </div>
-
-                  <div className="flex items-center gap-3 pointer-events-auto relative z-10">
-                    <button
-                      onClick={() => {
-                        setShowFunZone(true);
-                        setHasNewGames(false);
-                      }}
-                      className="group relative h-12 px-6 flex items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-white/10 text-white transition-all overflow-hidden hover:border-white/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]"
-                    >
-                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="flex items-center gap-3">
-                        <Gamepad2 className="w-5 h-5 text-fuchsia-300 group-hover:text-white transition-colors duration-300" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white transition-colors duration-300">Playzone</span>
-                      </div>
-                      {hasNewGames && (
-                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-fuchsia-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                      )}
-                    </button>
-
-                    <button
-                      onClick={() => setActiveSection('settings')}
-                      className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white transition-all"
-                    >
-                      <Settings className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all group-hover:rotate-90 duration-500" />
-                    </button>
-                  </div>
-                </motion.header>
-              )}
-            </AnimatePresence>
-
-            {/* Main Content */}
-            <main className="flex-1 relative flex flex-col overflow-hidden">
-              <NeuralNotifications />
-              <div className="fixed inset-0 pointer-events-none z-[300] opacity-[0.03] overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-50" />
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px]" />
-              </div>
-
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.div
-                  key={activeSection}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 25, mass: 0.5 }}
-                  className="flex-1 flex flex-col will-change-transform overflow-hidden"
-                >
-                  {activeSection === 'home' && (
-                    <div
-                      data-scrollable="true"
-                      className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative"
-                      onScroll={handleScroll}
-                    >
-                      <EmotionalCheckIn />
-                    </div>
-                  )}
-
-                  {activeSection === 'dashboard' && (
-                    <>
-                      <ScrollProgress color="rgb(168, 85, 247)" position="right" thickness={3} />
-                      <div
-                        ref={dashboardRef}
-                        data-scrollable="true"
-                        className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
-                        onScroll={handleScroll}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                      >
-                        <div
-                          className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
-                          style={{ transform: `translateY(${pullProgress - 50}px)` }}
-                        >
-                          <div className="w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 shadow-xl mt-4">
-                            <RefreshCw
-                              className={`w-5 h-5 text-white ${isRefreshing ? 'animate-spin' : ''}`}
-                              style={{ transform: `rotate(${pullProgress * 3}deg)` }}
-                            />
-                          </div>
+                    <div className="flex items-center gap-6 pointer-events-auto relative z-10">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <h1 className={`text-xl font-black uppercase tracking-tighter ${isRetro ? 'text-[#422006] italic' : 'italic text-white'}`}>
+                            Neural Core
+                          </h1>
                         </div>
-
-                        <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-                          <Dashboard onSectionChange={(section) => setActiveSection(section)} />
-                        </motion.div>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className={`text-[8px] font-black uppercase tracking-[0.4em] ${isRetro ? 'text-[#854d0e]' : 'text-white/20'}`}>Section:</span>
+                          <motion.span
+                            key={activeSection}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`text-[8px] font-black uppercase tracking-[0.4em] glitch-text-sm ${isRetro ? 'text-[#422006]' : 'text-white/40'}`}
+                          >
+                            {activeSection}
+                          </motion.span>
+                        </div>
                       </div>
-                    </>
-                  )}
+                    </div>
 
-                  {activeSection === 'messages' && (
-                    <MessagesSectionWrapper onScroll={handleScroll} />
-                  )}
+                    <div className="hidden lg:flex items-center pointer-events-auto relative z-10">
+                      <DynamicInfoBox />
+                    </div>
 
-                  {activeSection === 'social' && (
-                    <SocialFeed onScroll={handleScroll} />
-                  )}
+                    <div className="flex items-center gap-3 pointer-events-auto relative z-10">
+                      <button
+                        onClick={() => {
+                          setShowFunZone(true);
+                          setHasNewGames(false);
+                        }}
+                        className={`group relative h-12 px-6 flex items-center justify-center rounded-2xl border transition-all overflow-hidden ${isRetro
+                          ? 'bg-[#eab308] border-[#422006] hover:bg-[#fde047]'
+                          : 'bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border-white/10 text-white hover:border-white/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]'
+                          }`}
+                      >
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${isRetro ? '' : 'bg-white/5'}`} />
+                        <div className="flex items-center gap-3">
+                          <Gamepad2 className={`w-5 h-5 transition-colors duration-300 ${isRetro ? 'text-[#422006]' : 'text-fuchsia-300 group-hover:text-white'}`} />
+                          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${isRetro ? 'text-[#422006]' : 'text-white/80 group-hover:text-white'}`}>Playzone</span>
+                        </div>
+                        {hasNewGames && (
+                          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-fuchsia-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+                        )}
+                      </button>
 
-                  {activeSection === 'search' && (
-                    <>
-                      <ScrollProgress color="rgb(236, 72, 153)" position="right" thickness={3} />
-                      <SearchSection feedPosts={feedPosts} onScroll={handleScroll} />
-                    </>
-                  )}
-
-                  {activeSection === 'guide' && <SoulGuide />}
-
-                  {activeSection === 'settings' && <SettingsSection onScroll={handleScroll} />}
-                </motion.div>
+                      <button
+                        onClick={() => setActiveSection('settings')}
+                        className={`group relative w-12 h-12 flex items-center justify-center rounded-2xl border transition-all ${isRetro
+                          ? 'bg-[#eab308] border-[#422006] hover:bg-[#fde047]'
+                          : 'bg-white/5 border-white/10 text-white'
+                          }`}
+                      >
+                        <Settings className={`w-4 h-4 opacity-50 group-hover:opacity-100 transition-all group-hover:rotate-90 duration-500 ${isRetro ? 'text-[#422006]' : ''}`} />
+                      </button>
+                    </div>
+                  </motion.header>
+                )}
               </AnimatePresence>
-            </main>
 
-            <Dock
-              activeSection={activeSection}
-              showDock={showDock}
-              onSectionChange={(section) => {
-                if (section === 'games') {
-                  setShowFunZone(true);
-                } else {
-                  setActiveSection(section);
-                  setShowHeader(true);
-                  setShowDock(true); // Always show dock when changing sections
-                }
-              }}
-            />
+              {/* Main Content */}
+              <main className="flex-1 relative flex flex-col overflow-hidden">
+                {/* Global Overlays */}
+                {!isRetro && (
+                  <>
+                    <NeuralNotifications />
+                    <div className="fixed inset-0 pointer-events-none z-[300] opacity-[0.03] overflow-hidden">
+                      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-50" />
+                      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px]" />
+                    </div>
+                  </>
+                )}
+
+                {/* RETRO SPECIFIC OVERLAY */}
+                {isRetro && (
+                  <div className="absolute inset-0 pointer-events-none z-[300] overflow-hidden opacity-10">
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(66,32,6,0)_50%,rgba(66,32,6,0.25)_50%)] bg-[length:100%_4px]" />
+                  </div>
+                )}
+
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.div
+                    key={activeSection}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.02 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 25, mass: 0.5 }}
+                    className="flex-1 flex flex-col will-change-transform overflow-hidden"
+                  >
+                    {activeSection === 'home' && (
+                      <div
+                        data-scrollable="true"
+                        className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative"
+                        onScroll={handleScroll}
+                      >
+                        <EmotionalCheckIn />
+                      </div>
+                    )}
+
+                    {activeSection === 'dashboard' && (
+                      <>
+                        <ScrollProgress color={isRetro ? '#422006' : "rgb(168, 85, 247)"} position="right" thickness={3} />
+                        <div
+                          ref={dashboardRef}
+                          data-scrollable="true"
+                          className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
+                          onScroll={handleScroll}
+                          onTouchStart={handleTouchStart}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
+                        >
+                          <div
+                            className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
+                            style={{ transform: `translateY(${pullProgress - 50}px)` }}
+                          >
+                            <div className={`w-10 h-10 backdrop-blur-xl rounded-full flex items-center justify-center border shadow-xl mt-4 ${isRetro ? 'bg-[#eab308] border-[#422006]' : 'bg-black/50 border-white/10'}`}>
+                              <RefreshCw
+                                className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''} ${isRetro ? 'text-[#422006]' : 'text-white'}`}
+                                style={{ transform: `rotate(${pullProgress * 3}deg)` }}
+                              />
+                            </div>
+                          </div>
+
+                          <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+                            <Dashboard onSectionChange={(section) => setActiveSection(section)} />
+                          </motion.div>
+                        </div>
+                      </>
+                    )}
+
+                    {activeSection === 'messages' && (
+                      <MessagesSectionWrapper onScroll={handleScroll} />
+                    )}
+
+                    {activeSection === 'social' && (
+                      <SocialFeed onScroll={handleScroll} />
+                    )}
+
+                    {activeSection === 'search' && (
+                      <>
+                        <ScrollProgress color="rgb(236, 72, 153)" position="right" thickness={3} />
+                        <SearchSection feedPosts={feedPosts} onScroll={handleScroll} />
+                      </>
+                    )}
+
+                    {activeSection === 'guide' && <SoulGuide />}
+
+                    {activeSection === 'vision' && <VisionBoard />}
+
+                    {activeSection === 'settings' && <SettingsSection onScroll={handleScroll} />}
+                  </motion.div>
+                </AnimatePresence>
+              </main>
+
+              <Dock
+                activeSection={activeSection}
+                showDock={showDock}
+                onSectionChange={(section) => {
+                  if (section === 'games') {
+                    setShowFunZone(true);
+                  } else {
+                    setActiveSection(section);
+                    setShowHeader(true);
+                    setShowDock(true); // Always show dock when changing sections
+                  }
+                }}
+              />
+            </div>
           </div>
         </>
       )}

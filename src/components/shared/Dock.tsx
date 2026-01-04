@@ -4,6 +4,7 @@ import { motion, useSpring } from 'framer-motion';
 import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain, Camera, Gamepad2, Music } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useRef, useEffect, useState } from 'react';
+import { useThemeMode } from '@/contexts/ThemeModeContext';
 
 interface DockProps {
     activeSection: Section;
@@ -12,6 +13,7 @@ interface DockProps {
 }
 
 export default function Dock({ activeSection, showDock = true, onSectionChange }: DockProps) {
+    const { mode } = useThemeMode();
     const [isHovered, setIsHovered] = useState(false);
     const lastScrollY = useRef(0);
 
@@ -21,7 +23,6 @@ export default function Dock({ activeSection, showDock = true, onSectionChange }
         { id: 'messages' as Section, icon: MessageCircle, label: 'Chat' },
         { id: 'guide' as Section, icon: Brain },
         { id: 'search' as Section, icon: Search },
-        { id: 'settings' as Section, icon: Settings },
     ];
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +54,49 @@ export default function Dock({ activeSection, showDock = true, onSectionChange }
 
     const isVisible = isHovered || showDock; // Show on hover OR when parent says to show
 
+    // RETRO DOCK IMPLEMENTATION
+    if (mode === 'retro-soul') {
+        return (
+            <div className="fixed bottom-0 left-0 right-0 z-[100] h-32 flex justify-center items-end pointer-events-none font-vt323">
+                <div
+                    className="absolute bottom-0 left-0 right-0 h-4 pointer-events-auto"
+                    onMouseEnter={() => setIsHovered(true)}
+                />
+                <motion.div
+                    initial={false}
+                    animate={{
+                        y: isVisible ? -20 : 120,
+                        opacity: isVisible ? 1 : 0,
+                    }}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    className="relative pointer-events-auto"
+                >
+                    <div className="flex items-center gap-2 px-6 py-4 bg-[#fef9c3] border-4 border-[#eab308] shadow-[4px_4px_0_#422006]">
+                        {items.map((item) => {
+                            const isActive = activeSection === item.id;
+                            const Icon = item.icon;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => onSectionChange(item.id)}
+                                    className={`relative w-12 h-12 flex items-center justify-center transition-all ${isActive ? 'bg-[#eab308] text-[#422006] translate-y-1' : 'hover:bg-[#fde047] text-[#854d0e]'
+                                        } border-2 border-transparent hover:border-[#422006] rounded-none`}
+                                >
+                                    <Icon className="w-6 h-6" strokeWidth={isActive ? 3 : 2} />
+                                    {isActive && (
+                                        <div className="absolute -top-2 -right-2 w-2 h-2 bg-[#422006]" />
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
+    // MODERN DOCK (DEFAULT)
     return (
         <div
             className="fixed bottom-0 left-0 right-0 z-[100] h-32 flex justify-center items-end pointer-events-none"

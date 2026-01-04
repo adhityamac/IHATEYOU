@@ -3,6 +3,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef } from 'react';
 import { Send, Heart, MessageCircle, Share2, Search, Bell, Plus, Users, User, MoreHorizontal, Smile } from 'lucide-react';
+// @ts-ignore
+import * as ReactWindow from 'react-window';
+// @ts-ignore
+import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
+const FixedSizeList = ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList;
+const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
 
 // Palette and Grid Configuration (matching EmotionalCheckIn)
 const SPRITE_CONFIG = {
@@ -77,6 +83,53 @@ export default function UnifiedHome() {
         setSelectedEmoji(null);
     };
 
+    const PostRow = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+        const post = posts[index];
+        return (
+            <div style={{ ...style, paddingBottom: '20px' }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-8 rounded-[48px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group shadow-xl mx-8"
+                >
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 relative group-hover:scale-110 transition-transform duration-500">
+                                <EmotionFace emotion={post.emoji} index={index} />
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-black rounded-full border border-white/10 flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 bg-[#FEDA59] rounded-full animate-pulse" />
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-bold text-lg tracking-tight">@{post.user}</h4>
+                                <p className="text-[10px] text-white/20 uppercase tracking-widest font-black leading-none mt-1">{post.emoji.name} • {post.time} ago</p>
+                            </div>
+                        </div>
+                        <button className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20 hover:text-white transition-all">
+                            <MoreHorizontal size={18} />
+                        </button>
+                    </div>
+
+                    <p className="text-2xl text-white/80 leading-relaxed font-bold italic mb-10 pl-2 border-l-2 border-white/5">
+                        "{post.content}"
+                    </p>
+
+                    <div className="flex gap-4">
+                        <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 text-[11px] font-bold text-white/30 hover:bg-rose-500/10 hover:text-rose-500 transition-all border border-white/5 uppercase tracking-widest">
+                            <Heart size={14} /> {post.likes}
+                        </button>
+                        <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 text-[11px] font-bold text-white/30 hover:bg-blue-500/10 hover:text-blue-500 transition-all border border-white/5 uppercase tracking-widest">
+                            <MessageCircle size={14} /> {post.comments}
+                        </button>
+                        <button className="ml-auto w-12 h-12 flex items-center justify-center text-white/10 hover:text-white/40 transition-all">
+                            <Share2 size={16} />
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
             {/* Header Area */}
@@ -97,7 +150,7 @@ export default function UnifiedHome() {
             </div>
 
             {/* Scrollable Container */}
-            <div className="flex-1 overflow-y-auto px-8 pb-32 pt-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto px-8 pb-4 pt-4 custom-scrollbar">
 
                 {/* Emoji Grid (from wireframe) */}
                 <div className="mb-10">
@@ -162,55 +215,24 @@ export default function UnifiedHome() {
                 </div>
 
                 {/* Integrated Vertical Feed (from wireframe) */}
-                <div className="space-y-8">
+                <div className="h-[600px] w-full">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Neural Feed</h2>
                         <div className="h-[1px] flex-1 mx-8 bg-white/5" />
                     </div>
 
-                    {posts.map((post, i) => (
-                        <motion.div
-                            key={post.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="p-8 rounded-[48px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all relative overflow-hidden group shadow-xl"
-                        >
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 relative group-hover:scale-110 transition-transform duration-500">
-                                        <EmotionFace emotion={post.emoji} index={i} />
-                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-black rounded-full border border-white/10 flex items-center justify-center">
-                                            <div className="w-1.5 h-1.5 bg-[#FEDA59] rounded-full animate-pulse" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-white font-bold text-lg tracking-tight">@{post.user}</h4>
-                                        <p className="text-[10px] text-white/20 uppercase tracking-widest font-black leading-none mt-1">{post.emoji.name} • {post.time} ago</p>
-                                    </div>
-                                </div>
-                                <button className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20 hover:text-white transition-all">
-                                    <MoreHorizontal size={18} />
-                                </button>
-                            </div>
-
-                            <p className="text-2xl text-white/80 leading-relaxed font-bold italic mb-10 pl-2 border-l-2 border-white/5">
-                                "{post.content}"
-                            </p>
-
-                            <div className="flex gap-4">
-                                <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 text-[11px] font-bold text-white/30 hover:bg-rose-500/10 hover:text-rose-500 transition-all border border-white/5 uppercase tracking-widest">
-                                    <Heart size={14} /> {post.likes}
-                                </button>
-                                <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 text-[11px] font-bold text-white/30 hover:bg-blue-500/10 hover:text-blue-500 transition-all border border-white/5 uppercase tracking-widest">
-                                    <MessageCircle size={14} /> {post.comments}
-                                </button>
-                                <button className="ml-auto w-12 h-12 flex items-center justify-center text-white/10 hover:text-white/40 transition-all">
-                                    <Share2 size={16} />
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
+                    <AutoSizer>
+                        {({ height, width }: { height: number; width: number }) => (
+                            <FixedSizeList
+                                height={height}
+                                width={width}
+                                itemCount={posts.length}
+                                itemSize={350} // Approximate height of a post card
+                            >
+                                {PostRow}
+                            </FixedSizeList>
+                        )}
+                    </AutoSizer>
                 </div>
 
             </div>

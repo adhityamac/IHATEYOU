@@ -6,10 +6,11 @@ import {
     User, Lock, Bell, Palette, Database, HelpCircle,
     ChevronRight, Moon, Sun, Sparkles, LogOut, Trash2,
     Download, Shield, Eye, EyeOff, Mail, Phone, Camera,
-    Edit3, Check, X
+    Edit3, Check, X, Zap, Gamepad2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
+import { useTheme } from '@/components/shared/GradientThemeProvider';
 
 type SettingsView = 'main' | 'account' | 'privacy' | 'notifications' | 'appearance' | 'data' | 'help';
 
@@ -108,6 +109,23 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
         }
     ];
 
+    // Sync both theme contexts
+    const { theme, setTheme } = useTheme();
+
+    const handleThemeChange = (newMode: any) => {
+        setMode(newMode);
+        setTheme(newMode);
+    };
+
+    const isRetro = mode === 'retro-soul' || mode === 'retro';
+
+    // Theme Variables
+    const textColor = isRetro ? 'text-black' : 'text-theme-primary';
+    const mutedText = isRetro ? 'text-stone-600' : 'text-theme-tertiary';
+    const cardBg = isRetro ? 'bg-[var(--bg-primary)] border-2 border-stone-800 shadow-[4px_4px_0px_#422006]' : 'bg-theme-secondary border border-theme-primary';
+    const buttonBg = isRetro ? 'bg-white border-2 border-stone-800 hover:bg-stone-50' : 'bg-theme-secondary border border-theme-primary hover:border-theme-focus';
+    const iconContainer = isRetro ? 'border-2 border-stone-800 shadow-[2px_2px_0px_#422006]' : '';
+
     return (
         <div className="flex-1 h-full overflow-y-auto bg-theme-primary" onScroll={onScroll}>
             <div className="max-w-2xl mx-auto px-6 py-8 pb-32">
@@ -121,19 +139,19 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                         >
                             {/* Header */}
                             <div className="mb-8">
-                                <h1 className="text-3xl font-black text-theme-primary mb-2">Settings</h1>
-                                <p className="text-theme-tertiary">Manage your account and preferences</p>
+                                <h1 className={`text-3xl font-black mb-2 ${textColor}`}>Settings</h1>
+                                <p className={mutedText}>Manage your account and preferences</p>
                             </div>
 
                             {/* User Card */}
-                            <div className="mb-8 p-6 rounded-3xl bg-theme-secondary border border-theme-primary">
+                            <div className={`mb-8 p-6 rounded-3xl ${cardBg}`}>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-black text-white">
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-black text-white ${isRetro ? 'bg-black border-2 border-stone-800' : 'bg-gradient-to-br from-purple-500 to-pink-500'}`}>
                                         {user?.name?.charAt(0) || 'U'}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-theme-primary text-lg">{user?.name || 'User'}</h3>
-                                        <p className="text-theme-tertiary text-sm">{user?.email || user?.phone || 'No contact info'}</p>
+                                        <h3 className={`font-bold text-lg ${textColor}`}>{user?.name || 'User'}</h3>
+                                        <p className={`text-sm ${mutedText}`}>{user?.email || user?.phone || 'No contact info'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -144,17 +162,17 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                     <button
                                         key={item.id}
                                         onClick={() => setActiveView(item.id as SettingsView)}
-                                        className="w-full p-4 rounded-2xl bg-theme-secondary border border-theme-primary hover:border-theme-focus transition-all group"
+                                        className={`w-full p-4 rounded-2xl transition-all group ${buttonBg}`}
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center`}>
-                                                <item.icon size={20} className="text-white" />
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconContainer} ${isRetro ? 'bg-stone-200' : `bg-gradient-to-br ${item.color}`}`}>
+                                                <item.icon size={20} className={isRetro ? 'text-black' : 'text-white'} />
                                             </div>
                                             <div className="flex-1 text-left">
-                                                <h4 className="font-bold text-theme-primary">{item.label}</h4>
-                                                <p className="text-sm text-theme-tertiary">{item.description}</p>
+                                                <h4 className={`font-bold ${textColor}`}>{item.label}</h4>
+                                                <p className={`text-sm ${mutedText}`}>{item.description}</p>
                                             </div>
-                                            <ChevronRight size={20} className="text-theme-quaternary group-hover:text-theme-tertiary transition-colors" />
+                                            <ChevronRight size={20} className={isRetro ? 'text-black' : 'text-theme-quaternary group-hover:text-theme-tertiary transition-colors'} />
                                         </div>
                                     </button>
                                 ))}
@@ -402,11 +420,11 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
 
                             <div className="space-y-4">
                                 {/* Theme Selection */}
-                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
-                                    <h4 className="font-bold text-theme-primary mb-4">Theme</h4>
-                                    <div className="grid grid-cols-3 gap-3">
+                                <div className={`p-6 rounded-2xl ${cardBg}`}>
+                                    <h4 className={`font-bold mb-4 ${textColor}`}>Theme</h4>
+                                    <div className="grid grid-cols-2 gap-3">
                                         <button
-                                            onClick={() => setMode('dark')}
+                                            onClick={() => handleThemeChange('dark')}
                                             className={`p-4 rounded-xl border-2 transition-all ${mode === 'dark'
                                                 ? 'border-accent-primary bg-theme-primary'
                                                 : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
@@ -417,7 +435,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                         </button>
 
                                         <button
-                                            onClick={() => setMode('light')}
+                                            onClick={() => handleThemeChange('light')}
                                             className={`p-4 rounded-xl border-2 transition-all ${mode === 'light'
                                                 ? 'border-accent-primary bg-theme-primary'
                                                 : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
@@ -428,25 +446,26 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                         </button>
 
                                         <button
-                                            onClick={() => setMode('retro')}
-                                            className={`p-4 rounded-xl border-2 transition-all ${mode === 'retro'
-                                                ? 'border-accent-primary bg-theme-primary'
+                                            onClick={() => handleThemeChange('retro-soul')}
+                                            className={`p-4 rounded-xl border-2 transition-all ${mode === 'retro-soul'
+                                                ? 'border-accent-primary bg-theme-primary shadow-[4px_4px_0px_#000]'
                                                 : 'border-theme-primary bg-theme-tertiary hover:border-theme-focus'
                                                 }`}
                                         >
-                                            <Sparkles size={24} className="mx-auto mb-2 text-theme-primary" />
-                                            <span className="text-sm font-semibold text-theme-primary">Retro</span>
+                                            <Gamepad2 size={24} className="mx-auto mb-2 text-theme-primary" />
+                                            <span className="text-sm font-semibold text-theme-primary">Retro Soul</span>
                                         </button>
+
                                     </div>
                                 </div>
 
                                 {/* Theme Preview */}
-                                <div className="p-6 rounded-2xl bg-theme-secondary border border-theme-primary">
-                                    <h4 className="font-bold text-theme-primary mb-3">Preview</h4>
-                                    <div className="p-4 rounded-xl bg-theme-primary border border-theme-primary">
-                                        <p className="text-theme-primary mb-2">Primary Text</p>
-                                        <p className="text-theme-secondary mb-2">Secondary Text</p>
-                                        <p className="text-theme-tertiary">Tertiary Text</p>
+                                <div className={`p-6 rounded-2xl ${cardBg}`}>
+                                    <h4 className={`font-bold mb-3 ${textColor}`}>Preview</h4>
+                                    <div className={`p-4 rounded-xl border ${isRetro ? 'bg-[#fef9c3] border-stone-800' : 'bg-theme-primary border-theme-primary'}`}>
+                                        <p className={`mb-2 ${textColor}`}>Primary Text</p>
+                                        <p className={`mb-2 ${mutedText}`}>Secondary Text</p>
+                                        <p className={isRetro ? 'text-stone-400' : 'text-theme-tertiary'}>Tertiary Text</p>
                                         <div className="mt-4 flex gap-2">
                                             <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: 'var(--accent-primary)' }} />
                                             <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: 'var(--accent-secondary)' }} />

@@ -127,6 +127,89 @@
   --shadow-xl: 8px 8px 0px rgba(0, 0, 0, 0.3);
 }
 
+/* LASER THEME (Cyberpunk Neon) */
+[data-theme="laser"] {
+  /* Backgrounds */
+  --bg-primary: #060010;
+  --bg-secondary: #0d0020;
+  --bg-tertiary: #1a0033;
+  --bg-elevated: #240044;
+  --bg-glass: rgba(6, 0, 16, 0.85);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #e0d0ff;
+  --text-tertiary: #c0a0ff;
+  --text-quaternary: #9070cc;
+
+  /* Borders */
+  --border-primary: rgba(158, 182, 255, 0.2);
+  --border-secondary: rgba(158, 182, 255, 0.1);
+  --border-focus: rgba(158, 182, 255, 0.5);
+
+  /* Accents */
+  --accent-primary: #9eb6ff;
+  --accent-secondary: #ff79c6;
+  --accent-tertiary: #00ffff;
+
+  /* Semantic */
+  --success: #00ff88;
+  --error: #ff1744;
+  --warning: #ffaa00;
+  --info: #00d4ff;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(158, 182, 255, 0.2);
+  --shadow-md: 0 4px 16px rgba(158, 182, 255, 0.3);
+  --shadow-lg: 0 8px 24px rgba(158, 182, 255, 0.4);
+  --shadow-xl: 0 16px 48px rgba(158, 182, 255, 0.5);
+}
+
+/* RETRO SOUL THEME (Retro Yellow) */
+[data-theme="retro-soul"] {
+  /* Backgrounds - Retro Yellow Palette */
+  --bg-primary: #fef9c3;
+  /* Pale Yellow */
+  --bg-secondary: #fde047;
+  /* Bright Retro Yellow */
+  --bg-tertiary: #eab308;
+  /* Deep Yellow */
+  --bg-elevated: #fefce8;
+  /* Off-white Yellow */
+  --bg-glass: rgba(254, 249, 195, 0.9);
+
+  /* Text */
+  --text-primary: #422006;
+  /* Dark Brown */
+  --text-secondary: #713f12;
+  /* Medium Brown */
+  --text-tertiary: #854d0e;
+  /* Light Brown */
+  --text-quaternary: #a16207;
+
+  /* Borders */
+  --border-primary: #eab308;
+  --border-secondary: #fde047;
+  --border-focus: #422006;
+
+  /* Accents */
+  --accent-primary: #ca8a04;
+  --accent-secondary: #a16207;
+  --accent-tertiary: #facc15;
+
+  /* Semantic */
+  --success: #65a30d;
+  --error: #dc2626;
+  --warning: #ea580c;
+  --info: #0891b2;
+
+  /* Shadows */
+  --shadow-sm: 2px 2px 0px #422006;
+  --shadow-md: 4px 4px 0px #422006;
+  --shadow-lg: 6px 6px 0px #422006;
+  --shadow-xl: 8px 8px 0px #422006;
+}
+
 /* Smooth scrolling and interaction physics */
 html {
   scroll-behavior: smooth;
@@ -146,6 +229,50 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   TYPOGRAPHY SYSTEM - Playful Retro Fonts
+   ============================================ */
+
+/* Headings use Fredoka (playful, rounded) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-fredoka), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Body text uses Space Grotesk (clean, geometric) */
+body,
+p,
+span,
+div,
+a,
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+/* Keep VT323 for specific retro/pixel elements */
+.font-vt323 {
+  font-family: var(--font-vt323), monospace !important;
+}
+
+/* Fredoka utility class */
+.font-fredoka {
+  font-family: var(--font-fredoka), sans-serif !important;
+}
+
+/* Space Grotesk utility class */
+.font-space-grotesk {
+  font-family: var(--font-space-grotesk), sans-serif !important;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -287,6 +414,46 @@ body {
   backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Retro Soul Global Overrides */
+/* Retro Soul Global Overrides (Ransom Note Style) */
+[data-theme="retro-soul"] {
+  font-family: var(--font-rubik-vinyl), cursive !important;
+  letter-spacing: 0.05em;
+}
+
+/* Force Rubik Vinyl (Cutout) for Headings and Actions in Retro Mode */
+[data-theme="retro-soul"] h1,
+[data-theme="retro-soul"] h2,
+[data-theme="retro-soul"] h3,
+[data-theme="retro-soul"] h4,
+[data-theme="retro-soul"] h5,
+[data-theme="retro-soul"] h6,
+[data-theme="retro-soul"] button,
+[data-theme="retro-soul"] [role="button"],
+[data-theme="retro-soul"] .font-retro-heading {
+  font-family: var(--font-rubik-vinyl), cursive !important;
+  text-transform: uppercase;
+}
+
+/* Ensure inputs use the cutout font */
+[data-theme="retro-soul"] input,
+[data-theme="retro-soul"] textarea,
+[data-theme="retro-soul"] code,
+[data-theme="retro-soul"] pre {
+  font-family: var(--font-rubik-vinyl), cursive !important;
+  font-size: 1.1em;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="retro-soul"] .glass-premium {
+  background: #fef9c3 !important;
+  backdrop-filter: none !important;
+  border: 4px solid #422006 !important;
+  box-shadow: 8px 8px 0px #422006 !important;
+  color: #422006 !important;
+  border-radius: 0 !important;
 }
 
 @keyframes scanline {

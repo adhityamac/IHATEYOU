@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type ThemeMode = 'dark' | 'light' | 'retro';
+export type ThemeMode = 'dark' | 'light' | 'retro' | 'retro-soul';
 
 interface ThemeContextType {
     mode: ThemeMode;
@@ -18,7 +18,7 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
     // Load theme from localStorage on mount
     useEffect(() => {
         const saved = localStorage.getItem('theme-mode') as ThemeMode;
-        if (saved && ['dark', 'light', 'retro'].includes(saved)) {
+        if (saved && ['dark', 'light', 'retro', 'retro-soul'].includes(saved)) {
             setModeState(saved);
             applyTheme(saved);
         }
@@ -31,7 +31,7 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
     };
 
     const toggleMode = () => {
-        const modes: ThemeMode[] = ['dark', 'light', 'retro'];
+        const modes: ThemeMode[] = ['dark', 'light', 'retro', 'retro-soul'];
         const currentIndex = modes.indexOf(mode);
         const nextMode = modes[(currentIndex + 1) % modes.length];
         setMode(nextMode);
@@ -46,7 +46,8 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
             const colors = {
                 dark: '#000000',
                 light: '#FFFFFF',
-                retro: '#1a1a2e'
+                retro: '#1a1a2e',
+                'retro-soul': '#fef9c3'
             };
             metaThemeColor.setAttribute('content', colors[theme]);
         }

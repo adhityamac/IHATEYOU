@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Smile, Paperclip, Send, Mic, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Magnetic from '../../../components/ui/Magnetic';
+import RansomStickerKeyboard from './RansomStickerKeyboard';
 
 interface MessageInputProps {
     onSendMessage: (content: string) => void;
@@ -12,15 +13,17 @@ interface MessageInputProps {
 const MessageInput = ({ onSendMessage }: MessageInputProps) => {
     const [message, setMessage] = useState('');
     const [isFocused, setIsFocused] = useState(false);
+    const [showStickers, setShowStickers] = useState(false);
 
     const handleSend = () => {
         if (!message.trim()) return;
         onSendMessage(message);
         setMessage('');
+        setShowStickers(false);
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto flex flex-col gap-2">
             <motion.div
                 animate={{
                     backgroundColor: isFocused ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)'
@@ -30,7 +33,10 @@ const MessageInput = ({ onSendMessage }: MessageInputProps) => {
             >
                 {/* Protocol Accessories */}
                 <div className="flex items-center gap-1 pl-2">
-                    <button className="w-12 h-12 flex items-center justify-center text-white/20 hover:text-white transition-all rounded-2xl hover:bg-white/5 group">
+                    <button
+                        onClick={() => setShowStickers(!showStickers)}
+                        className={`w-12 h-12 flex items-center justify-center transition-all rounded-2xl hover:bg-white/5 group ${showStickers ? 'bg-white/10 text-white' : 'text-white/20'}`}
+                    >
                         <Smile size={20} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                     </button>
                     <button className="w-12 h-12 flex items-center justify-center text-white/20 hover:text-white transition-all rounded-2xl hover:bg-white/5 group">
@@ -80,6 +86,12 @@ const MessageInput = ({ onSendMessage }: MessageInputProps) => {
                     </Magnetic>
                 </div>
             </motion.div>
+
+            <RansomStickerKeyboard
+                isOpen={showStickers}
+                onClose={() => setShowStickers(false)}
+                onSelectLetter={(char) => setMessage(prev => prev + char)}
+            />
 
             {/* Subliminal Metadata */}
             <AnimatePresence>

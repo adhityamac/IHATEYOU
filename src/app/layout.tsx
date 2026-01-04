@@ -8,15 +8,48 @@ import { SoundProvider } from "@/components/shared/SoundProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CustomCursor from "@/components/shared/CustomCursor";
 import { CommandMenu } from "@/components/shared/CommandMenu";
+import { Press_Start_2P, VT323, Rubik_Vinyl, Special_Elite, Fredoka, Space_Grotesk } from "next/font/google";
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-press-start",
+});
+
+const vt323 = VT323({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-vt323",
+});
+
+const rubikVinyl = Rubik_Vinyl({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-rubik-vinyl",
+});
+
+const specialElite = Special_Elite({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-special-elite",
+});
+
+const fredoka = Fredoka({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-fredoka",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+});
 
 export const metadata: Metadata = {
   title: "IHATEYOU - Neural Resonance",
   description: "A premium manifest interface for spectral communication.",
 };
-
-// import { Inter } from "next/font/google";
-
-// const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 
 export default function RootLayout({
   children,
@@ -24,9 +57,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className="bg-[#000000] text-zinc-400 antialiased font-sans"
+        className={`${pressStart2P.variable} ${vt323.variable} ${rubikVinyl.variable} ${specialElite.variable} ${fredoka.variable} ${spaceGrotesk.variable} antialiased font-sans bg-theme-primary text-theme-primary transition-colors duration-300`}
         suppressHydrationWarning
       >
         <ThemeModeProvider>

@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Shield, Check } from 'lucide-react';
 import EmojiGrid from '@/components/EmojiGrid';
 import LiquidImage from '@/components/backgrounds/LiquidImage';
+import PixelAvatarCreator from '@/features/auth/components/PixelAvatarCreator';
 import { MOOD_OPTIONS, INTENT_OPTIONS } from '@/data/mockData';
 
 interface OnboardingData {
     name: string;
     moodBaseline: string;
     intent: string[];
+    avatarConfig?: any;
 }
 
 interface OnboardingFlowProps {
@@ -48,7 +50,7 @@ const OnboardingCard = ({
         {/* Header Badge */}
         <div className="mt-4 mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5">
             <span className="text-[10px] font-bold tracking-[0.25em] text-white/40 uppercase">
-                Setup Phase {step + 1}/5
+                Setup Phase {step + 1}/6
             </span>
         </div>
 
@@ -85,7 +87,7 @@ const OnboardingCard = ({
                 disabled={!canProceed}
                 className="flex-1 bg-white text-black py-4 rounded-full font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {step === 4 ? "Complete" : "Next"} <ArrowRight className="w-3 h-3" strokeWidth={3} />
+                {step === 5 ? "Complete" : "Next"} <ArrowRight className="w-3 h-3" strokeWidth={3} />
             </button>
         </div>
     </motion.div>
@@ -97,10 +99,11 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
         name: userName,
         moodBaseline: '',
         intent: [],
+        avatarConfig: null
     });
 
     const handleNext = () => {
-        if (step < 4) {
+        if (step < 5) {
             setStep(step + 1);
         } else {
             onComplete(data);
@@ -111,9 +114,10 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
         switch (step) {
             case 0: return true;
             case 1: return data.name.trim().length > 0;
-            case 2: return data.moodBaseline.length > 0;
-            case 3: return data.intent.length > 0;
-            case 4: return true;
+            case 2: return !!data.avatarConfig;
+            case 3: return data.moodBaseline.length > 0;
+            case 4: return data.intent.length > 0;
+            case 5: return true;
             default: return false;
         }
     };
@@ -190,10 +194,34 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
                     </OnboardingCard>
                 )}
 
-                {/* Step 2: Mood */}
+                {/* Step 2: Avatar Creator */}
                 {step === 2 && (
-                    <OnboardingCard
+                    <motion.div
                         key="step2"
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                        className="relative z-10 w-full max-w-lg"
+                    >
+                        <PixelAvatarCreator
+                            initialConfig={data.avatarConfig}
+                            onComplete={(config) => {
+                                setData(prev => ({ ...prev, avatarConfig: config }));
+                                handleNext();
+                            }}
+                        />
+                        <div className="absolute -bottom-16 w-full flex justify-center">
+                            <button onClick={() => setStep(step - 1)} className="text-white/40 hover:text-white uppercase tracking-widest text-xs font-bold py-2">
+                                Back
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Step 3: Mood */}
+                {step === 3 && (
+                    <OnboardingCard
+                        key="step3"
                         title="RESONANCE"
                         subtitle="Current Emotional State"
                         step={step}
@@ -220,10 +248,10 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
                     </OnboardingCard>
                 )}
 
-                {/* Step 3: Intent */}
-                {step === 3 && (
+                {/* Step 4: Intent */}
+                {step === 4 && (
                     <OnboardingCard
-                        key="step3"
+                        key="step4"
                         title="OBJECTIVE"
                         subtitle="Why are you here?"
                         step={step}
@@ -255,10 +283,10 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
                     </OnboardingCard>
                 )}
 
-                {/* Step 4: Privacy */}
-                {step === 4 && (
+                {/* Step 5: Privacy */}
+                {step === 5 && (
                     <OnboardingCard
-                        key="step4"
+                        key="step5"
                         title="PROTOCOL"
                         subtitle="Privacy Agreement"
                         step={step}
