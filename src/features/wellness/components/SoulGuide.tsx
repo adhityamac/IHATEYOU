@@ -98,11 +98,7 @@ export default function SoulGuide() {
     };
 
     // Full circle watermelon
-    const R = 120; // Radius
-    const redRadius = R * 0.72;
-    const whiteOuter = R * 0.78;
-    const greenOuter = R;
-
+    
     return (
         <div className="fixed inset-0 z-[50] bg-[#0c0a09] flex flex-col items-center justify-center overflow-hidden">
             {/* Interactive Grid Background */}

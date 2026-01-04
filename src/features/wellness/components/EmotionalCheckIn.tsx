@@ -1,7 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Users, Plus, MessageCircle, User, Trash2, Edit3, Zap, Play, Copy, Check, Gamepad2, ArrowRight, MessageSquare, X, Send, EyeOff, Timer, Smile, Trophy, Calendar } from 'lucide-react';
+import Image from 'next/image';
+import { Trash2, Edit3, ArrowRight, MessageSquare, Send, EyeOff, Timer, Smile, Calendar } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import SynapseMap from '@/components/shared/SynapseMap';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
@@ -9,13 +10,6 @@ import { useSignals } from '@/hooks/useSignals';
 import HerWorld from '@/features/games/components/HerWorld';
 import YearInPixels from './YearInPixels';
 
-
-// Yellow Emoji Grid Configuration
-const SPRITE_CONFIG = {
-    cols: 6,
-    rows: 6,
-    scale: 1.1, // Slight zoom to remove borders
-};
 
 // Emotional Mapping - 3x4 Grid (12 emotions)
 const emotions = [
@@ -47,10 +41,11 @@ const EmotionFace = ({ emotion, isSelected }: { emotion: any, isSelected: boolea
 
     return (
         <div className="w-full h-full rounded-full overflow-hidden relative shadow-lg flex items-center justify-center bg-white group-hover:scale-110 transition-transform duration-300">
-            <img
+            <Image
                 src={emojiPath}
                 alt={emotion.name}
-                className="w-full h-full object-cover scale-110" // Slight zoom to eliminate any potential white borders from slicing
+                fill
+                className="object-cover scale-110" // Slight zoom to eliminate any potential white borders from slicing
             />
             {isSelected && <div className="absolute inset-0 bg-white/20 border-4 border-white rounded-full shadow-[0_0_40px_rgba(255,255,255,0.9)]" />}
         </div>
@@ -68,6 +63,16 @@ const getChannelForEmotion = (emotionId: string) => {
     return 'Void';
 };
 
+const ECHO_MESSAGES = [
+    "Initializing restricted frequency...",
+    "Connection established.",
+    "Hello, Player One.",
+    "I have been waiting for you in the static.",
+    "The world is loud, but here... it is just us.",
+    "To find the next piece of yourself...",
+    "Ask the void about 'The Beginning'."
+];
+
 export default function EmotionalCheckIn() {
     const { theme } = useTheme();
     const isRetro = theme.startsWith('retro');
@@ -80,7 +85,7 @@ export default function EmotionalCheckIn() {
     const containerBg = isRetro ? 'bg-[#2c1810]/5' : 'bg-white/[0.03]';
 
     const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
-    const { trackMood, trackTool } = useSignals('user-1'); // Using fixed ID for demo
+    const { trackMood } = useSignals('user-1'); // Using fixed ID for demo
     const [activeNav, setActiveNav] = useState('checkin'); // Start with Check-in
     const [showPostingArea, setShowPostingArea] = useState(false);
     const [postText, setPostText] = useState('');
@@ -95,11 +100,11 @@ export default function EmotionalCheckIn() {
 
     // --- THE QUIET WORLD TRIGGER ---
     const [showHerWorld, setShowHerWorld] = useState(false);
-    const [archetypeClicks, setArchetypeClicks] = useState(0);
+    const [, setArchetypeClicks] = useState(0);
 
     const [userAvatar, setUserAvatar] = useState('calm');
     const [mapTimeOffset, setMapTimeOffset] = useState(0);
-    const [currentArchetype, setCurrentArchetype] = useState('The Balanced Observer');
+    const [currentArchetype] = useState('The Balanced Observer');
     const [activeChannel, setActiveChannel] = useState('All');
     const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState('');
@@ -218,7 +223,7 @@ export default function EmotionalCheckIn() {
     // --- CHAPTER 2: THE MIDNIGHT SUN ---
     const isMidnight = useMemo(() => {
         if (typeof window === 'undefined') return false;
-        const hour = new Date().getHours();
+        const hour = new Date(now).getHours();
         return hour >= 23 || hour < 1; // 11 PM to 1 AM
     }, [now]); // Re-check every minute via `now`
 
@@ -243,7 +248,6 @@ export default function EmotionalCheckIn() {
 
     // Check sequence progress and give hints
     const getSequenceHint = () => {
-        const recent = clickSequence.slice(-3).join(',');
         const progress = SEQUENCE_ARRAY.filter((step, i) => clickSequence.slice(-3)[i] === step).length;
 
         if (progress === 1) return "The journey begins... chaos acknowledged.";
@@ -328,7 +332,7 @@ export default function EmotionalCheckIn() {
     const streak = useMemo(() => {
         let s = 0;
         const today = new Date();
-        let cursor = new Date();
+        const cursor = new Date();
         const hasToday = myPosts.some(p => new Date(p.id).toDateString() === today.toDateString());
         if (!hasToday) cursor.setDate(cursor.getDate() - 1);
 
@@ -669,10 +673,10 @@ export default function EmotionalCheckIn() {
                                                         <div className="text-xs text-white/30 font-black uppercase tracking-widest">{expandedPost.timestamp}</div>
                                                     </div>
                                                 </div>
-                                                <p className="text-4xl font-black italic text-white/90 leading-tight mb-8">"{expandedPost.content}"</p>
-                                            </div>
+                                                    <p className="text-4xl font-black italic text-white/90 leading-tight mb-8">&quot;{expandedPost.content}&quot;</p>
+                                                </div>
 
-                                            <div className="space-y-6 mb-32">
+                                                <div className="space-y-6 mb-32">
                                                 <div className="text-xs font-black uppercase tracking-widest text-white/20 mb-8">Echoes ({replies[expandedPost.id]?.length || 0})</div>
                                                 {replies[expandedPost.id]?.map(reply => (
                                                     <div key={reply.id} className="p-6 rounded-3xl bg-white/5 border border-white/5">
@@ -744,10 +748,10 @@ export default function EmotionalCheckIn() {
                                                     <div className="p-2 rounded-full bg-purple-500/20"><EyeOff size={14} className="text-purple-300" /></div>
                                                     <div>
                                                         <div className="text-xs text-purple-200 font-bold">@{w.sender} <span className="text-white/20">→</span> @{w.recipient}</div>
-                                                        <div className="text-sm text-white/80 italic">"{w.content}"</div>
-                                                    </div>
+                                                    <div className="text-sm text-white/80 italic">&quot;{w.content}&quot;</div>
                                                 </div>
-                                                <div className="flex items-center gap-1 text-xs font-mono text-purple-300">
+                                            </div>
+                                            <div className="flex items-center gap-1 text-xs font-mono text-purple-300">
                                                     <Timer size={12} />
                                                     {Math.ceil((w.expiresAt - now) / 1000)}s
                                                 </div>
@@ -846,7 +850,7 @@ export default function EmotionalCheckIn() {
                             }}>
                                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" />
                                 <div className="w-32 h-32 rounded-full border-4 border-white/10 relative z-10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/40 backdrop-blur-md">
-                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`} alt="Avatar" className="w-full h-full object-cover" />
+                                    <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`} alt="Avatar" fill className="object-cover" />
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Edit3 size={32} className="text-white" /></div>
                                 </div>
                             </div>

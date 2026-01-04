@@ -6,32 +6,36 @@ import { Settings2, X, RotateCcw, Save, Play, Trash2, Shuffle, Battery, Zap } fr
 import { useThemeMode } from '@/contexts/ThemeModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { getPerformanceSettings } from '@/lib/utils/performance';
 
 export default function ShaderGradientBackground() {
     const { mode } = useThemeMode();
     const [mounted, setMounted] = useState(false);
     const [showControls, setShowControls] = useState(false);
 
+    // Get performance settings based on device capabilities
+    const perfSettings = getPerformanceSettings();
+
     const initialParams = {
         color1: "#7530ff",
         color2: "#af35db",
         color3: "#d0bce1",
         uSpeed: 0.4,
-        uStrength: 4,
+        uStrength: perfSettings.enableShadows ? 4 : 2, // Reduce strength on low-end
         uDensity: 1.3,
         uFrequency: 5.5,
         uAmplitude: 1,
         brightness: 1.2,
-        reflection: 0.1,
-        grain: "off" as "on" | "off",
+        reflection: perfSettings.enableBlur ? 0.1 : 0, // Disable reflection on low-end
+        grain: perfSettings.enableShaderGrain ? "on" as "on" | "off" : "off" as "on" | "off",
         cAzimuthAngle: 180,
         cPolarAngle: 90,
         cDistance: 3.6,
         rotationX: 0,
         rotationY: 10,
         rotationZ: 50,
-        pixelDensity: 0.6,
-        frameRate: 24
+        pixelDensity: perfSettings.shaderPixelDensity, // Device-optimized
+        frameRate: perfSettings.shaderFrameRate // Device-optimized
     };
 
     const [params, setParams] = useState(initialParams);

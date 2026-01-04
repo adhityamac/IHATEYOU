@@ -118,7 +118,7 @@ export default function DailyAffirmations() {
                             transition={{ delay: 0.2 }}
                             className="text-4xl md:text-5xl font-black italic text-white leading-tight mb-8"
                         >
-                            "{currentAffirmation.text}"
+                            &quot;{currentAffirmation.text}&quot;
                         </motion.p>
 
                         {/* Actions */}
