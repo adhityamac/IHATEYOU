@@ -3,7 +3,7 @@ import {
     updateDoc,
     getDoc,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase';
 
 // User preferences interface
 export interface UserPreferences {

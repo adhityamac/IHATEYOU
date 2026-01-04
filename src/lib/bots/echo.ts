@@ -1,8 +1,6 @@
 import { createConversation, sendMessage } from '../firebase/chat';
 import { getUserProfile } from '../firebase/auth';
-
-// Echo bot user ID (constant)
-export const ECHO_BOT_ID = 'echo-bot-official';
+import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 // Echo bot details
 export const ECHO_BOT_DETAILS = {

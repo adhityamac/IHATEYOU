@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { UserProfile } from './auth';
+import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 // Search users by ghost name
 export const searchUsersByGhostName = async (
@@ -56,7 +57,7 @@ export const getRandomUsers = async (
             .map((doc) => doc.data() as UserProfile)
             .filter((user) =>
                 user.uid !== currentUserId &&
-                user.uid !== 'echo-bot-official' // Filter out current user and Echo bot
+                user.uid !== ECHO_BOT_ID // Filter out current user and Echo bot
             )
             .slice(0, limitCount);
 

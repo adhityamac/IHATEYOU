@@ -17,7 +17,7 @@ import {
     DocumentData,
     QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase';
 
 // Types
 export interface ChatMessage {

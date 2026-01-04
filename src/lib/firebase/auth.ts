@@ -15,7 +15,7 @@ import {
     serverTimestamp,
     Timestamp,
 } from 'firebase/firestore';
-import { auth, db } from './config';
+import { auth, db } from '@/lib/firebase';
 
 // User profile interface
 export interface UserProfile {

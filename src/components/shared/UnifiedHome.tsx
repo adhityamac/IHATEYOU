@@ -3,12 +3,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef } from 'react';
 import { Send, Heart, MessageCircle, Share2, Search, Bell, Plus, Users, User, MoreHorizontal, Smile } from 'lucide-react';
-// @ts-ignore
-import * as ReactWindow from 'react-window';
-// @ts-ignore
-import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
-const FixedSizeList = ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList;
-const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
+// These libraries have CJS exports that don't play well with ESM imports
+const ReactWindow = require('react-window');
+const ReactAutoSizer = require('react-virtualized-auto-sizer');
+
+const List = ReactWindow.FixedSizeList;
+const AutoSizer = ReactAutoSizer.default || ReactAutoSizer;
 
 // Palette and Grid Configuration (matching EmotionalCheckIn)
 const SPRITE_CONFIG = {
@@ -221,18 +221,20 @@ export default function UnifiedHome() {
                         <div className="h-[1px] flex-1 mx-8 bg-white/5" />
                     </div>
 
-                    <AutoSizer>
-                        {({ height, width }: { height: number; width: number }) => (
-                            <FixedSizeList
-                                height={height}
-                                width={width}
-                                itemCount={posts.length}
-                                itemSize={350} // Approximate height of a post card
-                            >
-                                {PostRow}
-                            </FixedSizeList>
-                        )}
-                    </AutoSizer>
+                    <div style={{ height: '600px', width: '100%' }}>
+                        <AutoSizer>
+                            {({ height, width }: { height: number; width: number }) => (
+                                <List
+                                    height={height}
+                                    width={width}
+                                    itemCount={posts.length}
+                                    itemSize={350} // Approximate height of a post card
+                                >
+                                    {PostRow}
+                                </List>
+                            )}
+                        </AutoSizer>
+                    </div>
                 </div>
 
             </div>

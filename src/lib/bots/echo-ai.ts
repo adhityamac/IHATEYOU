@@ -1,6 +1,5 @@
 import { Message } from '@/types/types';
-
-export const ECHO_BOT_ID = 'echo-bot';
+import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 export const ECHO_BOT = {
     id: ECHO_BOT_ID,
