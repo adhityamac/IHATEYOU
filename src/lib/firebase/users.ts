@@ -11,7 +11,7 @@ import {
     QueryDocumentSnapshot,
     DocumentData,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase';
 import { UserProfile } from './auth';
 
 // Search users by ghost name
@@ -43,17 +43,21 @@ export const getRandomUsers = async (
     limitCount: number = 10
 ): Promise<UserProfile[]> => {
     try {
-        // Get all users except current user
+        // Fetch all users with a reasonable limit
+        // We can't use where('uid', '!=', currentUserId) without orderBy('uid')
+        // So we fetch more users and filter client-side
         const q = query(
             collection(db, 'users'),
-            where('uid', '!=', currentUserId),
-            limit(limitCount * 2) // Get more to filter out Echo bot
+            limit(limitCount * 3) // Fetch 3x to ensure enough after filtering
         );
 
         const snapshot = await getDocs(q);
         const users = snapshot.docs
             .map((doc) => doc.data() as UserProfile)
-            .filter((user) => user.uid !== 'echo-bot-official') // Filter out Echo bot
+            .filter((user) =>
+                user.uid !== currentUserId &&
+                user.uid !== 'echo-bot-official' // Filter out current user and Echo bot
+            )
             .slice(0, limitCount);
 
         // Shuffle array for randomness

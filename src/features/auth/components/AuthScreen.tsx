@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import EmojiGrid from '@/components/EmojiGrid';
 import { signInAnonymously, signInWithGoogle } from '@/lib/firebase/auth';
 import { ArrowRight, Smartphone, Mail, Chrome, AlertCircle } from 'lucide-react';
-import { auth } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import LiquidImage from '@/components/backgrounds/LiquidImage';
 

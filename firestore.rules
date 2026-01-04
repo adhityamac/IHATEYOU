@@ -15,7 +15,7 @@ service cloud.firestore {
     
     // Users collection
     match /users/{userId} {
-      // Anyone can read user profiles (for discovery)
+      // Authenticated users can read user profiles (for discovery)
       allow read: if isSignedIn();
       
       // Users can only create/update their own profile
@@ -51,9 +51,12 @@ service cloud.firestore {
                          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
                          request.resource.data.senderId == request.auth.uid;
         
-        // Users can update their own messages (for reactions, read status)
+        // Users can update messages for reactions and read status only
+        // Prevent editing message content by non-authors
         allow update: if isSignedIn() && 
-                         request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+                         request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+                         // Only allow updating specific fields
+                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'readBy', 'updatedAt']);
         
         // Users can delete their own messages
         allow delete: if isSignedIn() && 

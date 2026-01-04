@@ -7,8 +7,8 @@ const nextConfig = {
             'grainy-gradients.vercel.app'
         ],
     },
-    // Disable strict mode for development to prevent double-rendering
-    reactStrictMode: false,
+    // Enable strict mode to catch side-effect bugs
+    reactStrictMode: true,
 
     // Optimize for production
     swcMinify: true,

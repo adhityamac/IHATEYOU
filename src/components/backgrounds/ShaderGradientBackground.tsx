@@ -23,14 +23,12 @@ export default function ShaderGradientBackground() {
         uAmplitude: 1,
         brightness: 1.2,
         reflection: 0.1,
-        grain: "on" as "on" | "off",
         grain: "off" as "on" | "off",
         cAzimuthAngle: 180,
         cPolarAngle: 90,
         cDistance: 3.6,
         rotationX: 0,
         rotationY: 10,
-        rotationZ: 50
         rotationZ: 50,
         pixelDensity: 0.6,
         frameRate: 24
@@ -133,7 +131,6 @@ export default function ShaderGradientBackground() {
             <div className="fixed inset-0 -z-10">
                 <ShaderGradientCanvas
                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'auto' }}
-                    pixelDensity={1}
                     pixelDensity={params.pixelDensity}
                     fov={45}
                 >
@@ -149,7 +146,6 @@ export default function ShaderGradientBackground() {
                         color3={params.color3}
                         envPreset="city"
                         grain={params.grain}
-                        frameRate={params.frameRate}
                         lightType="3d"
                         positionX={-1.4}
                         positionY={0}
