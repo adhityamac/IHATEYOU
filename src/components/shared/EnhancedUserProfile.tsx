@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit3, Camera, Palette, Save, X, Sparkles, Heart, Zap, Star } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface UserProfile {
     id: string;
@@ -116,10 +117,11 @@ export default function EnhancedUserProfile({
             {/* Cover Image */}
             <div className="relative h-48 md:h-64 rounded-t-3xl overflow-hidden group">
                 {editedProfile.coverImage ? (
-                    <img
+                    <Image
                         src={editedProfile.coverImage}
                         alt="Cover"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                     />
                 ) : (
                     <div className={`w-full h-full bg-gradient-to-r ${editedProfile.theme.gradient}`} />
@@ -135,11 +137,12 @@ export default function EnhancedUserProfile({
             <div className="relative px-6 pb-6">
                 {/* Avatar */}
                 <div className="relative -mt-16 mb-4">
-                    <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-black group">
-                        <img
+                    <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-black group relative">
+                        <Image
                             src={editedProfile.avatar}
                             alt={editedProfile.displayName}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                         />
                         {isEditing && (
                             <button className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -314,15 +317,16 @@ export default function EnhancedUserProfile({
                                                 <button
                                                     key={style}
                                                     onClick={() => setEditedProfile({ ...editedProfile, avatar: generateAvatar(style) })}
-                                                    className={`aspect-square rounded-2xl border-2 overflow-hidden transition-all hover:scale-105 ${editedProfile.avatar.includes(style)
+                                                    className={`aspect-square rounded-2xl border-2 overflow-hidden transition-all hover:scale-105 relative ${editedProfile.avatar.includes(style)
                                                             ? 'border-white'
                                                             : 'border-white/10'
                                                         }`}
                                                 >
-                                                    <img
+                                                    <Image
                                                         src={generateAvatar(style)}
                                                         alt={style}
-                                                        className="w-full h-full object-cover"
+                                                        fill
+                                                        className="object-cover"
                                                     />
                                                 </button>
                                             ))}

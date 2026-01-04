@@ -5,16 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Message } from '@/types/types';
 
 interface EmojiReactionPickerProps {
-    message: Message;
-    onReact: (emoji: string) => void;
+    onSelect: (emoji: string) => void;
     onClose: () => void;
 }
 
 const quickReactions = ['❤️', '😂', '😮', '😢', '👍', '🔥', '🎉', '💯'];
 
-export default function EmojiReactionPicker({ message, onReact, onClose }: EmojiReactionPickerProps) {
+export default function EmojiReactionPicker({ onSelect, onClose }: EmojiReactionPickerProps) {
     const handleReact = (emoji: string) => {
-        onReact(emoji);
+        onSelect(emoji);
         onClose();
     };
 

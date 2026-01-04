@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Lock, Star, ChevronRight, CheckCircle2, BookOpen, Map } from 'lucide-react';
+import { Brain, Lock, Star, ChevronRight, CheckCircle2, BookOpen } from 'lucide-react';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 
 interface Quest {

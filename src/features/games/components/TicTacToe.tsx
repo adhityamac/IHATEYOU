@@ -96,7 +96,7 @@ export default function TicTacToe() {
         if (move !== -1) {
             handleMove(move, 'O');
         }
-    }, [board]);
+    }, [board, handleMove, minimax]);
 
     useEffect(() => {
         if (gameMode === 'AI' && !isXNext && !winner) {
@@ -139,23 +139,7 @@ export default function TicTacToe() {
                 setRefreshLeaderboard(prev => prev + 1);
             }
         }
-    }, [winner, gameMode]);
-
-    const handleMove = (index: number, player: Player) => {
-        const newBoard = [...board];
-        newBoard[index] = player;
-        setBoard(newBoard);
-
-        const result = checkWinner(newBoard);
-        if (result) {
-            setWinner(result.winner);
-            setWinningLine(result.line);
-        } else if (!newBoard.includes(null)) {
-            setWinner('Draw');
-        } else {
-            setIsXNext(player === 'X' ? false : true);
-        }
-    };
+    }, [winner, gameMode, trackInteraction]);
 
     const onSquareClick = (index: number) => {
         if (board[index] || winner || (gameMode === 'AI' && !isXNext)) return;

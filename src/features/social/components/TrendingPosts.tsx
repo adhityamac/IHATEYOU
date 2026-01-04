@@ -3,10 +3,15 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, Flame, Zap, Heart, MessageCircle, Eye } from 'lucide-react';
 
+interface Emotion {
+    name: string;
+    color: string;
+}
+
 interface TrendingPost {
     id: number;
     username: string;
-    emotion: any;
+    emotion: Emotion;
     content: string;
     likes: number;
     comments: number;

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Hash, TrendingUp, Users, MessageCircle } from 'lucide-react';
+import { Hash, TrendingUp, MessageCircle } from 'lucide-react';
 
 interface Hashtag {
     tag: string;

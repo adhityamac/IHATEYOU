@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Plus, Camera } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Plus } from 'lucide-react';
 import { Post, Story } from '@/types/types';
 import { useSignals } from '@/hooks/useSignals';
 import { useAuth } from '@/contexts/AuthContext';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
-// @ts-ignore
+import Image from 'next/image';
+// @ts-expect-error - ReactWindow is missing type definitions
 import * as ReactWindow from 'react-window';
-// @ts-ignore
+// @ts-expect-error - AutoSizer is missing type definitions
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 
-// @ts-ignore
+// @ts-expect-error - ReactWindow is missing type definitions
 const List = ReactWindow.VariableSizeList || (ReactWindow as any).default?.VariableSizeList || (ReactWindow as any).default?.default?.VariableSizeList;
 const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
 
@@ -161,8 +162,8 @@ export default function SocialFeed({ onScroll }: SocialFeedProps) {
                                 className="flex flex-col items-center gap-2 flex-shrink-0 snap-start cursor-pointer group"
                             >
                                 <div className={`w-16 h-16 rounded-full p-[2px] ${story.isViewed ? (isRetro ? 'bg-stone-300' : 'bg-white/10') : 'bg-gradient-to-tr from-rose-500 via-purple-500 to-blue-500'}`}>
-                                    <div className={`w-full h-full rounded-full border-2 overflow-hidden ${isRetro ? 'border-stone-800 bg-white' : 'border-black bg-zinc-800'}`}>
-                                        <img src={story.userAvatar} alt={`${story.username}'s story`} loading="lazy" className="w-full h-full object-cover" />
+                                    <div className={`w-full h-full rounded-full border-2 overflow-hidden ${isRetro ? 'border-stone-800 bg-white' : 'border-black bg-zinc-800'} relative`}>
+                                        <Image src={story.userAvatar} alt={`${story.username}'s story`} fill className="object-cover" />
                                     </div>
                                 </div>
                                 <span className={`text-xs font-medium transition-colors ${isRetro ? 'text-stone-700 group-hover:text-black' : 'text-white/80 group-hover:text-white'}`}>{story.username}</span>
@@ -186,8 +187,8 @@ export default function SocialFeed({ onScroll }: SocialFeedProps) {
                             {/* Post Header */}
                             <div className="p-4 flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full overflow-hidden border ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-white/10'}`}>
-                                        <img src={post.avatar} alt={`${post.username}'s profile picture`} loading="lazy" className="w-full h-full object-cover" />
+                                    <div className={`w-10 h-10 rounded-full overflow-hidden border relative ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-white/10'}`}>
+                                        <Image src={post.avatar} alt={`${post.username}'s profile picture`} fill className="object-cover" />
                                     </div>
                                     <div>
                                         <div className={`font-bold text-sm ${textColor} ${isRetro ? 'font-vt323 text-lg' : ''}`}>{post.username}</div>
@@ -203,13 +204,13 @@ export default function SocialFeed({ onScroll }: SocialFeedProps) {
                             <div className={`relative group flex-1 ${isRetro ? 'border-y-2 border-stone-800' : ''}`}>
                                 {post.image ? (
                                     <div className="relative w-full h-64 md:h-80 bg-zinc-900 overflow-hidden" onDoubleClick={() => handleLike(post.id)}>
-                                        <img src={post.image} alt="Post" loading="lazy" className="w-full h-full object-cover" />
+                                        <Image src={post.image} alt="Post" fill className="object-cover" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     </div>
                                 ) : (
                                     <div className={`p-8 border-y h-full flex items-center justify-center text-center ${isRetro ? 'bg-[#fef9c3] border-stone-800' : 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-white/5'}`}>
                                         <p className={`text-xl font-black italic leading-tight ${textColor} ${isRetro ? 'font-vt323 text-2xl' : 'text-white/90'}`}>
-                                            "{post.content}"
+                                            &quot;{post.content}&quot;
                                         </p>
                                     </div>
                                 )}
@@ -261,6 +262,7 @@ export default function SocialFeed({ onScroll }: SocialFeedProps) {
                         itemCount={posts.length + 1}
                         itemSize={getItemSize}
                         className="custom-scrollbar"
+                        onScroll={onScroll}
                     >
                         {Row}
                     </List>

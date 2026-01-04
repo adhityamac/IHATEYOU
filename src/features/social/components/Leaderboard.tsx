@@ -41,6 +41,16 @@ export default function Leaderboard({ gameId, refreshTrigger, onClose }: Leaderb
         loadScores();
     }, [gameId, refreshTrigger]);
 
+    // Close on click outside
+    useEffect(() => {
+        const handleClickOutside = () => {
+            if (onClose) onClose();
+        };
+
+        window.addEventListener('click', handleClickOutside);
+        return () => window.removeEventListener('click', handleClickOutside);
+    }, [onClose]);
+
     return (
         <div className="w-full max-w-md mx-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-[32px] overflow-hidden flex flex-col max-h-[500px]">
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">

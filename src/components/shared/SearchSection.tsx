@@ -18,7 +18,6 @@ import {
     Clock,
     Calendar,
     Smile,
-    Image,
     Camera,
     Brush,
     Wind,
@@ -40,6 +39,7 @@ import { useAlgorithm } from '@/hooks/useAlgorithm';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 import TimeCapsule from '@/features/wellness/components/TimeCapsule';
 import QuestBoard from '@/features/gamification/components/QuestBoard';
+import Image from 'next/image';
 
 interface SearchSectionProps {
     feedPosts: any[];
@@ -266,7 +266,7 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
                 return (
                     <div className={`h-full w-full rounded-[40px] p-8 flex flex-col justify-center relative overflow-hidden group ${isRetro ? baseRetro : 'bg-indigo-500/5 border border-white/5'}`}>
                         <Quote className={`absolute top-6 left-6 w-12 h-12 -rotate-12 group-hover:rotate-0 transition-transform duration-700 ${isRetro ? 'text-stone-300' : 'text-white/5'}`} />
-                        <p className={`text-lg font-medium italic leading-relaxed relative z-10 ${textColor}`}>"{data.content}"</p>
+                        <p className={`text-lg font-medium italic leading-relaxed relative z-10 ${textColor}`}>&quot;{data.content}&quot;</p>
                         <div className={`mt-4 text-[9px] font-black uppercase tracking-widest ${isRetro ? 'text-stone-400' : 'text-white/20'}`}>Grounding Sentiment</div>
                     </div>
                 );
@@ -340,7 +340,7 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
                 return (
                     <div className={`h-full w-full rounded-[40px] p-6 flex items-center gap-4 group cursor-pointer transition-all ${isRetro ? `${baseRetro} hover:bg-stone-50` : 'bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]'}`}>
                         <div className={`w-12 h-12 rounded-full bg-black border border-white/10 relative overflow-hidden ${isRetro ? 'border-2 border-stone-800' : ''}`}>
-                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`} className="w-full h-full" />
+                            <Image src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`} alt="User" fill className="object-cover" />
                             <div className="absolute -bottom-1 -right-1 text-[10px]">🌙</div>
                         </div>
                         <div>

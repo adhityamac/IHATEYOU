@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, CheckCheck, Reply, Heart } from 'lucide-react';
 import { memo, useState } from 'react';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
+import Image from 'next/image';
 
 interface MessageBubbleProps {
     message: Message;
@@ -69,11 +70,12 @@ function MessageBubbleComponent({ message, isSent, showAvatar, avatar, onReact, 
             {/* Avatar */}
             {showAvatar && !isSent && (
                 <div className="mb-6">
-                    <div className={`w-10 h-10 rounded-full border overflow-hidden flex items-center justify-center shrink-0 shadow-lg ${isRetro ? 'border-stone-800 bg-white' : 'border-white/10 bg-black/40 backdrop-blur-md'}`}>
-                        <img
+                    <div className={`w-10 h-10 rounded-full border overflow-hidden flex items-center justify-center shrink-0 shadow-lg relative ${isRetro ? 'border-stone-800 bg-white' : 'border-white/10 bg-black/40 backdrop-blur-md'}`}>
+                        <Image
                             src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'Soul'}`}
                             alt="avatar"
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                         />
                     </div>
                 </div>
@@ -130,7 +132,7 @@ function MessageBubbleComponent({ message, isSent, showAvatar, avatar, onReact, 
                     {message.replyTo && (
                         <div className={`mb-1 px-4 py-2 rounded-t-2xl border-x border-t text-xs max-w-xs ${replyBg} ${isSent ? 'mr-4 text-right' : 'ml-4 text-left'}`}>
                             <p className={`text-[10px] font-black uppercase tracking-widest leading-none mb-1 ${timeText}`}>Reply to {message.replyTo.username}</p>
-                            <p className={`${mutedText} truncate italic`}>"{message.replyTo.content}"</p>
+                            <p className={`${mutedText} truncate italic`}>&quot;{message.replyTo.content}&quot;</p>
                         </div>
                     )}
 

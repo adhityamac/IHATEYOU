@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Gamepad2, Trophy, Zap, Play, Check, AlertCircle, Brain, Music, Ghost, FlaskConical, HelpCircle, Grid, ChevronRight, Crown } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { X, Gamepad2, Play, Check, ChevronRight } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { useSignals } from '@/hooks/useSignals';
 import TicTacToe from './TicTacToe';
 import MemoryGame from './MemoryGame';

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
-import { Trophy, Lock, Unlock, Play, Music, Film, Fingerprint, Eye, Zap, Headphones, X, Moon, Sun, Heart, Sparkles } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Fingerprint, Zap, Headphones, X, Sun, Heart } from 'lucide-react';
 
 /* 
   THE QUIET WORLD (Refined Sanctuary)
@@ -115,7 +115,7 @@ export default function HerWorld({ onClose }: HerWorldProps) {
             content: (
                 <div className="font-mono text-green-400/90 py-4 leading-relaxed tracking-wide">
                     <p className="mb-6 opacity-40 text-xs uppercase tracking-[0.2em]">{`// Fragment_Detected: 0xNE0`}</p>
-                    <p className="text-xl">"The world is loud. This place is not. You don't have to perform here. You just have to be."</p>
+                    <p className="text-xl">&quot;The world is loud. This place is not. You don&apos;t have to perform here. You just have to be.&quot;</p>
                     <div className="mt-8 h-px w-12 bg-green-500/20" />
                 </div>
             )
@@ -132,7 +132,7 @@ export default function HerWorld({ onClose }: HerWorldProps) {
             content: (
                 <div className="py-2">
                     <h3 className="text-purple-300/60 font-medium text-xs uppercase tracking-[0.3em] mb-4">Memory Sync 001</h3>
-                    <p className="italic text-white/90 text-2xl font-light leading-snug">"It started with a simple thought: What if there was a place where you didn't have to pretend?"</p>
+                    <p className="italic text-white/90 text-2xl font-light leading-snug">&quot;It started with a simple thought: What if there was a place where you didn&apos;t have to pretend?&quot;</p>
                 </div>
             )
         },
@@ -148,7 +148,7 @@ export default function HerWorld({ onClose }: HerWorldProps) {
             content: (
                 <div className="py-2">
                     <h3 className="text-yellow-500/60 font-medium text-xs uppercase tracking-[0.3em] mb-4">Artifact: The Beacon</h3>
-                    <p className="text-white/90 text-2xl font-light leading-snug italic">"The night is not just for darkness. It is also for the stars that refuse to go out."</p>
+                    <p className="text-white/90 text-2xl font-light leading-snug italic">&quot;The night is not just for darkness. It is also for the stars that refuse to go out.&quot;</p>
                 </div>
             )
         },
@@ -166,10 +166,10 @@ export default function HerWorld({ onClose }: HerWorldProps) {
                     <h3 className="text-white/40 font-medium text-[10px] uppercase tracking-[0.5em] mb-8">Letter to Player One</h3>
                     <div className="space-y-6">
                         <p className="font-serif text-2xl leading-relaxed text-white/95">
-                            "You don't owe anyone anything. Not perfection, not a smile, not even your time."
+                            &quot;You don&apos;t owe anyone anything. Not perfection, not a smile, not even your time.&quot;
                         </p>
                         <p className="font-serif text-2xl leading-relaxed text-white/80">
-                            "Thank you for simply being here."
+                            &quot;Thank you for simply being here.&quot;
                         </p>
                     </div>
                     <p className="mt-12 text-right font-signature text-2xl text-white/30 italic">- The Architect</p>

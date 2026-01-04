@@ -42,9 +42,10 @@ export default function MoodInsights({ posts }: MoodInsightsProps) {
         const last7Positive = last7Days.filter(p => positive.includes(p.emotion.id)).length;
         const prev7Positive = prev7Days.filter(p => positive.includes(p.emotion.id)).length;
 
-        let trend: 'up' | 'down' | 'stable' = 'stable';
-        if (last7Positive > prev7Positive) trend = 'up';
-        else if (last7Positive < prev7Positive) trend = 'down';
+        const trend: 'up' | 'down' | 'stable' = 
+            last7Positive > prev7Positive ? 'up' :
+            last7Positive < prev7Positive ? 'down' :
+            'stable';
 
         return {
             positivePercent,

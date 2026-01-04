@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Type, Smile } from 'lucide-react';
-import Image from 'next/image';
+import { X, Type, Smile, Sparkles } from 'lucide-react';
+import { STICKERS, STICKER_CATEGORIES, getStickersByCategory } from '@/data/stickers';
 
 interface RansomStickerKeyboardProps {
     isOpen: boolean;
@@ -14,16 +14,8 @@ interface RansomStickerKeyboardProps {
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,@#$".split("");
 const COLORS = [
-    '#ef4444', // Red
-    '#f97316', // Orange
-    '#facc15', // Yellow
-    '#4ade80', // Green
-    '#3b82f6', // Blue
-    '#a855f7', // Purple
-    '#ec4899', // Pink
-    '#1c1917', // Black
-    '#ffffff', // White
-    '#78716c', // Stone
+    '#ef4444', '#f97316', '#facc15', '#4ade80', '#3b82f6',
+    '#a855f7', '#ec4899', '#1c1917', '#ffffff', '#78716c',
 ];
 
 const FONTS = [
@@ -34,46 +26,11 @@ const FONTS = [
     'serif'
 ];
 
-// Hand-drawn sticker emojis (simple text-based for now, can be replaced with images)
-const HAND_DRAWN_STICKERS = [
-    // Basic emotions
-    '(◕‿◕)', '(｡◕‿◕｡)', '(◕ᴗ◕✿)', '(◕‿◕✿)', '(◕ω◕)',
-    // Happy/Love
-    '(♡‿♡)', '(◕‿◕)♡', '♡(◕‿◕)♡', '(◕ε◕♡)', '(◕3◕)',
-    // Sad/Crying
-    '(╥﹏╥)', '(｡•́︿•̀｡)', '(｡T ω T｡)', '(ಥ﹏ಥ)', '(｡•́ - •̀｡)',
-    // Excited/Energetic
-    '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', '(ﾉ≧∀≦)ﾉ', '(ﾉ´ヮ`)ﾉ*: ･ﾟ', '٩(◕‿◕｡)۶', '(ﾉ^ヮ^)ﾉ',
-    // Confused/Thinking
-    '(・_・ヾ', '(・・ ) ?', '(◔_◔)', '(・・;)', '(¯―¯٥)',
-    // Cool/Chill
-    '(⌐■_■)', '(▀̿Ĺ̯▀̿ ̿)', '(•_•)', '(¬‿¬)', '(◕‿-)✧',
-    // Shy/Blushing
-    '(⁄ ⁄•⁄ω⁄•⁄ ⁄)', '(//▽//)', '(///▽///)', '(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)', '(*/ω＼*)',
-    // Angry/Frustrated
-    '(╬ಠ益ಠ)', '(ಠ_ಠ)', '(¬_¬)', '(︶︹︺)', '(ಠ益ಠ)',
-    // Surprised
-    '(⊙_⊙)', '(◎_◎;)', '(°ロ°)', '(o_O)', '(O_O)',
-    // Sleepy/Tired
-    '(´ぅω・｀)', '(-_-)zzz', '(-.-)Zzz...', '(~_~;)', '(´～｀)',
-];
-
-// Categories for better organization
-const STICKER_CATEGORIES = {
-    happy: ['(◕‿◕)', '(｡◕‿◕｡)', '(◕ᴗ◕✿)', '(◕‿◕✿)', '(◕ω◕)'],
-    love: ['(♡‿♡)', '(◕‿◕)♡', '♡(◕‿◕)♡', '(◕ε◕♡)', '(◕3◕)'],
-    sad: ['(╥﹏╥)', '(｡•́︿•̀｡)', '(｡T ω T｡)', '(ಥ﹏ಥ)', '(｡•́ - •̀｡)'],
-    excited: ['(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', '(ﾉ≧∀≦)ﾉ', '(ﾉ´ヮ`)ﾉ*: ･ﾟ', '٩(◕‿◕｡)۶', '(ﾉ^ヮ^)ﾉ'],
-    confused: ['(・_・ヾ', '(・・ ) ?', '(◔_◔)', '(・・;)', '(¯―¯٥)'],
-    cool: ['(⌐■_■)', '(▀̿Ĺ̯▀̿ ̿)', '(•_•)', '(¬‿¬)', '(◕‿-)✧'],
-    shy: ['(⁄ ⁄•⁄ω⁄•⁄ ⁄)', '(//▽//)', '(///▽///)', '(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)', '(*/ω＼*)'],
-    angry: ['(╬ಠ益ಠ)', '(ಠ_ಠ)', '(¬_¬)', '(︶︹︺)', '(ಠ益ಠ)'],
-};
-
 type TabType = 'ransom' | 'stickers';
 
 export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter, onSelectSticker }: RansomStickerKeyboardProps) {
-    const [activeTab, setActiveTab] = useState<TabType>('ransom');
+    const [activeTab, setActiveTab] = useState<TabType>('stickers');
+    const [selectedCategory, setSelectedCategory] = useState<keyof typeof STICKER_CATEGORIES>('happy');
 
     // Generate static random styles for each letter
     const [letterStyles] = useState(() => ALPHABET.map((char) => ({
@@ -97,12 +54,14 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
         }
     };
 
+    const categoryStickers = getStickersByCategory(selectedCategory);
+
     return (
         <AnimatePresence>
             {isOpen && (
                 <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 380, opacity: 1 }}
+                    animate={{ height: 420, opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     className="w-full bg-[#1a1a1a] border-t-4 border-[#eab308] overflow-hidden"
                 >
@@ -111,6 +70,7 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setActiveTab('ransom')}
+                                aria-label="Ransom letters tab"
                                 className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeTab === 'ransom'
                                         ? 'bg-[#eab308] text-black font-bold'
                                         : 'bg-white/5 text-white/50 hover:bg-white/10'
@@ -121,6 +81,7 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                             </button>
                             <button
                                 onClick={() => setActiveTab('stickers')}
+                                aria-label="Stickers tab"
                                 className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeTab === 'stickers'
                                         ? 'bg-[#eab308] text-black font-bold'
                                         : 'bg-white/5 text-white/50 hover:bg-white/10'
@@ -138,6 +99,30 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                             <X size={20} />
                         </button>
                     </div>
+
+                    {/* Sticker Categories (only show when stickers tab is active) */}
+                    {activeTab === 'stickers' && (
+                        <div className="px-4 pt-3 pb-2 border-b border-white/5 bg-black/10">
+                            <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
+                                {Object.entries(STICKER_CATEGORIES).map(([key, category]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => setSelectedCategory(key as keyof typeof STICKER_CATEGORIES)}
+                                        className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 whitespace-nowrap transition-all ${selectedCategory === key
+                                                ? 'text-black font-bold shadow-lg'
+                                                : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                            }`}
+                                        style={{
+                                            backgroundColor: selectedCategory === key ? category.color : undefined
+                                        }}
+                                    >
+                                        <span className="text-sm">{category.emoji}</span>
+                                        <span className="text-xs font-bold uppercase tracking-wider">{category.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Content */}
                     <div className="p-4 h-[300px] overflow-y-auto custom-scrollbar">
@@ -175,30 +160,38 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                         )}
 
                         {activeTab === 'stickers' && (
-                            <div className="space-y-6">
-                                {Object.entries(STICKER_CATEGORIES).map(([category, stickers]) => (
-                                    <div key={category}>
-                                        <h3 className="text-xs uppercase tracking-wider text-white/40 font-bold mb-3 capitalize">
-                                            {category}
-                                        </h3>
-                                        <div className="flex flex-wrap gap-3">
-                                            {stickers.map((sticker, i) => (
-                                                <motion.button
-                                                    key={i}
-                                                    whileHover={{ scale: 1.2 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={() => handleStickerClick(sticker)}
-                                                    className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-2xl border border-white/10 hover:border-[#eab308]/50"
-                                                    title={category}
-                                                >
-                                                    {sticker}
-                                                </motion.button>
-                                            ))}
+                            <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                                {categoryStickers.map((sticker) => (
+                                    <motion.button
+                                        key={sticker.id}
+                                        whileHover={{ scale: 1.15, y: -4 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleStickerClick(sticker.emoji)}
+                                        className="aspect-square p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-3xl border border-white/10 hover:border-[#eab308]/50 flex items-center justify-center relative group"
+                                        title={sticker.name}
+                                    >
+                                        {sticker.emoji}
+
+                                        {/* Tooltip */}
+                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                            <div className="bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap font-bold">
+                                                {sticker.name}
+                                            </div>
                                         </div>
-                                    </div>
+                                    </motion.button>
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Footer hint */}
+                    <div className="px-4 py-2 border-t border-white/5 bg-black/10">
+                        <div className="flex items-center justify-center gap-2 text-white/30">
+                            <Sparkles size={12} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">
+                                {activeTab === 'ransom' ? 'Click to add ransom letters' : `${categoryStickers.length} ${STICKER_CATEGORIES[selectedCategory].name} stickers`}
+                            </span>
+                        </div>
                     </div>
                 </motion.div>
             )}
