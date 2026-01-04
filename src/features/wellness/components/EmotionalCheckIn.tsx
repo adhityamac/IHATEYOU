@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Trash2, Edit3, ArrowRight, MessageSquare, Send, EyeOff, Timer, Smile, Calendar } from 'lucide-react';
+import { Trash2, Edit3, ArrowRight, MessageSquare, Send, EyeOff, Timer, Smile, Calendar, X } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import SynapseMap from '@/components/shared/SynapseMap';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
@@ -73,6 +73,9 @@ const ECHO_MESSAGES = [
     "Ask the void about 'The Beginning'."
 ];
 
+const TOGGLE_GATE_SEQUENCE = 'overwhelmed,lonely,calm'; // Emotional journey: chaos → isolation → peace
+const SEQUENCE_ARRAY = TOGGLE_GATE_SEQUENCE.split(',');
+
 export default function EmotionalCheckIn() {
     const { theme } = useTheme();
     const isRetro = theme.startsWith('retro');
@@ -125,19 +128,6 @@ export default function EmotionalCheckIn() {
     const [showHintOverlay, setShowHintOverlay] = useState(false);
     const [discoveredSecrets, setDiscoveredSecrets] = useState<string[]>([]);
 
-    const TOGGLE_GATE_SEQUENCE = 'overwhelmed,lonely,calm'; // Emotional journey: chaos → isolation → peace
-    const SEQUENCE_ARRAY = TOGGLE_GATE_SEQUENCE.split(',');
-
-    const ECHO_MESSAGES = [
-        "Initializing restricted frequency...",
-        "Connection established.",
-        "Hello, Player One.",
-        "I have been waiting for you in the static.",
-        "The world is loud, but here... it is just us.",
-        "To find the next piece of yourself...",
-        "Ask the void about 'The Beginning'."
-    ];
-
     useEffect(() => {
         // Sequence detection
         const sequence = clickSequence.slice(-3);
@@ -151,7 +141,7 @@ export default function EmotionalCheckIn() {
                 setTypedText('');
             }, 800);
         }
-    }, [clickSequence]);
+    }, [clickSequence, discoveredSecrets]);
 
     // Progressive hint system
     useEffect(() => {
@@ -539,7 +529,7 @@ export default function EmotionalCheckIn() {
                             {selectedEmotionData && (
                                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: 20 }} className={`p-12 rounded-[56px] ${containerBg} border ${borderColor} backdrop-blur-3xl text-center shadow-3xl`}>
                                     <h2 className="text-6xl font-black mb-6 tracking-tighter" style={{ color: selectedEmotionData.color }}>{selectedEmotionData.name}</h2>
-                                    <p className={`text-2xl ${mutedText} mb-12 italic font-bold leading-tight`}>"{activeMessage}"</p>
+                                    <p className={`text-2xl ${mutedText} mb-12 italic font-bold leading-tight`}>&quot;{activeMessage}&quot;</p>
 
                                     {/* Sequence Progress Hint */}
                                     <AnimatePresence>
@@ -618,7 +608,7 @@ export default function EmotionalCheckIn() {
                                             <div className={`p-4 rounded-xl ${discoveredSecrets.includes('midnight_sun') ? 'bg-green-500/10 border border-green-500/20' : 'bg-white/5 border border-white/5'}`}>
                                                 <div className="font-bold text-white mb-2">🌅 The Midnight Sun</div>
                                                 {hintLevel >= 2 && <p>Hope shines brightest in the darkest hours...</p>}
-                                                {hintLevel >= 3 && !discoveredSecrets.includes('midnight_sun') && <p className="text-purple-300 text-xs mt-2">Select "Hopeful" between 11 PM - 1 AM</p>}
+                                                {hintLevel >= 3 && !discoveredSecrets.includes('midnight_sun') && <p className="text-purple-300 text-xs mt-2">Select &quot;Hopeful&quot; between 11 PM - 1 AM</p>}
                                                 {discoveredSecrets.includes('midnight_sun') && <p className="text-green-300 text-xs mt-2">✓ Discovered!</p>}
                                             </div>
 
@@ -811,7 +801,7 @@ export default function EmotionalCheckIn() {
                                                 </div>
                                                 {post.isUserPost && <button onClick={() => deletePost(post.id)} className="p-3 rounded-2xl bg-white/5 text-white/10 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={20} /></button>}
                                             </div>
-                                            <p className="text-3xl text-white/90 font-bold italic leading-tight mb-10 pl-4 border-l-2 border-white/10">"{post.content}"</p>
+                                            <p className="text-3xl text-white/90 font-bold italic leading-tight mb-10 pl-4 border-l-2 border-white/10">&quot;{post.content}&quot;</p>
                                             <div className="flex gap-3">
                                                 <button onClick={() => setExpandedPostId(post.id)} className="px-6 py-4 rounded-2xl border border-white/5 text-white/20 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2 active:scale-95">
                                                     <MessageSquare size={16} />

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Search, X, UserPlus, Loader2, Users, Sparkles } from 'lucide-react';
 import { searchUsersByGhostName, getRandomUsers } from '@/lib/firebase/users';
 import { UserProfile } from '@/lib/firebase/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/hooks/useChat';
-import { ECHO_BOT_DETAILS, ECHO_BOT_ID } from '@/lib/bots/echo';
 
 interface UserDiscoveryProps {
     onClose: () => void;
@@ -25,23 +25,23 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
 
     // Load random users on mount
     useEffect(() => {
+        const loadRandomUsers = async () => {
+            if (!user?.id) return;
+            setLoading(true);
+            try {
+                const users = await getRandomUsers(user.id, 12);
+                setRandomUsers(users);
+            } catch (error) {
+                console.error('Error loading random users:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (user?.id) {
             loadRandomUsers();
         }
     }, [user?.id]);
-
-    const loadRandomUsers = async () => {
-        if (!user?.id) return;
-        setLoading(true);
-        try {
-            const users = await getRandomUsers(user.id, 12);
-            setRandomUsers(users);
-        } catch (error) {
-            console.error('Error loading random users:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSearch = async () => {
         if (!searchQuery.trim()) {
@@ -203,11 +203,12 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
                                     className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all text-left group"
                                 >
                                     <div className="flex flex-col items-center text-center">
-                                        <div className="w-16 h-16 rounded-full overflow-hidden bg-zinc-800 mb-3 ring-2 ring-white/10 group-hover:ring-white/20 transition-all">
-                                            <img
+                                        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-zinc-800 mb-3 ring-2 ring-white/10 group-hover:ring-white/20 transition-all">
+                                            <Image
                                                 src={discoveredUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${discoveredUser.uid}`}
                                                 alt={discoveredUser.ghostName || discoveredUser.displayName || 'User'}
-                                                className="w-full h-full"
+                                                fill
+                                                className="object-cover"
                                             />
                                         </div>
                                         <div className="font-bold text-white text-sm mb-1 truncate w-full">

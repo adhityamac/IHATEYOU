@@ -34,11 +34,12 @@ const StoryRing = ({ story, onClick, isOwn }: StoryRingProps) => {
         >
             <div className={`relative w-20 h-20 rounded-full p-1 ${story.isViewed ? 'bg-white/20' : 'bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500'
                 }`}>
-                <div className="w-full h-full rounded-full bg-black overflow-hidden border-2 border-black">
-                    <img
+                <div className="relative w-full h-full rounded-full bg-black overflow-hidden border-2 border-black">
+                    <Image
                         src={story.avatar}
                         alt={story.username}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                     />
                 </div>
                 {isOwn && (
@@ -104,10 +105,12 @@ const StoryViewer = ({ stories, currentIndex, onClose, onNext, onPrevious }: Sto
             {/* Header */}
             <div className="absolute top-8 left-4 right-4 flex items-center justify-between z-50">
                 <div className="flex items-center gap-3">
-                    <img
+                    <Image
                         src={story.avatar}
                         alt={story.username}
-                        className="w-10 h-10 rounded-full border-2 border-white"
+                        width={40}
+                        height={40}
+                        className="rounded-full border-2 border-white object-cover"
                     />
                     <div>
                         <div className="text-white font-bold">{story.username}</div>
@@ -127,10 +130,11 @@ const StoryViewer = ({ stories, currentIndex, onClose, onNext, onPrevious }: Sto
             {/* Story Content */}
             <div className="relative w-full max-w-md h-full flex items-center justify-center">
                 {story.type === 'image' ? (
-                    <img
+                    <Image
                         src={story.content}
                         alt="Story"
-                        className="w-full h-full object-contain"
+                        fill
+                        className="object-contain"
                     />
                 ) : story.type === 'text' ? (
                     <div
@@ -348,8 +352,13 @@ const StoryCreator = ({ onClose, onPost }: StoryCreatorProps) => {
                     <div className="flex-1 flex flex-col">
                         {content && (
                             <>
-                                <div className="flex-1 flex items-center justify-center bg-black">
-                                    <img src={content} alt="Story preview" className="max-w-full max-h-full object-contain" />
+                                <div className="flex-1 flex items-center justify-center bg-black relative w-full h-full">
+                                    <Image 
+                                        src={content} 
+                                        alt="Story preview" 
+                                        fill 
+                                        className="object-contain" 
+                                    />
                                 </div>
                                 <div className="p-8">
                                     <button

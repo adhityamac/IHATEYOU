@@ -109,7 +109,7 @@ export default function TrendingPosts() {
 
                             {/* Post Content */}
                             <p className="text-2xl text-white/90 font-bold italic leading-tight mb-6">
-                                "{post.content}"
+                                &quot;{post.content}&quot;
                             </p>
 
                             {/* Stats */}

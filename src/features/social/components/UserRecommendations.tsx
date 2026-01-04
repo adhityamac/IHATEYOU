@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Users, UserPlus, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
@@ -106,12 +107,13 @@ export default function UserRecommendations() {
                         <div className="relative w-20 h-20 mb-4">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 overflow-hidden border-4 border-black shadow-xl"
+                                className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 overflow-hidden border-4 border-black shadow-xl relative"
                             >
-                                <img
+                                <Image
                                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
                                     alt={user.username}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
                                 />
                             </motion.div>
 

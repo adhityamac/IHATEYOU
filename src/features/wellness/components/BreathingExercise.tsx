@@ -1,23 +1,23 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Wind, Play, Pause, RotateCcw } from 'lucide-react';
 
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'rest';
+
+const phaseDurations = {
+    inhale: 4,
+    hold: 4,
+    exhale: 4,
+    rest: 2
+};
 
 export default function BreathingExercise() {
     const [isActive, setIsActive] = useState(false);
     const [phase, setPhase] = useState<BreathPhase>('inhale');
     const [count, setCount] = useState(0);
     const [cycles, setCycles] = useState(0);
-
-    const phaseDurations = {
-        inhale: 4,
-        hold: 4,
-        exhale: 4,
-        rest: 2
-    };
 
     const phaseMessages = {
         inhale: 'Breathe In',
