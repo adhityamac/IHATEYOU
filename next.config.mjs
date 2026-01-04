@@ -6,7 +6,8 @@ const nextConfig = {
         domains: [
             'api.dicebear.com',
             'picsum.photos',
-            'grainy-gradients.vercel.app'
+            'grainy-gradients.vercel.app',
+            'lh3.googleusercontent.com' // Google profile images
         ],
         formats: ['image/webp', 'image/avif'], // Enable modern formats
     },
