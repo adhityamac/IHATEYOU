@@ -33,7 +33,7 @@ export default function Leaderboard({ gameId, refreshTrigger, onClose }: Leaderb
                         .slice(0, 10); // Top 10
                     setScores(gameScores);
                 }
-            } catch (e) {
+            } catch {
                 console.error('Failed to load scores');
             }
         };

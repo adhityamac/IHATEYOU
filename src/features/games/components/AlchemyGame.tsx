@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FlaskConical, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const EMOTIONS = {
   joy: { emoji: '😊', color: 'yellow' },
@@ -90,7 +90,7 @@ export default function AlchemyGame() {
               exit={{ opacity: 0, y: -20 }}
               className="text-center"
             >
-              <p className="text-white">You've created:</p>
+              <p className="text-white">You&apos;ve created:</p>
               <p className="text-4xl">{result.emoji}</p>
               <p className="text-white">{result.name}</p>
             </motion.div>

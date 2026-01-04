@@ -96,7 +96,7 @@ export default function TicTacToe() {
         if (move !== -1) {
             handleMove(move, 'O');
         }
-    }, [board, handleMove, minimax]);
+    }, [board, handleMove]);
 
     useEffect(() => {
         if (gameMode === 'AI' && !isXNext && !winner) {

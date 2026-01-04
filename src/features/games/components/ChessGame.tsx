@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, RefreshCw, Cpu, Users, Crown, ChevronRight, Trophy, Flag, Settings } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Cpu, Users, Crown, Flag, Settings } from 'lucide-react';
 
 // --- Chess Logic Types & Constants (PRESERVED) ---
 
@@ -209,21 +209,6 @@ function getAllLegalMoves(board: (Piece | null)[][], color: PieceColor): Move[] 
     return moves;
 }
 
-const PIECE_VALUES: Record<PieceType, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 1000 };
-function evaluateBoard(board: (Piece | null)[][], color: PieceColor): number {
-    let score = 0;
-    for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 8; col++) {
-            const piece = board[row][col];
-            if (piece) {
-                const val = PIECE_VALUES[piece.type];
-                score += piece.color === color ? val : -val;
-            }
-        }
-    }
-    return score;
-}
-
 function makeMove(board: (Piece | null)[][], move: Move): (Piece | null)[][] {
     const newBoard = board.map(row => [...row]);
     const sourcePiece = newBoard[move.from.row][move.from.col];
@@ -276,7 +261,6 @@ export default function ChessGame({ onBack }: ChessGameProps) {
     const [board, setBoard] = useState(createInitialBoard);
     const [selectedSquare, setSelectedSquare] = useState<Position | null>(null);
     const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
-    const [gameStatus, setGameStatus] = useState("Your Turn");
     const [isThinking, setIsThinking] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [gameMode, setGameMode] = useState<'ai' | 'pvp'>('ai');
@@ -379,11 +363,9 @@ export default function ChessGame({ onBack }: ChessGameProps) {
                         setCapturedWhite(prev => [...prev, aiMove.captured!.type]);
                     }
                     setCurrentTurn(playerColor);
-                    setGameStatus("Your Turn");
                     setIsThinking(false);
                 } else {
                     setGameOver(true);
-                    setGameStatus("Checkmate!");
                 }
             }, 800);
             return () => clearTimeout(timer);

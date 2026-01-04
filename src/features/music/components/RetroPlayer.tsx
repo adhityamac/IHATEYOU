@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipForward, SkipBack, Music, List } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Music, List, Heart } from 'lucide-react';
 
 const OLD_SONGS = [
     { id: 1, title: "Dream A Little Dream", artist: "Ella Fitzgerald", duration: "3:05", color: "from-rose-400 to-orange-300", audioUrl: null },
@@ -88,7 +88,7 @@ export default function RetroPlayer() {
         if (progress >= 100 && !currentTrack.audioUrl) {
             handleNext();
         }
-    }, [progress, currentTrack.audioUrl]);
+    }, [progress, currentTrack.audioUrl, handleNext]);
 
     const handleNext = useCallback(() => {
         setIsPlaying(false);

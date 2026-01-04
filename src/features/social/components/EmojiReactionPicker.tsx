@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Message } from '@/types/types';
+import { motion } from 'framer-motion';
 
 interface EmojiReactionPickerProps {
     onSelect: (emoji: string) => void;

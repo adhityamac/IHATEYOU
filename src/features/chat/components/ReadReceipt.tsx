@@ -43,7 +43,7 @@ export default function ReadReceipt({
     };
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" title={getStatusText()}>
             {/* Status Icon */}
             <motion.div
                 initial={{ scale: 0 }}

@@ -36,6 +36,8 @@ interface MessagesSectionProps {
     currentUser: User;
     mockUsers: User[];
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
+    onSendMessage?: (content: string) => Promise<void> | void;
+    onReaction?: (messageId: string, emoji: string) => Promise<void> | void;
 }
 
 const MessagesSection = memo(function MessagesSection({
@@ -44,8 +46,10 @@ const MessagesSection = memo(function MessagesSection({
     activeConversationId,
     setActiveConversationId,
     currentUser,
-    mockUsers,
+    mockUsers, // eslint-disable-line @typescript-eslint/no-unused-vars
     onScroll,
+    onSendMessage,
+    onReaction
 }: MessagesSectionProps) {
     const { trackInteraction, trackConnection } = useSignals(currentUser.id);
     const [showUserDiscovery, setShowUserDiscovery] = useState(false);
@@ -83,9 +87,16 @@ const MessagesSection = memo(function MessagesSection({
     }, [activeConversation?.messages?.length, isTyping]);
 
 
-    const handleSendMessage = (e?: React.FormEvent) => {
+    const handleSendMessage = async (e?: React.FormEvent) => {
         e?.preventDefault();
         if (!messageInput.trim() || !activeConversationId) return;
+
+        if (onSendMessage) {
+            await onSendMessage(messageInput);
+            setMessageInput('');
+            trackInteraction('send_message', 0);
+            return;
+        }
 
         const newMessage: Message = {
             id: `msg-${Date.now()}`,
@@ -133,7 +144,12 @@ const MessagesSection = memo(function MessagesSection({
         setRecentEmojis(newRecents);
     };
 
-    const handleReaction = (messageId: string, emoji: string) => {
+    const handleReaction = async (messageId: string, emoji: string) => {
+        if (onReaction) {
+            await onReaction(messageId, emoji);
+            return;
+        }
+
         setConversations(prev =>
             prev.map(conv => ({
                 ...conv,

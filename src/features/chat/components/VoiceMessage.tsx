@@ -46,6 +46,21 @@ export default function VoiceMessage({
     }, []);
 
     useEffect(() => {
+        if (isPlaying) {
+            const interval = setInterval(() => {
+                setProgress(prev => {
+                    if (prev >= 1) {
+                        setIsPlaying(false);
+                        return 0;
+                    }
+                    return prev + 0.01; // Approx 100 steps
+                });
+            }, duration * 10); // duration * 1000 / 100
+            return () => clearInterval(interval);
+        }
+    }, [isPlaying, duration]);
+
+    useEffect(() => {
         if (isRecording) {
             const interval = setInterval(() => {
                 // Use seeded random for animation, but it's fine to use Math.random here since it's not in render

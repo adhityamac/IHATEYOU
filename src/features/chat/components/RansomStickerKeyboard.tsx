@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Type, Smile, Sparkles } from 'lucide-react';
-import { STICKERS, STICKER_CATEGORIES, getStickersByCategory } from '@/data/stickers';
+import { STICKER_CATEGORIES, getStickersByCategory } from '@/data/stickers';
 
 interface RansomStickerKeyboardProps {
     isOpen: boolean;

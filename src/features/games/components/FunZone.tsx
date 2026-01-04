@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Gamepad2, Play, Check, ChevronRight } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useSignals } from '@/hooks/useSignals';
 import TicTacToe from './TicTacToe';
 import MemoryGame from './MemoryGame';
@@ -73,7 +73,7 @@ interface FunZoneProps {
 
 export default function FunZone({ onClose }: FunZoneProps) {
     const [gameMode, setGameMode] = useState<string | null>(null);
-    const { trackTool, trackInteraction } = useSignals('user-1'); // Fixed ID for demo
+    const { trackTool } = useSignals('user-1'); // Fixed ID for demo
     const [score, setScore] = useState(0);
 
     // Movie Game State
@@ -169,7 +169,7 @@ export default function FunZone({ onClose }: FunZoneProps) {
 
                         <div className="mt-8 p-8 rounded-[40px] bg-white/[0.03] border border-white/10">
                             <h3 className="text-xl font-bold text-white mb-2">Daily Challenge</h3>
-                            <p className="text-white/50 mb-6">Complete 3 games to unlock the "Arcade Master" badge.</p>
+                            <p className="text-white/50 mb-6">Complete 3 games to unlock the &quot;Arcade Master&quot; badge.</p>
                             <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                                 <div className="h-full w-1/3 bg-yellow-500" />
                             </div>

@@ -125,24 +125,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
         resetLevel();
     };
 
-    // --- Game Loop ---
-
-    const update = (dt: number) => {
-        if (gameState !== 'PLAYING') return;
-
-        moveTimer.current += dt;
-        if (moveTimer.current < GAME_SPEED) return; // Control speed
-        moveTimer.current = 0;
-
-        // 1. Move Pacman
-        movePacman();
-
-        // 2. Move Ghosts
-        ghosts.current.forEach(ghost => moveGhost(ghost));
-
-        // 3. Check Collisions
-        checkEntityCollisions();
-    };
+    // --- Helper Functions ---
 
     const isWall = (x: number, y: number) => {
         if (y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH) return true;
@@ -292,6 +275,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
         // 3. Check Collisions
         checkEntityCollisions();
     }, [gameState, movePacman, moveGhost, checkEntityCollisions]);
+    const draw = useCallback((ctx: CanvasRenderingContext2D) => {
         // Clear Canvas
         ctx.fillStyle = '#050505';
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -324,7 +308,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 } else if (cell === 4) { // Ghost House Door
-                    ctx.fillStyle = '#pink';
+                    ctx.fillStyle = 'pink';
                     ctx.fillRect(px, py + TILE_SIZE / 2 - 2, TILE_SIZE, 4);
                 }
             });
@@ -385,7 +369,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
                 ctx.fill();
             }
         });
-    };
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -521,54 +505,33 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
             </div>
 
             {/* Mobile Controls */}
-            <div className="w-full max-w-sm px-8 pb-8 grid grid-cols-3 gap-2">
-                <div />
+            <div className="absolute bottom-8 right-8 flex flex-col items-center gap-2 md:hidden">
                 <button
                     onPointerDown={(e) => { e.preventDefault(); setDir('UP'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
+                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10 p-4"
                 >
-                    <div className="w-8 h-8 text-white/50 flex items-center justify-center">▲</div>
+                    <div className="w-8 h-8 text-white/50 flex items-center justify-center font-bold text-2xl">▲</div>
                 </button>
-                <div />
-                <button
-                    onPointerDown={(e) => { e.preventDefault(); setDir('LEFT'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <div className="w-8 h-8 text-white/50 flex items-center justify-center">◀</div>
-                </button>
-                <div />
-                <button
-                    onPointerDown={(e) => { e.preventDefault(); setDir('RIGHT'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <div className="w-8 h-8 text-white/50 flex items-center justify-center">▶</div>
-                </button>
-                <div />
-                <button
-                    onPointerDown={(e) => { e.preventDefault(); setDir('DOWN'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <div className="w-8 h-8 text-white/50 flex items-center justify-center">▼</div>
-                </button>
-                <div />
-            </div>
-                    onPointerDown={(e) => { e.preventDefault(); setDir('LEFT'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <ChevronLeft className="w-8 h-8 text-white/50" />
-                </button>
-                <button
-                    onPointerDown={(e) => { e.preventDefault(); setDir('DOWN'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <ChevronDown className="w-8 h-8 text-white/50" />
-                </button>
-                <button
-                    onPointerDown={(e) => { e.preventDefault(); setDir('RIGHT'); }}
-                    className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10"
-                >
-                    <ChevronRight className="w-8 h-8 text-white/50" />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onPointerDown={(e) => { e.preventDefault(); setDir('LEFT'); }}
+                        className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10 p-4"
+                    >
+                        <div className="w-8 h-8 text-white/50 flex items-center justify-center font-bold text-2xl">◀</div>
+                    </button>
+                    <button
+                        onPointerDown={(e) => { e.preventDefault(); setDir('DOWN'); }}
+                        className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10 p-4"
+                    >
+                        <div className="w-8 h-8 text-white/50 flex items-center justify-center font-bold text-2xl">▼</div>
+                    </button>
+                    <button
+                        onPointerDown={(e) => { e.preventDefault(); setDir('RIGHT'); }}
+                        className="aspect-square bg-white/5 active:bg-white/20 rounded-xl flex items-center justify-center border border-white/10 p-4"
+                    >
+                        <div className="w-8 h-8 text-white/50 flex items-center justify-center font-bold text-2xl">▶</div>
+                    </button>
+                </div>
             </div>
         </div>
     );

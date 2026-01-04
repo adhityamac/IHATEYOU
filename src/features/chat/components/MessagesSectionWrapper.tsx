@@ -128,6 +128,8 @@ export default function MessagesSectionWrapper({ onScroll }: MessagesSectionWrap
             currentUser={currentUser}
             mockUsers={[]} // Will be replaced with real user discovery
             onScroll={onScroll}
+            onSendMessage={handleSendMessage}
+            onReaction={handleReaction}
         />
     );
 }
