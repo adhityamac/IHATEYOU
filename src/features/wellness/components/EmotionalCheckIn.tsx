@@ -190,7 +190,12 @@ export default function EmotionalCheckIn() {
             if (savedName) setUsername(savedName);
             if (savedBio) setUserBio(savedBio);
             if (savedAvatar) setUserAvatar(savedAvatar);
-            if (savedPosts) setMyPosts(JSON.parse(savedPosts));
+            if (savedPosts) {
+                const parsedPosts = JSON.parse(savedPosts);
+                setMyPosts(parsedPosts);
+                const maxId = parsedPosts.reduce((max: number, p: any) => (p.id > max ? p.id : max), idCounter.current);
+                idCounter.current = maxId;
+            }
         }
     }, []);
 
@@ -663,10 +668,10 @@ export default function EmotionalCheckIn() {
                                                         <div className="text-xs text-white/30 font-black uppercase tracking-widest">{expandedPost.timestamp}</div>
                                                     </div>
                                                 </div>
-                                                    <p className="text-4xl font-black italic text-white/90 leading-tight mb-8">&quot;{expandedPost.content}&quot;</p>
-                                                </div>
+                                                <p className="text-4xl font-black italic text-white/90 leading-tight mb-8">&quot;{expandedPost.content}&quot;</p>
+                                            </div>
 
-                                                <div className="space-y-6 mb-32">
+                                            <div className="space-y-6 mb-32">
                                                 <div className="text-xs font-black uppercase tracking-widest text-white/20 mb-8">Echoes ({replies[expandedPost.id]?.length || 0})</div>
                                                 {replies[expandedPost.id]?.map(reply => (
                                                     <div key={reply.id} className="p-6 rounded-3xl bg-white/5 border border-white/5">
@@ -738,10 +743,10 @@ export default function EmotionalCheckIn() {
                                                     <div className="p-2 rounded-full bg-purple-500/20"><EyeOff size={14} className="text-purple-300" /></div>
                                                     <div>
                                                         <div className="text-xs text-purple-200 font-bold">@{w.sender} <span className="text-white/20">→</span> @{w.recipient}</div>
-                                                    <div className="text-sm text-white/80 italic">&quot;{w.content}&quot;</div>
+                                                        <div className="text-sm text-white/80 italic">&quot;{w.content}&quot;</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-xs font-mono text-purple-300">
+                                                <div className="flex items-center gap-1 text-xs font-mono text-purple-300">
                                                     <Timer size={12} />
                                                     {Math.ceil((w.expiresAt - now) / 1000)}s
                                                 </div>
@@ -777,7 +782,7 @@ export default function EmotionalCheckIn() {
                                 >
                                     {filteredPosts.map((post, i) => (
                                         <motion.div
-                                            key={post.id}
+                                            key={`${post.id}-${i}`}
                                             layout
                                             initial={{ opacity: 0, y: 40 }}
                                             animate={{ opacity: 1, y: 0 }}

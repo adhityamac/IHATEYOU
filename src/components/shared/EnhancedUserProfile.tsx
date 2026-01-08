@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit3, Camera, Palette, Save, X, Sparkles, Heart, Zap, Star } from 'lucide-react';
+import { Edit3, Camera, Palette, Save, X, Sparkles, Star } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
 
@@ -71,11 +71,7 @@ export default function EnhancedUserProfile({
     coverImage,
     theme: initialTheme,
     badges = [],
-    stats,
-    recentEmotions = [],
-    joinDate,
-    location,
-    website
+    stats
 }: EnhancedUserProfileProps) {
     const [profile, setProfile] = useState<UserProfile>({
         id,
@@ -276,8 +272,8 @@ export default function EnhancedUserProfile({
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all ${activeTab === tab.id
-                                                ? 'bg-white text-black'
-                                                : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                            ? 'bg-white text-black'
+                                            : 'bg-white/10 text-white/60 hover:bg-white/20'
                                             }`}
                                     >
                                         <tab.icon size={18} />
@@ -297,8 +293,8 @@ export default function EnhancedUserProfile({
                                                     key={theme.name}
                                                     onClick={() => setEditedProfile({ ...editedProfile, theme })}
                                                     className={`p-4 rounded-2xl border-2 transition-all ${editedProfile.theme.primary === theme.primary
-                                                            ? 'border-white scale-105'
-                                                            : 'border-white/10 hover:border-white/30'
+                                                        ? 'border-white scale-105'
+                                                        : 'border-white/10 hover:border-white/30'
                                                         }`}
                                                 >
                                                     <div className={`h-20 rounded-xl bg-gradient-to-r ${theme.gradient} mb-3`} />
@@ -318,8 +314,8 @@ export default function EnhancedUserProfile({
                                                     key={style}
                                                     onClick={() => setEditedProfile({ ...editedProfile, avatar: generateAvatar(style) })}
                                                     className={`aspect-square rounded-2xl border-2 overflow-hidden transition-all hover:scale-105 relative ${editedProfile.avatar.includes(style)
-                                                            ? 'border-white'
-                                                            : 'border-white/10'
+                                                        ? 'border-white'
+                                                        : 'border-white/10'
                                                         }`}
                                                 >
                                                     <Image
@@ -344,8 +340,8 @@ export default function EnhancedUserProfile({
                                                     <div
                                                         key={badge.id}
                                                         className={`p-4 rounded-2xl border transition-all ${isUnlocked
-                                                                ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30'
-                                                                : 'bg-white/5 border-white/10 opacity-50'
+                                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30'
+                                                            : 'bg-white/5 border-white/10 opacity-50'
                                                             }`}
                                                     >
                                                         <div className="flex items-center gap-3 mb-2">

@@ -12,6 +12,7 @@ import { useSignals } from '@/hooks/useSignals';
 type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music' | 'vision';
 import Dock from '@/components/shared/Dock';
 import Dashboard from '@/components/shared/Dashboard';
+import Dashboard3D from '@/components/shared/Dashboard3D';
 import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
 import SocialFeed from '@/features/social/components/SocialFeed';
 import SearchSection from '@/components/shared/SearchSection';
@@ -28,14 +29,13 @@ import LightBackground from '@/components/backgrounds/LightBackground';
 import RetroBackground from '@/components/backgrounds/RetroBackground';
 import RetroMinimalBackground from '@/components/backgrounds/RetroMinimalBackground';
 import RetroCoupleBackground from '@/components/backgrounds/RetroCoupleBackground';
-import ShaderGradientBackground from '@/components/backgrounds/ShaderGradientBackground';
 
 import InteractiveGrid from '@/components/backgrounds/InteractiveGrid';
 import EmotionalCheckIn from '@/features/wellness/components/EmotionalCheckIn';
 import ScrollProgress from '@/components/ui/ScrollProgress';
 import NeuralNotifications from '@/components/shared/NeuralNotifications';
 import DynamicInfoBox from '@/components/ui/DynamicInfoBox';
-import { Conversation, Message, User, Story, Group } from '@/types/types';
+import { Conversation, Message, User } from '@/types/types';
 
 // Mock Data
 const mockUsers: User[] = [
@@ -76,13 +76,7 @@ const createMockMessages = (userId: string): Message[] => [
   },
 ];
 
-const initialConversations: Conversation[] = mockUsers.map((user, index) => ({
-  id: `conv-${user.id}`,
-  participant: user,
-  messages: createMockMessages(user.id),
-  lastMessage: createMockMessages(user.id)[1],
-  unreadCount: index === 0 ? 0 : 1,
-}));
+
 
 const INITIAL_POSTS = [
   { id: 1, user: 'You', content: 'Just synced my neural core. Feeling balanced. 💎', time: '1m', color: 'from-rose-500 to-orange-500', echoes: 42, replies: 3 },
@@ -99,8 +93,6 @@ export default function Home() {
   const { mode } = useThemeMode();
   const isRetro = mode === 'retro-soul';
 
-  const currentUserId = user?.id || 'user-1';
-  const { trackConnection } = useSignals(currentUserId);
   // const { state: emotionalState, decision: algoDecision } = useAlgorithm(currentUserId);
 
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
@@ -114,13 +106,14 @@ export default function Home() {
   const [pullStartY, setPullStartY] = useState(0);
   const [pullProgress, setPullProgress] = useState(0);
   const dashboardRef = useRef<HTMLDivElement>(null);
+  const [is3DMode, setIs3DMode] = useState(false);
 
   // Debug: Log theme changes to console
   useEffect(() => {
     console.log('🎨 Current Active Theme:', theme);
   }, [theme]);
 
-  const [feedPosts, setFeedPosts] = useState(INITIAL_POSTS);
+  const [feedPosts] = useState(INITIAL_POSTS);
 
   // Handle splash screen timing
   useEffect(() => {
@@ -332,6 +325,29 @@ export default function Home() {
                         )}
                       </button>
 
+                      {/* 3D Mode Toggle - Only show on dashboard */}
+                      {activeSection === 'dashboard' && (
+                        <button
+                          onClick={() => setIs3DMode(!is3DMode)}
+                          className={`group relative h-12 px-6 flex items-center justify-center rounded-2xl border transition-all overflow-hidden ${isRetro
+                            ? 'bg-[#eab308] border-[#422006] hover:bg-[#fde047]'
+                            : is3DMode
+                              ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border-purple-400/30 text-white hover:border-purple-400/50'
+                              : 'bg-white/5 border-white/10 text-white hover:border-white/20'
+                            }`}
+                        >
+                          <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${isRetro ? '' : 'bg-white/5'}`} />
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${isRetro ? 'text-[#422006]' : 'text-white/80 group-hover:text-white'}`}>
+                              {is3DMode ? '3D Sanctuary' : '2D View'}
+                            </span>
+                          </div>
+                          {is3DMode && (
+                            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+                          )}
+                        </button>
+                      )}
+
                       <button
                         onClick={() => setActiveSection('settings')}
                         className={`group relative w-12 h-12 flex items-center justify-center rounded-2xl border transition-all ${isRetro
@@ -387,32 +403,40 @@ export default function Home() {
 
                     {activeSection === 'dashboard' && (
                       <>
-                        <ScrollProgress color={isRetro ? '#422006' : "rgb(168, 85, 247)"} position="right" thickness={3} />
-                        <div
-                          ref={dashboardRef}
-                          data-scrollable="true"
-                          className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
-                          onScroll={handleScroll}
-                          onTouchStart={handleTouchStart}
-                          onTouchMove={handleTouchMove}
-                          onTouchEnd={handleTouchEnd}
-                        >
-                          <div
-                            className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
-                            style={{ transform: `translateY(${pullProgress - 50}px)` }}
-                          >
-                            <div className={`w-10 h-10 backdrop-blur-xl rounded-full flex items-center justify-center border shadow-xl mt-4 ${isRetro ? 'bg-[#eab308] border-[#422006]' : 'bg-black/50 border-white/10'}`}>
-                              <RefreshCw
-                                className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''} ${isRetro ? 'text-[#422006]' : 'text-white'}`}
-                                style={{ transform: `rotate(${pullProgress * 3}deg)` }}
-                              />
-                            </div>
-                          </div>
+                        {is3DMode ? (
+                          // 3D Sanctuary Mode
+                          <Dashboard3D onSectionChange={(section) => setActiveSection(section)} />
+                        ) : (
+                          // Traditional 2D Dashboard
+                          <>
+                            <ScrollProgress color={isRetro ? '#422006' : "rgb(168, 85, 247)"} position="right" thickness={3} />
+                            <div
+                              ref={dashboardRef}
+                              data-scrollable="true"
+                              className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
+                              onScroll={handleScroll}
+                              onTouchStart={handleTouchStart}
+                              onTouchMove={handleTouchMove}
+                              onTouchEnd={handleTouchEnd}
+                            >
+                              <div
+                                className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
+                                style={{ transform: `translateY(${pullProgress - 50}px)` }}
+                              >
+                                <div className={`w-10 h-10 backdrop-blur-xl rounded-full flex items-center justify-center border shadow-xl mt-4 ${isRetro ? 'bg-[#eab308] border-[#422006]' : 'bg-black/50 border-white/10'}`}>
+                                  <RefreshCw
+                                    className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''} ${isRetro ? 'text-[#422006]' : 'text-white'}`}
+                                    style={{ transform: `rotate(${pullProgress * 3}deg)` }}
+                                  />
+                                </div>
+                              </div>
 
-                          <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-                            <Dashboard onSectionChange={(section) => setActiveSection(section)} />
-                          </motion.div>
-                        </div>
+                              <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+                                <Dashboard onSectionChange={(section) => setActiveSection(section)} />
+                              </motion.div>
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { X, MessageCircle, Heart, Activity, Zap } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, MessageCircle, Activity, Zap } from 'lucide-react';
 
 interface Node {
     id: number;
@@ -212,7 +212,7 @@ export default function SynapseMap({ posts, EmotionFace, timeOffset = 0 }: Synap
                         </div>
 
                         <p className="text-2xl text-white font-bold italic leading-relaxed mb-10 tracking-tight">
-                            "{selectedNode.content}"
+                            &quot;{selectedNode.content}&quot;
                         </p>
 
                         <div className="grid grid-cols-2 gap-4">

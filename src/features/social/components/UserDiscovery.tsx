@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Search, X, UserPlus, Loader2, Users, Sparkles } from 'lucide-react';
 import { searchUsersByGhostName, getRandomUsers } from '@/lib/firebase/users';
-import { UserProfile } from '@/lib/firebase/auth';
+import { UserProfile } from '@/types/user';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/hooks/useChat';
 
@@ -23,21 +23,22 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'discover' | 'search'>('discover');
 
+    // Load random users function
+    const loadRandomUsers = async () => {
+        if (!user?.id) return;
+        setLoading(true);
+        try {
+            const users = await getRandomUsers(user.id, 12);
+            setRandomUsers(users);
+        } catch (error) {
+            console.error('Error loading random users:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Load random users on mount
     useEffect(() => {
-        const loadRandomUsers = async () => {
-            if (!user?.id) return;
-            setLoading(true);
-            try {
-                const users = await getRandomUsers(user.id, 12);
-                setRandomUsers(users);
-            } catch (error) {
-                console.error('Error loading random users:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (user?.id) {
             loadRandomUsers();
         }
@@ -119,8 +120,8 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
                     <button
                         onClick={() => setActiveTab('discover')}
                         className={`flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'discover'
-                                ? 'bg-white text-black'
-                                : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            ? 'bg-white text-black'
+                            : 'bg-white/5 text-white/60 hover:bg-white/10'
                             }`}
                     >
                         <div className="flex items-center justify-center gap-2">
@@ -131,8 +132,8 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
                     <button
                         onClick={() => setActiveTab('search')}
                         className={`flex-1 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'search'
-                                ? 'bg-white text-black'
-                                : 'bg-white/5 text-white/60 hover:bg-white/10'
+                            ? 'bg-white text-black'
+                            : 'bg-white/5 text-white/60 hover:bg-white/10'
                             }`}
                     >
                         <div className="flex items-center justify-center gap-2">

@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Heart, MessageCircle, UserPlus, Zap, X, Check, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 
 export type NotificationType = 'like' | 'comment' | 'follow' | 'mention' | 'system';
 
@@ -58,8 +59,8 @@ const NotificationItem = ({ notification, onRead, onDelete, onClick }: Notificat
             exit={{ opacity: 0, x: 20 }}
             whileHover={{ scale: 1.02 }}
             className={`p-4 rounded-2xl border transition-all cursor-pointer group ${notification.isRead
-                    ? 'bg-white/5 border-white/5'
-                    : 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20'
+                ? 'bg-white/5 border-white/5'
+                : 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20'
                 }`}
             onClick={() => onClick?.(notification)}
         >
@@ -237,8 +238,8 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
                                 <button
                                     onClick={() => setFilter('all')}
                                     className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${filter === 'all'
-                                            ? 'bg-white text-black'
-                                            : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                        ? 'bg-white text-black'
+                                        : 'bg-white/10 text-white/60 hover:bg-white/20'
                                         }`}
                                 >
                                     All ({notifications.length})
@@ -246,8 +247,8 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
                                 <button
                                     onClick={() => setFilter('unread')}
                                     className={`flex-1 py-2 px-4 rounded-xl text-sm font-bold transition-all ${filter === 'unread'
-                                            ? 'bg-white text-black'
-                                            : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                        ? 'bg-white text-black'
+                                        : 'bg-white/10 text-white/60 hover:bg-white/20'
                                         }`}
                                 >
                                     Unread ({unreadCount})

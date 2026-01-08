@@ -1,139 +1,33 @@
-/* Mobile Responsive Enhancements */
+/* Mobile-Specific Optimizations */
 
-/* Improved touch targets for mobile */
-@media (max-width: 768px) {
-
-    /* Larger touch targets */
-    button,
-    a,
-    [role="button"] {
-        min-height: 44px;
-        min-width: 44px;
-    }
-
-    /* Better spacing on mobile */
-    .p-6 {
-        padding: 1rem;
-    }
-
-    .gap-6 {
-        gap: 1rem;
-    }
-
-    /* Responsive text sizes */
-    .text-6xl {
-        font-size: 2.5rem;
-    }
-
-    .text-5xl {
-        font-size: 2rem;
-    }
-
-    .text-4xl {
-        font-size: 1.75rem;
-    }
-
-    /* Full-width modals on mobile */
-    .modal-container {
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-    }
-
-    /* Better scroll behavior */
-    .overflow-x-auto {
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-    }
-
-    .overflow-x-auto>* {
-        scroll-snap-align: start;
-    }
-
-    /* Hide scrollbars but keep functionality */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    /* Safe area insets for notched devices */
-    .safe-top {
-        padding-top: env(safe-area-inset-top);
-    }
-
-    .safe-bottom {
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .safe-left {
-        padding-left: env(safe-area-inset-left);
-    }
-
-    .safe-right {
-        padding-right: env(safe-area-inset-right);
-    }
-
-    /* Better grid layouts on mobile */
-    .grid-cols-4 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .grid-cols-3 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    /* Stack cards vertically on mobile */
-    .md\:grid-cols-2,
-    .md\:grid-cols-3,
-    .md\:grid-cols-4 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
+/* Improve touch scrolling performance */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
 }
 
-/* Tablet optimizations */
-@media (min-width: 768px) and (max-width: 1024px) {
-    .grid-cols-4 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .md\:grid-cols-4 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+/* Smooth scrolling with momentum */
+.custom-scrollbar,
+[data-scrollable="true"] {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
 }
 
-/* Landscape mobile */
-@media (max-height: 600px) and (orientation: landscape) {
-    .h-screen {
-        height: 100vh;
-    }
-
-    /* Reduce vertical padding in landscape */
-    .py-20 {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-
-    .py-16 {
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-    }
+/* Prevent pull-to-refresh on mobile */
+body {
+    overscroll-behavior-y: contain;
 }
 
-/* High DPI displays */
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-
-    /* Sharper borders */
-    .border {
-        border-width: 0.5px;
-    }
+/* Better touch targets (minimum 44x44px) */
+button,
+a,
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
 }
 
-/* Reduced motion for accessibility */
+/* Optimize animations for mobile */
 @media (prefers-reduced-motion: reduce) {
 
     *,
@@ -145,177 +39,214 @@
     }
 }
 
-/* Dark mode optimizations */
-@media (prefers-color-scheme: dark) {
+/* Mobile-specific viewport fixes */
+@supports (-webkit-touch-callout: none) {
 
-    /* Already dark, but ensure consistency */
-    body {
-        background-color: #000;
-        color: #fff;
+    /* iOS Safari specific fixes */
+    .h-screen {
+        height: -webkit-fill-available;
+    }
+
+    .min-h-screen {
+        min-height: -webkit-fill-available;
     }
 }
 
-/* Touch-specific improvements */
-@media (hover: none) and (pointer: coarse) {
+/* Improve text rendering on mobile */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
 
-    /* Remove hover effects on touch devices */
-    .hover\:scale-105:hover {
-        transform: none;
+/* Prevent zoom on input focus (iOS) */
+@media screen and (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+    .safe-top {
+        padding-top: max(env(safe-area-inset-top), 1rem);
     }
 
-    /* Add active states instead */
-    .hover\:scale-105:active {
+    .safe-bottom {
+        padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+    }
+
+    .safe-left {
+        padding-left: max(env(safe-area-inset-left), 1rem);
+    }
+
+    .safe-right {
+        padding-right: max(env(safe-area-inset-right), 1rem);
+    }
+}
+
+/* Optimize for mobile performance */
+.will-change-transform {
+    will-change: transform;
+}
+
+.will-change-opacity {
+    will-change: opacity;
+}
+
+/* Remove will-change after animation */
+.animated {
+    will-change: transform, opacity;
+}
+
+.animated.done {
+    will-change: auto;
+}
+
+/* Better mobile gestures */
+.swipeable {
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.swipeable-horizontal {
+    touch-action: pan-x;
+    user-select: none;
+}
+
+.no-touch-action {
+    touch-action: none;
+}
+
+/* Mobile-optimized shadows (lighter for performance) */
+@media (max-width: 768px) {
+    .shadow-2xl {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    .shadow-xl {
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Haptic feedback simulation */
+@keyframes haptic-light {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.98);
+    }
+}
+
+@keyframes haptic-medium {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
         transform: scale(0.95);
     }
-
-    /* Larger tap targets */
-    button,
-    a,
-    [role="button"] {
-        padding: 0.75rem 1rem;
-    }
 }
 
-/* Utility classes for mobile */
-.mobile-only {
-    display: block;
+.haptic-light:active {
+    animation: haptic-light 0.1s ease-out;
 }
 
-.desktop-only {
-    display: none;
+.haptic-medium:active {
+    animation: haptic-medium 0.15s ease-out;
 }
 
-@media (min-width: 768px) {
-    .mobile-only {
-        display: none;
-    }
-
-    .desktop-only {
-        display: block;
-    }
-}
-
-/* Smooth scrolling */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Better focus states for keyboard navigation */
-*:focus-visible {
-    outline: 2px solid rgba(168, 85, 247, 0.5);
-    outline-offset: 2px;
-}
-
-/* Prevent text selection on UI elements */
-button,
-.no-select {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Improve touch scrolling */
-.touch-scroll {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-}
-
-/* Pull-to-refresh prevention */
-body {
-    overscroll-behavior-y: contain;
-}
-
-/* Better input styling on mobile */
-input,
-textarea {
-    font-size: 16px;
-    /* Prevents zoom on iOS */
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-/* Sticky positioning fixes */
-.sticky-top {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-/* Backdrop blur fallback */
-@supports not (backdrop-filter: blur(10px)) {
-    .backdrop-blur-xl {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .backdrop-blur-md {
-        background-color: rgba(0, 0, 0, 0.7);
-    }
-
-    .backdrop-blur-sm {
-        background-color: rgba(0, 0, 0, 0.6);
-    }
-}
-
-/* Loading skeleton animation */
-@keyframes skeleton-loading {
-    0% {
-        background-position: -200% 0;
-    }
-
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-.skeleton {
+/* Mobile-specific loading states */
+.skeleton-mobile {
     background: linear-gradient(90deg,
             rgba(255, 255, 255, 0.05) 25%,
             rgba(255, 255, 255, 0.1) 50%,
             rgba(255, 255, 255, 0.05) 75%);
     background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
 }
 
-/* Smooth page transitions */
-.page-transition {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    100% {
+        background-position: -200% 0;
     }
 }
 
-/* Better emoji rendering */
-.emoji {
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-style: normal;
-}
-
-/* Prevent layout shift */
-img,
-video {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Better glassmorphism on mobile */
+/* Optimize backdrop filters for mobile */
 @media (max-width: 768px) {
-    .backdrop-blur-3xl {
-        backdrop-filter: blur(20px);
+    .backdrop-blur-xl {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
-    .backdrop-blur-xl {
+    .backdrop-blur-3xl {
         backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
+}
+
+/* Mobile-friendly focus states */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Touch devices */
+    button:focus,
+    a:focus,
+    input:focus {
+        outline: 2px solid rgba(168, 85, 247, 0.5);
+        outline-offset: 2px;
+    }
+}
+
+/* Prevent text selection on interactive elements */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Mobile-optimized transitions */
+@media (max-width: 768px) {
+    .transition-all {
+        transition-duration: 200ms;
+    }
+
+    .transition-transform {
+        transition-duration: 200ms;
+    }
+}
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* Mobile navigation improvements */
+.mobile-nav-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+}
+
+/* Optimize for 60fps animations */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
 }

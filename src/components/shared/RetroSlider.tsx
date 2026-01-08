@@ -114,7 +114,7 @@ export default function RetroSlider({
             window.removeEventListener('touchmove', handleMove);
             window.removeEventListener('touchend', handleUp);
         };
-    }, [isDragging, min, max, step, disabled]);
+    }, [isDragging, handleInteraction]);
 
     return (
         <div className={`flex flex-col gap-2 font-vt323 select-none ${disabled ? 'opacity-50' : ''}`}>

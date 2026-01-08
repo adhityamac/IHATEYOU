@@ -12,7 +12,7 @@ interface MessageReactionsProps {
 
 const QUICK_REACTIONS = ['❤️', '😂', '😮', '😢', '🔥', '👍', '🙏', '✨'];
 
-export default function MessageReactions({ messageId, onReact, reactions = {} }: MessageReactionsProps) {
+export default function MessageReactions({ onReact, reactions = {} }: MessageReactionsProps) {
     const [showPicker, setShowPicker] = useState(false);
 
     return (

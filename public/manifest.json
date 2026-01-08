@@ -1,0 +1,56 @@
+{
+    "name": "IHATEYOU - Neural Resonance",
+    "short_name": "IHATEYOU",
+    "description": "A premium manifest interface for spectral communication",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "social",
+        "lifestyle",
+        "health"
+    ],
+    "shortcuts": [
+        {
+            "name": "Messages",
+            "short_name": "Chat",
+            "description": "Open messages",
+            "url": "/?section=messages",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Check In",
+            "short_name": "Check In",
+            "description": "Daily emotional check-in",
+            "url": "/?section=home",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
+    "prefer_related_applications": false
+}

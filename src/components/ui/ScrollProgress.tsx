@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { useRef, useEffect } from 'react';
 
 interface ScrollProgressProps {
     containerRef?: React.RefObject<HTMLElement>;

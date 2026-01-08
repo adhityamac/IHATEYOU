@@ -11,6 +11,54 @@ const INITIAL_ID = 2025122300000;
 type Player = 'X' | 'O' | null;
 type GameMode = 'PVP' | 'AI';
 
+const checkWinner = (squares: Player[]) => {
+    const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+            return { winner: squares[a], line: lines[i] };
+        }
+    }
+    return null;
+};
+
+// Minimax Algorithm for AI
+const minimax = (squares: Player[], depth: number, isMaximizing: boolean): number => {
+    const result = checkWinner(squares);
+    if (result?.winner === 'O') return 10 - depth;
+    if (result?.winner === 'X') return depth - 10;
+    if (!squares.includes(null)) return 0;
+
+    if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < 9; i++) {
+            if (!squares[i]) {
+                squares[i] = 'O';
+                const score = minimax(squares, depth + 1, false);
+                squares[i] = null;
+                bestScore = Math.max(score, bestScore);
+            }
+        }
+        return bestScore;
+    } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < 9; i++) {
+            if (!squares[i]) {
+                squares[i] = 'X';
+                const score = minimax(squares, depth + 1, true);
+                squares[i] = null;
+                bestScore = Math.min(score, bestScore);
+            }
+        }
+        return bestScore;
+    }
+};
+
 export default function TicTacToe() {
     const { trackTool, trackInteraction } = useSignals('user-1');
     const idCounter = useRef(INITIAL_ID);
@@ -23,51 +71,18 @@ export default function TicTacToe() {
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [refreshLeaderboard, setRefreshLeaderboard] = useState(0);
 
-    const checkWinner = useCallback((squares: Player[]) => {
-        const lines = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
-            [0, 4, 8], [2, 4, 6]             // Diagonals
-        ];
+    const handleMove = (index: number, player: Player) => {
+        const newBoard = [...board];
+        newBoard[index] = player;
+        setBoard(newBoard);
+        setIsXNext(!isXNext);
 
-        for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return { winner: squares[a], line: lines[i] };
-            }
-        }
-        return null;
-    }, []);
-
-    // Minimax Algorithm for AI
-    const minimax = (squares: Player[], depth: number, isMaximizing: boolean): number => {
-        const result = checkWinner(squares);
-        if (result?.winner === 'O') return 10 - depth;
-        if (result?.winner === 'X') return depth - 10;
-        if (!squares.includes(null)) return 0;
-
-        if (isMaximizing) {
-            let bestScore = -Infinity;
-            for (let i = 0; i < 9; i++) {
-                if (!squares[i]) {
-                    squares[i] = 'O';
-                    const score = minimax(squares, depth + 1, false);
-                    squares[i] = null;
-                    bestScore = Math.max(score, bestScore);
-                }
-            }
-            return bestScore;
-        } else {
-            let bestScore = Infinity;
-            for (let i = 0; i < 9; i++) {
-                if (!squares[i]) {
-                    squares[i] = 'X';
-                    const score = minimax(squares, depth + 1, true);
-                    squares[i] = null;
-                    bestScore = Math.min(score, bestScore);
-                }
-            }
-            return bestScore;
+        const result = checkWinner(newBoard);
+        if (result) {
+            setWinner(result.winner);
+            setWinningLine(result.line);
+        } else if (!newBoard.includes(null)) {
+            setWinner('Draw');
         }
     };
 
@@ -96,7 +111,7 @@ export default function TicTacToe() {
         if (move !== -1) {
             handleMove(move, 'O');
         }
-    }, [board, handleMove]);
+    }, [board]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (gameMode === 'AI' && !isXNext && !winner) {

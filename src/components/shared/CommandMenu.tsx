@@ -13,10 +13,7 @@ import {
     Grid,
     Waves,
     Zap,
-    Home,
-    Search,
-    Gamepad2,
-    Palette
+    Home
 } from 'lucide-react';
 
 export const CommandMenu = () => {
@@ -24,7 +21,6 @@ export const CommandMenu = () => {
     const router = useRouter();
     const { logout } = useAuth();
     const { setMode } = useThemeMode();
-    // @ts-ignore - Assuming setTheme is available in your context
     const { setTheme } = useTheme();
 
     // Toggle the menu when ⌘K or Ctrl+K is pressed

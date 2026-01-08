@@ -12,7 +12,7 @@ import {
     DocumentData,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserProfile } from './auth';
+import { UserProfile } from '@/types/user';
 import { ECHO_BOT_ID } from '@/lib/constants/echo';
 
 // Search users by ghost name

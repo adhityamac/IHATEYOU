@@ -60,13 +60,13 @@ export default function ShaderGradientBackground() {
         if (saved) {
             try {
                 setPresets(JSON.parse(saved));
-            } catch (e) {
+            } catch {
                 setPresets([{ name: 'Default', params: initialParams }]);
             }
         } else {
             setPresets([{ name: 'Default', params: initialParams }]);
         }
-    }, []);
+    }, [initialParams]);
 
     const handleSavePreset = () => {
         if (!newPresetName.trim()) return;

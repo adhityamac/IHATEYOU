@@ -39,7 +39,7 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 };
 
 // Anonymous Sign-In
-export const signInAnonymously = async (): Promise<UserCredential> => {
+export const signInAnonymously = async (): Promise<UserCredential | null> => {
     try {
         const result = await firebaseSignInAnonymously(auth);
 
@@ -48,6 +48,11 @@ export const signInAnonymously = async (): Promise<UserCredential> => {
 
         return result;
     } catch (error: any) {
+        // Suppress Firebase error logging for guest mode
+        if (error?.code === 'auth/admin-restricted-operation' || error?.code === 'auth/operation-not-allowed') {
+            // Return null to indicate guest mode should be used
+            return null;
+        }
         console.error('Error signing in anonymously:', error);
         throw error;
     }

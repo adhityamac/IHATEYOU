@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import EmojiGrid from '@/components/EmojiGrid';
 import { signInAnonymously, signInWithGoogle } from '@/lib/firebase/auth';
-import { ArrowRight, Smartphone, Mail, Chrome, AlertCircle } from 'lucide-react';
+import { ArrowRight, Smartphone, Chrome, AlertCircle } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import LiquidImage from '@/components/backgrounds/LiquidImage';
@@ -13,7 +13,10 @@ interface AuthScreenProps {
 }
 
 export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
+    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
     const [ghostName, setGhostName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,12 +25,28 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         if (!ghostName.trim()) return;
         setIsLoading(true);
         setError(null);
+
         try {
             const result = await signInAnonymously();
+
+            // If result is null, Firebase auth is disabled - use guest mode
+            if (!result) {
+                console.warn("🎮 Using Guest Mode - Firebase Auth Disabled");
+                setIsLoading(false);
+                onAuthSuccess({
+                    id: 'guest-' + Date.now(),
+                    name: ghostName,
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
+                    authMethod: 'guest',
+                    onboardingComplete: true
+                });
+                return;
+            }
+
+            // Firebase auth successful
             if (auth.currentUser) {
                 await updateProfile(auth.currentUser, { displayName: ghostName });
             }
-            // Pass user data to parent
             onAuthSuccess({
                 id: result.user.uid,
                 name: ghostName,
@@ -35,24 +54,43 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 authMethod: 'ghost'
             });
         } catch (e: any) {
-            console.error("Login Failed:", e);
+            console.error("Firebase Auth Failed:", e);
+            console.warn("🎮 Using Guest Mode - Bypassing Firebase Auth");
 
-            // FALLBACK: Allow mock login for any error to bypass Firebase issues
-            console.warn("Using Mock/Offline Login due to Auth Error:", e);
-            setTimeout(() => {
-                onAuthSuccess({
-                    id: 'offline-ghost-' + Date.now(),
-                    name: ghostName,
-                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
-                    authMethod: 'ghost',
-                    onboardingComplete: true // Auto-complete onboarding for ghost bypass
-                });
-            }, 500); // Small delay for UX
-            return;
-
-            setError(e.message || "Failed to enter the void.");
+            // GUEST MODE: Allow login without Firebase
             setIsLoading(false);
+            onAuthSuccess({
+                id: 'guest-' + Date.now(),
+                name: ghostName,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
+                authMethod: 'guest',
+                onboardingComplete: true
+            });
         }
+    };
+
+    // Email/Password Sign Up
+    const handleEmailSignUp = async () => {
+        if (!email.trim() || !password.trim() || !ghostName.trim()) {
+            setError("Please fill in all fields");
+            return;
+        }
+        setIsLoading(true);
+        setError(null);
+
+        // Guest mode for now (Firebase email auth would go here)
+        console.warn("🎮 Using Guest Mode - Email Sign Up");
+        setTimeout(() => {
+            setIsLoading(false);
+            onAuthSuccess({
+                id: 'guest-email-' + Date.now(),
+                name: ghostName,
+                email: email,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
+                authMethod: 'email',
+                onboardingComplete: true
+            });
+        }, 500);
     };
 
     // Google Login
@@ -70,7 +108,6 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             });
         } catch (e: any) {
             console.error(e);
-            // Show generic error message
             setError("Connection Error: " + (e.message || "Unable to connect. Please try again."));
             setIsLoading(false);
         }
@@ -113,27 +150,70 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     </div>
                 </div>
 
-                <p className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase mb-10">
+                <p className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase mb-6">
                     The Emotional Playground
                 </p>
 
+                {/* Mode Toggle */}
+                <div className="flex gap-2 mb-6 w-full">
+                    <button
+                        onClick={() => setMode('signin')}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${mode === 'signin'
+                                ? 'bg-white text-black'
+                                : 'bg-white/5 text-white/40 hover:bg-white/10'
+                            }`}
+                    >
+                        Sign In
+                    </button>
+                    <button
+                        onClick={() => setMode('signup')}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${mode === 'signup'
+                                ? 'bg-white text-black'
+                                : 'bg-white/5 text-white/40 hover:bg-white/10'
+                            }`}
+                    >
+                        Sign Up
+                    </button>
+                </div>
+
                 {/* Input Area */}
                 <div className="w-full space-y-4 mb-auto">
+                    {mode === 'signup' && (
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Your email"
+                            className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
+                        />
+                    )}
+
+                    {mode === 'signup' && (
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Create password"
+                            className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
+                            onKeyDown={(e) => e.key === 'Enter' && handleEmailSignUp()}
+                        />
+                    )}
+
                     <input
                         type="text"
                         value={ghostName}
                         onChange={(e) => setGhostName(e.target.value)}
-                        placeholder="Your ghost name"
+                        placeholder={mode === 'signup' ? "Your name" : "Your ghost name"}
                         className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
-                        onKeyDown={(e) => e.key === 'Enter' && handleEnterVoid()}
+                        onKeyDown={(e) => e.key === 'Enter' && (mode === 'signup' ? handleEmailSignUp() : handleEnterVoid())}
                     />
 
                     <button
-                        onClick={handleEnterVoid}
+                        onClick={mode === 'signup' ? handleEmailSignUp : handleEnterVoid}
                         disabled={isLoading || !ghostName.trim()}
                         className="w-full bg-white text-black py-4 rounded-full font-black tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
-                        {isLoading ? 'Connecting...' : <>Enter The Void <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={3} /></>}
+                        {isLoading ? 'Connecting...' : <>{mode === 'signup' ? 'Create Account' : 'Enter The Void'} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={3} /></>}
                     </button>
 
                     {/* Error Display */}

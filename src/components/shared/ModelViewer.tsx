@@ -2,8 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, Stage, OrbitControls, PresentationControls } from '@react-three/drei';
-import { useTheme } from '@/components/shared/GradientThemeProvider';
+import { useGLTF, Stage, PresentationControls } from '@react-three/drei';
 
 interface ModelViewerProps {
     path: string;
@@ -16,9 +15,7 @@ function Model({ path, scale = 1 }: { path: string, scale: number }) {
     return <primitive object={scene} scale={scale} />;
 }
 
-export default function ModelViewer({ path, scale = 1, autoRotate = true }: ModelViewerProps) {
-    const { theme } = useTheme();
-    // Use the hook inside the component to ensure it's client-side
+export default function ModelViewer({ path, scale = 1 }: ModelViewerProps) {
 
     return (
         <div className="w-full h-full relative">

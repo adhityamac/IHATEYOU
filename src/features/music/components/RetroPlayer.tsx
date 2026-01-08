@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, SkipBack, Music, List, Heart } from 'lucide-react';
 
@@ -26,6 +26,26 @@ export default function RetroPlayer() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const currentTrack = OLD_SONGS[currentTrackIndex];
+
+    const handleNext = useCallback(() => {
+        setIsPlaying(false);
+        setTimeout(() => {
+            setCurrentTrackIndex(prev => (prev + 1) % OLD_SONGS.length);
+            setProgress(0);
+            setCurrentTime(0);
+            setIsPlaying(true);
+        }, 300);
+    }, []);
+
+    const handlePrev = useCallback(() => {
+        setIsPlaying(false);
+        setTimeout(() => {
+            setCurrentTrackIndex(prev => (prev - 1 + OLD_SONGS.length) % OLD_SONGS.length);
+            setProgress(0);
+            setCurrentTime(0);
+            setIsPlaying(true);
+        }, 300);
+    }, []);
 
     // Initialize audio element
     useEffect(() => {
@@ -89,26 +109,6 @@ export default function RetroPlayer() {
             handleNext();
         }
     }, [progress, currentTrack.audioUrl, handleNext]);
-
-    const handleNext = useCallback(() => {
-        setIsPlaying(false);
-        setTimeout(() => {
-            setCurrentTrackIndex(prev => (prev + 1) % OLD_SONGS.length);
-            setProgress(0);
-            setCurrentTime(0);
-            setIsPlaying(true);
-        }, 300);
-    }, []);
-
-    const handlePrev = useCallback(() => {
-        setIsPlaying(false);
-        setTimeout(() => {
-            setCurrentTrackIndex(prev => (prev - 1 + OLD_SONGS.length) % OLD_SONGS.length);
-            setProgress(0);
-            setCurrentTime(0);
-            setIsPlaying(true);
-        }, 300);
-    }, []);
 
     const toggleLike = (id: number) => {
         setLiked(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);

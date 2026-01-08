@@ -334,10 +334,7 @@ export default function ChessGame({ onBack }: ChessGameProps) {
                 setCurrentTurn(nextTurn);
 
                 if (gameMode === 'ai') {
-                    setGameStatus("Opponent thinking...");
                     setIsThinking(true);
-                } else {
-                    setGameStatus(nextTurn === 'w' ? "White's Turn" : "Black's Turn");
                 }
                 return;
             } else {

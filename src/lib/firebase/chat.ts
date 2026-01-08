@@ -133,14 +133,22 @@ export const getUserConversations = (
         orderBy('updatedAt', 'desc')
     );
 
-    return onSnapshot(q, (snapshot) => {
-        const conversations: Conversation[] = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        })) as Conversation[];
+    return onSnapshot(
+        q,
+        (snapshot) => {
+            const conversations: Conversation[] = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Conversation[];
 
-        callback(conversations);
-    });
+            callback(conversations);
+        },
+        (error) => {
+            console.warn('Firestore listener error (Guest Mode):', error.code);
+            // Return empty array in guest mode
+            callback([]);
+        }
+    );
 };
 
 // Send a message
@@ -201,17 +209,25 @@ export const listenToMessages = (
         limit(limitCount)
     );
 
-    return onSnapshot(q, (snapshot) => {
-        const messages: ChatMessage[] = snapshot.docs
-            .map((doc) => ({
-                id: doc.id,
-                conversationId,
-                ...doc.data(),
-            }))
-            .reverse() as ChatMessage[]; // Reverse to show oldest first
+    return onSnapshot(
+        q,
+        (snapshot) => {
+            const messages: ChatMessage[] = snapshot.docs
+                .map((doc) => ({
+                    id: doc.id,
+                    conversationId,
+                    ...doc.data(),
+                }))
+                .reverse() as ChatMessage[]; // Reverse to show oldest first
 
-        callback(messages);
-    });
+            callback(messages);
+        },
+        (error) => {
+            console.warn('Firestore listener error (Guest Mode):', error.code);
+            // Return empty array in guest mode
+            callback([]);
+        }
+    );
 };
 
 // Mark messages as read

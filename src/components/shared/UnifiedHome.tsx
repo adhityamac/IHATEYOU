@@ -1,11 +1,13 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
-import { Send, Heart, MessageCircle, Share2, Search, Bell, Plus, Users, User, MoreHorizontal, Smile } from 'lucide-react';
+import { Send, Heart, MessageCircle, Share2, Search, Bell, Plus, Users, MoreHorizontal, Smile } from 'lucide-react';
 // These libraries have CJS exports that don't play well with ESM imports
-const ReactWindow = require('react-window');
-const ReactAutoSizer = require('react-virtualized-auto-sizer');
+// @ts-expect-error ReactWindow is a CJS module
+import * as ReactWindow from 'react-window';
+// @ts-expect-error ReactAutoSizer is a CJS module
+import * as ReactAutoSizer from 'react-virtualized-auto-sizer';
 
 const List = ReactWindow.FixedSizeList;
 const AutoSizer = ReactAutoSizer.default || ReactAutoSizer;
@@ -28,7 +30,7 @@ const emotions = [
     { id: 'confident', name: 'Confident', color: '#F8C888', prompt: 'What is your strength today?', gridPos: { row: 3, col: 1 } },
 ];
 
-const EmotionFace = ({ emotion, index }: { emotion: typeof emotions[0], index: number }) => {
+export const EmotionFace = ({ emotion }: { emotion: typeof emotions[0], index?: number }) => {
     const { row, col } = emotion.gridPos || { row: 0, col: 0 };
     const xPosition = (col / (SPRITE_CONFIG.cols - 1)) * 100;
     const yPosition = (row / (SPRITE_CONFIG.rows - 1)) * 100;
@@ -83,7 +85,7 @@ export default function UnifiedHome() {
         setSelectedEmoji(null);
     };
 
-    const PostRow = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const PostRow = ({ index, style }: { index: number; style: any }) => {
         const post = posts[index];
         return (
             <div style={{ ...style, paddingBottom: '20px' }}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Moon, Zap, Sun, Music, Type, Heart, Layers, Gamepad2 } from 'lucide-react';
+import { Check, Sparkles, Moon, Zap, Sun, Type, Heart, Layers, Gamepad2 } from 'lucide-react';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
 
 export type Theme = 'liquid' | 'dark' | 'spiral' | 'grid' | 'light' | 'retro-soul' | 'retro-minimal' | 'retro-couple' | 'shader-gradient';

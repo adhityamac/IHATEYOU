@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/contexts/AuthContext';
 import MessagesSection from './MessagesSection';
 import { Conversation as FirebaseConversation, ChatMessage } from '@/lib/firebase/chat';
 import { Conversation, Message, User } from '@/types/types';
-import { Timestamp } from 'firebase/firestore';
 
 interface MessagesSectionWrapperProps {
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;

@@ -5,32 +5,20 @@ import {
     Search,
     Sparkles,
     Plus,
-    Palette,
-    Layout,
-    Play,
     Music,
-    Phone,
-    MessageCircle,
-    Video,
     Radio,
     Zap,
-    Ghost,
     Clock,
-    Calendar,
-    Smile,
-    Camera,
-    Brush,
     Wind,
     Quote,
     Brain,
     UserPlus,
     Volume2,
-    Heart,
     Hand,
     MessageSquare,
     Hash
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import TrendingPosts from '@/features/social/components/TrendingPosts';
 import HashtagFeed from '@/features/social/components/HashtagFeed';
 import UserRecommendations from '@/features/social/components/UserRecommendations';
@@ -74,10 +62,9 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
     // Stable ID counter for widgets
     const INITIAL_ID = 2025122300000;
     const idCounter = useRef(INITIAL_ID);
-    const { trackTool, trackContent } = useSignals('user-1');
+    const { trackTool } = useSignals('user-1');
     const { state: emotionalState, decision: algoDecision } = useAlgorithm('user-1');
 
-    const [activeMood, setActiveMood] = useState('All');
     const [items, setItems] = useState<WidgetItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isBreathing, setIsBreathing] = useState(false);
@@ -90,8 +77,6 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
 
     // Theme Variables
     const textColor = isRetro ? 'text-black' : 'text-white';
-    const mutedText = isRetro ? 'text-stone-600' : 'text-white/40';
-    const borderColor = isRetro ? 'border-stone-800' : 'border-white/5';
     const cardShadow = isRetro ? 'shadow-[4px_4px_0px_#2d2a2e]' : '';
 
     // Widget Specific BGs for Retro
@@ -144,7 +129,7 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
         { name: "Soft Hum", icon: <Music size={14} />, color: "bg-purple-500/10" }
     ];
 
-    const generateWidgets = (count: number) => {
+    const generateWidgets = useCallback((count: number) => {
         const isOverwhelmed = emotionalState?.primaryState === 'emotionally_overloaded' || emotionalState?.primaryState === 'socially_cautious';
 
         const types: WidgetType[] = isOverwhelmed
@@ -181,17 +166,17 @@ export default function SearchSection({ feedPosts, onScroll }: SearchSectionProp
                 }
             };
         });
-    };
+    }, [emotionalState?.primaryState]); // Only depend on primaryState
 
     useEffect(() => {
         setItems(generateWidgets(algoDecision?.postsPerPage || 12));
-    }, [emotionalState?.primaryState]);
+    }, [emotionalState?.primaryState, algoDecision?.postsPerPage, generateWidgets]);
 
     useEffect(() => {
         if (activeTab !== 'discover') {
             trackTool(`search_${activeTab}`, 0);
         }
-    }, [activeTab]);
+    }, [activeTab, trackTool]);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         onScroll(e);

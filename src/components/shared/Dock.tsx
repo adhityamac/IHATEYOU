@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useSpring } from 'framer-motion';
-import { Home, MessageCircle, Settings, LayoutGrid, Search, Brain, Camera, Gamepad2, Music } from 'lucide-react';
+import { Home, MessageCircle, LayoutGrid, Search, Brain } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useRef, useEffect, useState } from 'react';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
@@ -15,7 +15,6 @@ interface DockProps {
 export default function Dock({ activeSection, showDock = true, onSectionChange }: DockProps) {
     const { mode } = useThemeMode();
     const [isHovered, setIsHovered] = useState(false);
-    const lastScrollY = useRef(0);
 
     const items = [
         { id: 'home' as Section, icon: Home },

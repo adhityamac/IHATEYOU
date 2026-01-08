@@ -8,13 +8,8 @@ import {
     Settings,
     Zap,
     Flame,
-    TrendingUp,
     Users,
-    Clock,
-    Calendar,
-    Shield,
     Wifi,
-    Battery,
     ChevronRight,
     Brain,
     Ghost,
@@ -32,7 +27,7 @@ import {
     Camera
 } from 'lucide-react';
 import { Section } from '@/types/types';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import DailyAffirmations from '@/features/wellness/components/DailyAffirmations';
 import BreathingExercise from '@/features/wellness/components/BreathingExercise';
 import JournalPrompts from '@/features/wellness/components/JournalPrompts';
@@ -45,6 +40,8 @@ import FocusTimer from './FocusTimer';
 import WeatherWidget from './WeatherWidget';
 import { useSignals } from '@/hooks/useSignals';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
+import { useHapticFeedback, useIsMobile } from '@/hooks/useMobileUtils';
+import { MobileButton } from '@/components/ui/MobileButton';
 
 interface DashboardProps {
     onSectionChange: (section: Section) => void;
@@ -58,9 +55,9 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
         else if (hour < 18) return 'Good Afternoon';
         else return 'Good Evening';
     };
-    const [greeting, setGreeting] = useState(getInitialGreeting);
+    const [greeting] = useState(getInitialGreeting);
     const { trackTool, trackInteraction } = useSignals('user-1'); // Fixed ID for demo
-    const [systemStatus, setSystemStatus] = useState('OPTIMAL');
+    const [systemStatus] = useState('OPTIMAL');
     const [activeWellnessTab, setActiveWellnessTab] = useState<'overview' | 'affirmations' | 'breathe' | 'journal' | 'insights' | 'capsule' | 'tutorials'>('overview');
     const [showMusicPlayer, setShowMusicPlayer] = useState(false);
     const [tasks, setTasks] = useState<{ id: number, text: string, completed: boolean }[]>([
@@ -97,13 +94,13 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
     // Theme integration
     const { theme } = useTheme();
     const isRetro = theme === 'retro-soul' || theme === 'retro';
+    const { triggerHaptic } = useHapticFeedback();
+    const isMobile = useIsMobile();
 
     // Theme Variables
     const textColor = isRetro ? 'text-black' : 'text-white';
     const mutedText = isRetro ? 'text-stone-600' : 'text-white/60';
     const cardBg = isRetro ? 'bg-stone-50/50 border-2 border-stone-800 shadow-[4px_4px_0px_#2d2a2e]' : 'bg-white/[0.03] border border-white/10';
-    const solidBg = isRetro ? 'bg-[#fef9c3] border-2 border-stone-800' : 'bg-white/10 border border-white/10';
-    const borderColor = isRetro ? 'border-stone-800' : 'border-white/10';
 
     const stats = [
         { label: 'Current Streak', value: '12', unit: 'days', icon: Flame, color: isRetro ? 'text-orange-600' : 'text-orange-500', bg: isRetro ? 'bg-orange-100 border-2 border-orange-900' : 'bg-orange-500/10' },
@@ -112,15 +109,7 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
         { label: 'Soul Sync', value: '98', unit: '%', icon: Brain, color: isRetro ? 'text-purple-700' : 'text-purple-500', bg: isRetro ? 'bg-purple-100 border-2 border-purple-900' : 'bg-purple-500/10' },
     ];
 
-    const quickActions = [
-        { id: 'home', label: 'Check In', icon: Activity, desc: 'Log your frequency', color: isRetro ? 'bg-[#f472b6]' : 'from-rose-500 to-orange-500' },
-        { id: 'wellness', label: 'Wellness Hub', icon: Heart, desc: 'Self-care tools', color: isRetro ? 'bg-[#c084fc]' : 'from-pink-500 to-purple-500' },
-        { id: 'vision', label: 'Dream Pixels', icon: Camera, desc: 'Vision Board', color: isRetro ? 'bg-[#facc15]' : 'from-yellow-400 to-orange-500' },
-        { id: 'messages', label: 'Neural Link', icon: MessageCircle, desc: 'Open channels', color: isRetro ? 'bg-[#60a5fa]' : 'from-purple-500 to-blue-500' },
-        { id: 'search', label: 'Discovery', icon: Search, desc: 'Find resonance', color: isRetro ? 'bg-[#34d399]' : 'from-emerald-500 to-teal-500' },
-        { id: 'settings', label: 'Settings', icon: Settings, desc: 'App preferences', color: isRetro ? 'bg-[#9ca3af]' : 'from-gray-500 to-gray-800' },
-        { id: 'music', label: 'Retro Tunes', icon: Music, desc: '90s Station', color: isRetro ? 'bg-[#fb7185]' : 'from-fuchsia-500 to-rose-500' },
-    ];
+
 
     const recentActivity = [
         { id: 1, type: 'connection', content: 'New resonance with @luna_sky', time: '2m ago', icon: Users },
@@ -172,12 +161,16 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                 <motion.button
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                    whileHover={{ scale: 1.01 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 100 }}
+                    whileHover={{ scale: 1.02, y: -4 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => onSectionChange('home')}
+                    onClick={() => {
+                        if (isMobile) triggerHaptic('medium');
+                        trackTool('check_in', 0);
+                        onSectionChange('home');
+                    }}
                     aria-label="Daily Check-In: Track your mood and emotions"
-                    className="md:col-span-3 md:row-span-2 rounded-[32px] p-8 text-left relative overflow-hidden group"
+                    className="md:col-span-3 md:row-span-2 rounded-[32px] p-8 text-left relative overflow-hidden group hover-lift transition-smooth"
                     style={{ backgroundColor: isRetro ? '#c4b5fd' : '#c4b5fd' }}
                 >
                     <div className="relative z-10 h-full flex flex-col justify-between">
@@ -218,8 +211,8 @@ function DashboardComponent({ onSectionChange }: DashboardProps) {
                             </motion.div>
                         </div>
                     </div>
-                    <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Activity size={40} className="text-black/40" />
+                    <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Activity size={40} className="text-black/40 animate-pulse" />
                     </div>
                 </motion.button>
 

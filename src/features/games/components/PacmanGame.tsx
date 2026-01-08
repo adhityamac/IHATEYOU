@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { ArrowLeft, Trophy } from 'lucide-react';
 
 // --- Constants & Config ---
@@ -392,7 +391,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
         return () => {
             if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
         };
-    }, [gameState, update]); // Restart loop if game state changes
+    }, [gameState, update, draw]); // Restart loop if game state changes
 
     // --- Controls ---
 

@@ -18,7 +18,6 @@ interface ChatSequenceProps {
 export default function ChatSequence({
     messages,
     typingDurationMs = 1200,
-    messageRevealGapMs = 600,
     onComplete
 }: ChatSequenceProps) {
     const [visibleMessages, setVisibleMessages] = useState<ChatSequenceMessage[]>([]);

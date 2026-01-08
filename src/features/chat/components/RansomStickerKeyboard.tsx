@@ -72,8 +72,8 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                                 onClick={() => setActiveTab('ransom')}
                                 aria-label="Ransom letters tab"
                                 className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeTab === 'ransom'
-                                        ? 'bg-[#eab308] text-black font-bold'
-                                        : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                    ? 'bg-[#eab308] text-black font-bold'
+                                    : 'bg-white/5 text-white/50 hover:bg-white/10'
                                     }`}
                             >
                                 <Type size={16} />
@@ -83,8 +83,8 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                                 onClick={() => setActiveTab('stickers')}
                                 aria-label="Stickers tab"
                                 className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${activeTab === 'stickers'
-                                        ? 'bg-[#eab308] text-black font-bold'
-                                        : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                    ? 'bg-[#eab308] text-black font-bold'
+                                    : 'bg-white/5 text-white/50 hover:bg-white/10'
                                     }`}
                             >
                                 <Smile size={16} />
@@ -109,8 +109,8 @@ export default function RansomStickerKeyboard({ isOpen, onClose, onSelectLetter,
                                         key={key}
                                         onClick={() => setSelectedCategory(key as keyof typeof STICKER_CATEGORIES)}
                                         className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 whitespace-nowrap transition-all ${selectedCategory === key
-                                                ? 'text-black font-bold shadow-lg'
-                                                : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                            ? 'text-black font-bold shadow-lg'
+                                            : 'bg-white/5 text-white/50 hover:bg-white/10'
                                             }`}
                                         style={{
                                             backgroundColor: selectedCategory === key ? category.color : undefined

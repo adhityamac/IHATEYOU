@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mic, Play, Pause, Trash2 } from 'lucide-react';
+import { Play, Pause, Trash2, Mic } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface VoiceMessageProps {

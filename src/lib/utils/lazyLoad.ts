@@ -38,5 +38,4 @@ export const LazyShaderGradientBackground = lazy(() => import('@/components/back
 export const LazyModelViewer = lazy(() => import('@/components/shared/ModelViewer'));
 
 // Lazy loaded playzone components
-export const LazyChessGame = lazy(() => import('@/features/playzone/components/ChessGame'));
-export const LazyTetrisGame = lazy(() => import('@/features/playzone/components/TetrisGame'));
+export const LazyChessGame = lazy(() => import('@/features/games/components/ChessGame'));

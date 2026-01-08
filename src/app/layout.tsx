@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./mobile.css";
+import "./animations.css";
+import "./colors.css";
 import { GradientThemeProvider } from "@/components/shared/GradientThemeProvider";
 import { ThemeModeProvider } from "@/contexts/ThemeModeContext";
 import { CursorProvider } from "@/components/shared/CursorContext";
@@ -49,6 +51,26 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "IHATEYOU - Neural Resonance",
   description: "A premium manifest interface for spectral communication.",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'IHATEYOU',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({

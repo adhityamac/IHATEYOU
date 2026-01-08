@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Shuffle, Check, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, Shuffle, Check } from 'lucide-react';
 
 interface AvatarConfig {
     skinTone: string;

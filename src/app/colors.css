@@ -1,0 +1,460 @@
+/* ========================================
+   VISUAL POLISH - Color System
+   ======================================== */
+
+:root {
+    /* ========================================
+     Primary Brand Colors
+     ======================================== */
+    --color-primary: #a855f7;
+    --color-primary-light: #c084fc;
+    --color-primary-dark: #7e22ce;
+
+    --color-secondary: #ec4899;
+    --color-secondary-light: #f472b6;
+    --color-secondary-dark: #be185d;
+
+    --color-accent: #06b6d4;
+    --color-accent-light: #22d3ee;
+    --color-accent-dark: #0891b2;
+
+    /* ========================================
+     Semantic Colors
+     ======================================== */
+    --color-success: #10b981;
+    --color-success-light: #34d399;
+    --color-success-dark: #059669;
+
+    --color-warning: #f59e0b;
+    --color-warning-light: #fbbf24;
+    --color-warning-dark: #d97706;
+
+    --color-error: #ef4444;
+    --color-error-light: #f87171;
+    --color-error-dark: #dc2626;
+
+    --color-info: #3b82f6;
+    --color-info-light: #60a5fa;
+    --color-info-dark: #2563eb;
+
+    /* ========================================
+     Neutral Colors (Dark Theme)
+     ======================================== */
+    --color-bg-primary: #000000;
+    --color-bg-secondary: #0a0a0a;
+    --color-bg-tertiary: #1a1a1a;
+    --color-bg-elevated: #2a2a2a;
+
+    --color-text-primary: #ffffff;
+    --color-text-secondary: rgba(255, 255, 255, 0.8);
+    --color-text-tertiary: rgba(255, 255, 255, 0.6);
+    --color-text-quaternary: rgba(255, 255, 255, 0.4);
+    --color-text-disabled: rgba(255, 255, 255, 0.2);
+
+    --color-border-primary: rgba(255, 255, 255, 0.1);
+    --color-border-secondary: rgba(255, 255, 255, 0.05);
+    --color-border-focus: rgba(168, 85, 247, 0.5);
+
+    /* ========================================
+     Gradient Presets
+     ======================================== */
+    --gradient-primary: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    --gradient-secondary: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+    --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    --gradient-cool: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    --gradient-sunset: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+    --gradient-ocean: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+
+    /* ========================================
+     Shadows
+     ======================================== */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    --shadow-glow-primary: 0 0 20px rgba(168, 85, 247, 0.5);
+    --shadow-glow-secondary: 0 0 20px rgba(236, 72, 153, 0.5);
+    --shadow-glow-accent: 0 0 20px rgba(6, 182, 212, 0.5);
+
+    /* ========================================
+     Spacing Scale
+     ======================================== */
+    --space-1: 0.25rem;
+    /* 4px */
+    --space-2: 0.5rem;
+    /* 8px */
+    --space-3: 0.75rem;
+    /* 12px */
+    --space-4: 1rem;
+    /* 16px */
+    --space-5: 1.25rem;
+    /* 20px */
+    --space-6: 1.5rem;
+    /* 24px */
+    --space-8: 2rem;
+    /* 32px */
+    --space-10: 2.5rem;
+    /* 40px */
+    --space-12: 3rem;
+    /* 48px */
+    --space-16: 4rem;
+    /* 64px */
+    --space-20: 5rem;
+    /* 80px */
+    --space-24: 6rem;
+    /* 96px */
+
+    /* ========================================
+     Border Radius
+     ======================================== */
+    --radius-sm: 0.375rem;
+    /* 6px */
+    --radius-md: 0.5rem;
+    /* 8px */
+    --radius-lg: 0.75rem;
+    /* 12px */
+    --radius-xl: 1rem;
+    /* 16px */
+    --radius-2xl: 1.5rem;
+    /* 24px */
+    --radius-3xl: 2rem;
+    /* 32px */
+    --radius-full: 9999px;
+
+    /* ========================================
+     Typography Scale
+     ======================================== */
+    --font-size-xs: 0.75rem;
+    /* 12px */
+    --font-size-sm: 0.875rem;
+    /* 14px */
+    --font-size-base: 1rem;
+    /* 16px */
+    --font-size-lg: 1.125rem;
+    /* 18px */
+    --font-size-xl: 1.25rem;
+    /* 20px */
+    --font-size-2xl: 1.5rem;
+    /* 24px */
+    --font-size-3xl: 1.875rem;
+    /* 30px */
+    --font-size-4xl: 2.25rem;
+    /* 36px */
+    --font-size-5xl: 3rem;
+    /* 48px */
+    --font-size-6xl: 3.75rem;
+    /* 60px */
+
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-black: 900;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    --letter-spacing-tight: -0.025em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.025em;
+    --letter-spacing-wider: 0.05em;
+    --letter-spacing-widest: 0.1em;
+}
+
+/* ========================================
+   Retro Theme Colors
+   ======================================== */
+[data-theme="retro"],
+[data-theme="retro-soul"] {
+    --color-bg-primary: #fef9c3;
+    --color-bg-secondary: #fef3c7;
+    --color-bg-tertiary: #fde68a;
+    --color-bg-elevated: #ffffff;
+
+    --color-text-primary: #000000;
+    --color-text-secondary: #422006;
+    --color-text-tertiary: #78350f;
+    --color-text-quaternary: #a16207;
+    --color-text-disabled: #ca8a04;
+
+    --color-border-primary: #422006;
+    --color-border-secondary: #78350f;
+    --color-border-focus: #a855f7;
+
+    /* Retro-specific colors */
+    --color-retro-yellow: #fef9c3;
+    --color-retro-orange: #fb923c;
+    --color-retro-brown: #422006;
+    --color-retro-green: #8bac0f;
+    --color-retro-dark-green: #306230;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Background Colors */
+.bg-primary {
+    background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+    background-color: var(--color-bg-secondary);
+}
+
+.bg-tertiary {
+    background-color: var(--color-bg-tertiary);
+}
+
+.bg-elevated {
+    background-color: var(--color-bg-elevated);
+}
+
+/* Text Colors */
+.text-primary {
+    color: var(--color-text-primary);
+}
+
+.text-secondary {
+    color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+    color: var(--color-text-tertiary);
+}
+
+.text-quaternary {
+    color: var(--color-text-quaternary);
+}
+
+.text-disabled {
+    color: var(--color-text-disabled);
+}
+
+/* Brand Colors */
+.text-brand-primary {
+    color: var(--color-primary);
+}
+
+.text-brand-secondary {
+    color: var(--color-secondary);
+}
+
+.text-brand-accent {
+    color: var(--color-accent);
+}
+
+.bg-brand-primary {
+    background-color: var(--color-primary);
+}
+
+.bg-brand-secondary {
+    background-color: var(--color-secondary);
+}
+
+.bg-brand-accent {
+    background-color: var(--color-accent);
+}
+
+/* Semantic Colors */
+.text-success {
+    color: var(--color-success);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-info {
+    color: var(--color-info);
+}
+
+.bg-success {
+    background-color: var(--color-success);
+}
+
+.bg-warning {
+    background-color: var(--color-warning);
+}
+
+.bg-error {
+    background-color: var(--color-error);
+}
+
+.bg-info {
+    background-color: var(--color-info);
+}
+
+/* Gradients */
+.bg-gradient-primary {
+    background: var(--gradient-primary);
+}
+
+.bg-gradient-secondary {
+    background: var(--gradient-secondary);
+}
+
+.bg-gradient-accent {
+    background: var(--gradient-accent);
+}
+
+.bg-gradient-success {
+    background: var(--gradient-success);
+}
+
+.bg-gradient-warm {
+    background: var(--gradient-warm);
+}
+
+.bg-gradient-cool {
+    background: var(--gradient-cool);
+}
+
+.bg-gradient-sunset {
+    background: var(--gradient-sunset);
+}
+
+.bg-gradient-ocean {
+    background: var(--gradient-ocean);
+}
+
+/* Borders */
+.border-primary {
+    border-color: var(--color-border-primary);
+}
+
+.border-secondary {
+    border-color: var(--color-border-secondary);
+}
+
+.border-focus {
+    border-color: var(--color-border-focus);
+}
+
+/* Shadows */
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+    box-shadow: var(--shadow-xl);
+}
+
+.shadow-2xl {
+    box-shadow: var(--shadow-2xl);
+}
+
+.shadow-glow-primary {
+    box-shadow: var(--shadow-glow-primary);
+}
+
+.shadow-glow-secondary {
+    box-shadow: var(--shadow-glow-secondary);
+}
+
+.shadow-glow-accent {
+    box-shadow: var(--shadow-glow-accent);
+}
+
+/* ========================================
+   Consistent Component Styles
+   ======================================== */
+
+.card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+    background: var(--color-bg-tertiary);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.button-primary {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: var(--font-weight-semibold);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-xl);
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.button-primary:hover {
+    box-shadow: var(--shadow-glow-primary);
+    transform: translateY(-2px);
+}
+
+.button-primary:active {
+    transform: scale(0.95);
+}
+
+.input-field {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+}
+
+.badge-primary {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.badge-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.badge-warning {
+    background: var(--color-warning);
+    color: white;
+}
+
+.badge-error {
+    background: var(--color-error);
+    color: white;
+}

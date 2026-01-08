@@ -1,0 +1,39 @@
+﻿src/components/shared/CustomCursor.tsx(40,31): error TS2554: Expected 1 arguments, but got 0.
+src/components/shared/NotificationCenter.tsx(71,29): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+src/components/shared/NotificationCenter.tsx(71,30): error TS2786: 'Image' cannot be used as a JSX component.
+  Its type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not a valid JSX element type.
+    Type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not assignable to type 'new (props: any, context: any) => Component<any, any, any>'.
+      Type 'HTMLImageElement' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 2 more.
+src/components/shared/OptimizedImage.tsx(38,31): error TS2339: Property 'className' does not exist on type '{ prefix?: string | undefined; height?: number | `${number}` | undefined; width?: number | `${number}` | undefined; translate?: "no" | "yes" | undefined; fill?: boolean | undefined; objectPosition?: string | undefined; ... 297 more ...; lazyRoot?: string | undefined; }'.
+src/components/shared/UnifiedHome.tsx(7,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/shared/UnifiedHome.tsx(9,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/shared/UnifiedHome.tsx(12,26): error TS2339: Property 'FixedSizeList' does not exist on type 'typeof import("D:/Projects/ihateyou/node_modules/react-window/dist/react-window")'.
+src/components/shared/UnifiedHome.tsx(13,34): error TS2339: Property 'default' does not exist on type 'typeof import("D:/Projects/ihateyou/node_modules/react-virtualized-auto-sizer/dist/react-virtualized-auto-sizer")'.
+src/features/chat/components/MessagesSection.tsx(17,1): error TS2578: Unused '@ts-expect-error' directive.
+src/features/chat/components/MessagesSection.tsx(19,1): error TS2578: Unused '@ts-expect-error' directive.
+src/features/chat/components/MessagesSection.tsx(22,35): error TS2339: Property 'FixedSizeList' does not exist on type 'typeof import("D:/Projects/ihateyou/node_modules/react-window/dist/react-window")'.
+src/features/chat/components/RansomStickerKeyboard.tsx(190,30): error TS2304: Cannot find name 'Sparkles'.
+src/features/chat/components/VoiceMessage.tsx(209,18): error TS2304: Cannot find name 'Mic'.
+src/features/games/components/ChessGame.tsx(337,21): error TS2304: Cannot find name 'setGameStatus'.
+src/features/games/components/ChessGame.tsx(340,21): error TS2304: Cannot find name 'setGameStatus'.
+src/features/games/components/PacmanGame.tsx(92,30): error TS2554: Expected 1 arguments, but got 0.
+src/features/games/components/TicTacToe.tsx(97,13): error TS2304: Cannot find name 'handleMove'.
+src/features/games/components/TicTacToe.tsx(99,16): error TS2304: Cannot find name 'handleMove'.
+src/features/games/components/TicTacToe.tsx(146,9): error TS2304: Cannot find name 'handleMove'.
+src/features/games/components/VoidPopperGame.tsx(11,24): error TS2554: Expected 1 arguments, but got 0.
+src/features/music/components/RetroPlayer.tsx(63,51): error TS2448: Block-scoped variable 'handleNext' used before its declaration.
+src/features/music/components/RetroPlayer.tsx(91,42): error TS2448: Block-scoped variable 'handleNext' used before its declaration.
+src/features/music/components/RetroPlayer.tsx(93,24): error TS2304: Cannot find name 'useCallback'.
+src/features/music/components/RetroPlayer.tsx(103,24): error TS2304: Cannot find name 'useCallback'.
+src/features/social/components/SocialFeed.tsx(12,1): error TS2578: Unused '@ts-expect-error' directive.
+src/features/social/components/SocialFeed.tsx(14,1): error TS2578: Unused '@ts-expect-error' directive.
+src/features/social/components/SocialFeed.tsx(191,48): error TS2322: Type 'string | undefined' is not assignable to type 'string | StaticImport'.
+  Type 'undefined' is not assignable to type 'string | StaticImport'.
+src/features/social/components/UserDiscovery.tsx(8,10): error TS2724: '"@/lib/firebase/auth"' has no exported member named 'UserProfile'. Did you mean 'getUserProfile'?
+src/features/social/components/UserDiscovery.tsx(236,34): error TS2552: Cannot find name 'loadRandomUsers'. Did you mean 'randomUsers'?
+src/hooks/useDarkMode.ts(35,31): error TS2304: Cannot find name 'useCallback'.
+src/hooks/useDarkMode.ts(43,35): error TS2304: Cannot find name 'useCallback'.
+src/lib/firebase/users.ts(15,10): error TS2724: '"./auth"' has no exported member named 'UserProfile'. Did you mean 'getUserProfile'?
+src/lib/firebase/users.ts(94,30): error TS7006: Parameter 'user' implicitly has an 'any' type.
+src/lib/utils/lazyLoad.ts(41,48): error TS2307: Cannot find module '@/features/playzone/components/ChessGame' or its corresponding type declarations.
+src/lib/utils/lazyLoad.ts(42,49): error TS2307: Cannot find module '@/features/playzone/components/TetrisGame' or its corresponding type declarations.

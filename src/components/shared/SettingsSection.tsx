@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     User, Lock, Bell, Palette, Database, HelpCircle,
-    ChevronRight, Moon, Sun, Sparkles, LogOut, Trash2,
-    Download, Shield, Eye, EyeOff, Mail, Phone, Camera,
-    Edit3, Check, X, Zap, Gamepad2
+    ChevronRight, LogOut, Mail, Phone, Camera,
+    Edit3, Check, X, Moon, Sun, Gamepad2, Download, Trash2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
@@ -34,11 +33,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
     const [readReceipts, setReadReceipts] = useState(true);
     const [allowMessages, setAllowMessages] = useState<'everyone' | 'connections' | 'none'>('everyone');
 
-    // Notification settings state
-    const [pushNotifications, setPushNotifications] = useState(true);
-    const [emailNotifications, setEmailNotifications] = useState(false);
-    const [messageNotifications, setMessageNotifications] = useState(true);
-    const [emotionalCheckIns, setEmotionalCheckIns] = useState(true);
+
 
     const handleSaveAccount = () => {
         // TODO: Save to Firebase
@@ -110,7 +105,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
     ];
 
     // Sync both theme contexts
-    const { theme, setTheme } = useTheme();
+    const { setTheme } = useTheme();
 
     const handleThemeChange = (newMode: any) => {
         setMode(newMode);
@@ -334,7 +329,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
                                             <h4 className="font-bold text-theme-primary mb-1">Show Online Status</h4>
-                                            <p className="text-sm text-theme-tertiary">Let others see when you're active</p>
+                                            <p className="text-sm text-theme-tertiary">Let others see when you&apos;re active</p>
                                         </div>
                                         <button
                                             onClick={() => setShowOnlineStatus(!showOnlineStatus)}
@@ -354,7 +349,7 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
                                             <h4 className="font-bold text-theme-primary mb-1">Read Receipts</h4>
-                                            <p className="text-sm text-theme-tertiary">Show when you've read messages</p>
+                                            <p className="text-sm text-theme-tertiary">Show when you&apos;ve read messages</p>
                                         </div>
                                         <button
                                             onClick={() => setReadReceipts(!readReceipts)}

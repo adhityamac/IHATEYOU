@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { User, Conversation, Message } from '@/types/types';
 import MessageBubble from './MessageBubble';
 import { ArrowLeft, Send, Smile, Phone, Video, Info, Plus, Image as ImageIcon, Search as SearchIcon, Archive } from 'lucide-react';
@@ -10,12 +11,15 @@ import TypingIndicator from './TypingIndicator';
 import { useSignals } from '@/hooks/useSignals';
 import dynamic from 'next/dynamic';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
+import { useHapticFeedback, useIsMobile } from '@/hooks/useMobileUtils';
+import { MobileButton } from '@/components/ui/MobileButton';
 const UserDiscovery = dynamic(() => import('@/features/social/components/UserDiscovery'), {
     loading: () => <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center text-white font-mono">Loading Neural Interface...</div>
 });
-// @ts-ignore
+// @ts-expect-error ReactWindow is a CJS module
 import * as ReactWindow from 'react-window';
-// @ts-ignore
+// @ts-expect-error ReactAutoSizer is a CJS module
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 
 const FixedSizeList = ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList;
@@ -46,8 +50,6 @@ const MessagesSection = memo(function MessagesSection({
     activeConversationId,
     setActiveConversationId,
     currentUser,
-    mockUsers, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onScroll,
     onSendMessage,
     onReaction
 }: MessagesSectionProps) {
@@ -63,12 +65,25 @@ const MessagesSection = memo(function MessagesSection({
 
     const { theme } = useTheme();
     const isRetro = theme === 'retro' || theme === 'retro-soul';
+    const { triggerHaptic } = useHapticFeedback();
+    const isMobile = useIsMobile();
+
+    // Swipe-to-back gesture for mobile - MUST be at top level before any conditional returns
+    const chatContainerRef = useSwipeGesture<HTMLDivElement>({
+        onSwipeRight: () => {
+            if (isMobile && activeConversationId) {
+                triggerHaptic('light');
+                setActiveConversationId(null);
+            }
+        },
+        threshold: 100,
+    });
 
     // Theme Variables
     const bgColor = isRetro ? 'bg-[#e7e5e4]' : 'bg-black';
     const textColor = isRetro ? 'text-black' : 'text-white';
     const mutedText = isRetro ? 'text-stone-600' : 'text-white/50';
-    const borderColor = isRetro ? 'border-stone-800' : 'border-white/10';
+    // const borderColor = isRetro ? 'border-stone-800' : 'border-white/10';
     const headerBg = isRetro ? 'bg-[#fef9c3] border-b-2 border-stone-800' : 'bg-black/50 backdrop-blur-xl border-b border-white/10';
     const itemHover = isRetro ? 'hover:bg-stone-200' : 'hover:bg-white/5';
     const inputBg = isRetro ? 'bg-white border-2 border-stone-800' : 'bg-white/5 border border-white/10';
@@ -171,11 +186,13 @@ const MessagesSection = memo(function MessagesSection({
             return (
                 <div style={style} className="px-4 py-2">
                     <div className="flex items-end gap-2">
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800">
-                            <img
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 relative">
+                            <Image
                                 src={activeConversation.participant.avatar}
                                 alt={activeConversation.participant.username}
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
+                                sizes="32px"
                             />
                         </div>
                         <TypingIndicator username={activeConversation.participant.username} />
@@ -263,11 +280,13 @@ const MessagesSection = memo(function MessagesSection({
                                 style={{ x: 0 }}
                             >
                                 <div className="relative">
-                                    <div className="w-14 h-14 rounded-full overflow-hidden bg-zinc-800">
-                                        <img
+                                    <div className="w-14 h-14 rounded-full overflow-hidden bg-zinc-800 relative">
+                                        <Image
                                             src={conv.participant.avatar}
                                             alt={conv.participant.username}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
+                                            sizes="56px"
                                         />
                                     </div>
                                     {conv.participant.isOnline && (
@@ -318,8 +337,9 @@ const MessagesSection = memo(function MessagesSection({
         return null;
     }
 
+
     return (
-        <div className={`flex-1 flex flex-col h-full relative ${bgColor}`}>
+        <div ref={chatContainerRef} className={`flex-1 flex flex-col h-full relative ${bgColor} swipeable-horizontal`}>
             {/* Chat Header - Instagram Style */}
             <AnimatePresence>
                 {showHeader && (
@@ -338,11 +358,13 @@ const MessagesSection = memo(function MessagesSection({
                                 <ArrowLeft size={20} />
                             </button>
 
-                            <div className={`w-10 h-10 rounded-full overflow-hidden border ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-none'}`}>
-                                <img
+                            <div className={`w-10 h-10 rounded-full overflow-hidden border relative ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-none'}`}>
+                                <Image
                                     src={activeConversation.participant.avatar}
                                     alt={activeConversation.participant.username}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
+                                    sizes="40px"
                                 />
                             </div>
 

@@ -18,7 +18,7 @@ interface MessageSearchProps {
     messages?: any[];
 }
 
-export default function MessageSearch({ onClose, messages = [] }: MessageSearchProps) {
+export default function MessageSearch({ onClose }: MessageSearchProps) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [activeFilter, setActiveFilter] = useState<'all' | 'messages' | 'users' | 'hashtags'>('all');
