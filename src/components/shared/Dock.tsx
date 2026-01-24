@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useSpring } from 'framer-motion';
-import { Home, MessageCircle, LayoutGrid, Search, Brain } from 'lucide-react';
+import { Home, MessageCircle, LayoutGrid, Brain } from 'lucide-react';
 import { Section } from '@/types/types';
 import { useRef, useEffect, useState } from 'react';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
@@ -21,7 +21,6 @@ export default function Dock({ activeSection, showDock = true, onSectionChange }
         { id: 'dashboard' as Section, icon: LayoutGrid },
         { id: 'messages' as Section, icon: MessageCircle, label: 'Chat' },
         { id: 'guide' as Section, icon: Brain },
-        { id: 'search' as Section, icon: Search },
     ];
 
     const containerRef = useRef<HTMLDivElement>(null);

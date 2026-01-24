@@ -37,7 +37,7 @@ export default function CustomCursor({
     const pixelIdRef = useRef(0);
     const lastMoveTime = useRef(0);
     const lastPosition = useRef({ x: -100, y: -100 });
-    const animationFrameRef = useRef<number>();
+    const animationFrameRef = useRef<number>(0);
 
     // Get shape styles based on selected shape
     const getShapeStyles = useCallback((shape: string, size: number) => {

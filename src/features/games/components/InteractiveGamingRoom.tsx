@@ -136,14 +136,8 @@ export default function InteractiveGamingRoom({ onSelectGame, onClose }: Interac
 
     return (
         <div className="relative w-full h-full bg-black overflow-hidden">
-            {/* Gaming Room Background */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <img
-                    src="/gaming-room.png"
-                    alt="Gaming Room"
-                    className="w-full h-full object-contain"
-                />
-            </div>
+            {/* Gaming Room Background - Solid Color */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
 
             {/* Interactive Hotspots */}
             {hotspots.map((hotspot) => (

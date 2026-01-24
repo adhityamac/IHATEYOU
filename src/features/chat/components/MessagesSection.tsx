@@ -17,13 +17,13 @@ import { MobileButton } from '@/components/ui/MobileButton';
 const UserDiscovery = dynamic(() => import('@/features/social/components/UserDiscovery'), {
     loading: () => <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center text-white font-mono">Loading Neural Interface...</div>
 });
-// @ts-expect-error ReactWindow is a CJS module
+
 import * as ReactWindow from 'react-window';
-// @ts-expect-error ReactAutoSizer is a CJS module
+
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 
-const FixedSizeList = ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList;
-const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
+const FixedSizeList = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList;
+const AutoSizer = (AutoSizerPkg as any).default || (AutoSizerPkg as any).AutoSizer || AutoSizerPkg;
 
 // Manual type definition for scroll props since the export might be missing in this version
 type ScrollProps = {

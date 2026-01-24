@@ -15,13 +15,13 @@ import Dashboard from '@/components/shared/Dashboard';
 import Dashboard3D from '@/components/shared/Dashboard3D';
 import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
 import SocialFeed from '@/features/social/components/SocialFeed';
-import SearchSection from '@/components/shared/SearchSection';
 import SoulGuide from '@/features/wellness/components/SoulGuide';
 import VisionBoard from '@/features/wellness/components/VisionBoard';
 import SettingsSection from '@/components/shared/SettingsSection';
 import FunZone from '@/features/games/components/FunZone';
 import LoadingScreen from '@/features/auth/components/LoadingScreen';
 import SplashScreen from '@/features/auth/components/SplashScreen';
+import WelcomeScreen from '@/features/auth/components/WelcomeScreen';
 import AuthScreen from '@/features/auth/components/AuthScreen';
 import OnboardingFlow from '@/features/auth/components/OnboardingFlow';
 import LiquidBackground from '@/components/backgrounds/LiquidBackground';
@@ -36,6 +36,9 @@ import ScrollProgress from '@/components/ui/ScrollProgress';
 import NeuralNotifications from '@/components/shared/NeuralNotifications';
 import DynamicInfoBox from '@/components/ui/DynamicInfoBox';
 import { Conversation, Message, User } from '@/types/types';
+
+import PlayButton from '@/components/ui/PlayButton';
+// import DayNightToggle from '@/components/ui/DayNightToggle';
 
 // Mock Data
 const mockUsers: User[] = [
@@ -115,13 +118,13 @@ export default function Home() {
 
   const [feedPosts] = useState(INITIAL_POSTS);
 
-  // Handle splash screen timing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  // No auto-dismiss for Welcome Screen
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowSplash(false);
+  //   }, 2000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   // Handle loading screen
   useEffect(() => {
@@ -201,14 +204,19 @@ export default function Home() {
   return (
     <div className={`min-h-screen text-white relative overflow-hidden font-sans selection:bg-purple-500/30 ${isRetro ? 'bg-[#422006] font-vt323' : 'bg-black'}`}>
 
-      {/* 1. Splash Screen */}
+      {/* Global Theme Toggle */}
+      <div className="fixed top-0 right-4 z-[200]">
+        {/* <DayNightToggle /> */}
+      </div>
+
+      {/* 1. Welcome Screen */}
       <AnimatePresence>
-        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        {showSplash && <WelcomeScreen onEnter={() => setShowSplash(false)} />}
       </AnimatePresence>
 
       {/* 2. Loading Screen */}
       {!showSplash && (authLoading || showLoading) && (
-        <LoadingScreen message={authLoading ? "Connecting to Neural Core..." : "Loading Experience..."} />
+        <LoadingScreen message={authLoading ? "Accessing Core..." : "Loading Experience..."} />
       )}
 
       {/* 3. Auth Screen */}
@@ -305,25 +313,12 @@ export default function Home() {
                     </div>
 
                     <div className="flex items-center gap-3 pointer-events-auto relative z-10">
-                      <button
+                      <PlayButton
                         onClick={() => {
                           setShowFunZone(true);
                           setHasNewGames(false);
                         }}
-                        className={`group relative h-12 px-6 flex items-center justify-center rounded-2xl border transition-all overflow-hidden ${isRetro
-                          ? 'bg-[#eab308] border-[#422006] hover:bg-[#fde047]'
-                          : 'bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border-white/10 text-white hover:border-white/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]'
-                          }`}
-                      >
-                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${isRetro ? '' : 'bg-white/5'}`} />
-                        <div className="flex items-center gap-3">
-                          <Gamepad2 className={`w-5 h-5 transition-colors duration-300 ${isRetro ? 'text-[#422006]' : 'text-fuchsia-300 group-hover:text-white'}`} />
-                          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${isRetro ? 'text-[#422006]' : 'text-white/80 group-hover:text-white'}`}>Playzone</span>
-                        </div>
-                        {hasNewGames && (
-                          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-fuchsia-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                        )}
-                      </button>
+                      />
 
                       {/* 3D Mode Toggle - Only show on dashboard */}
                       {activeSection === 'dashboard' && (
@@ -448,12 +443,7 @@ export default function Home() {
                       <SocialFeed onScroll={handleScroll} />
                     )}
 
-                    {activeSection === 'search' && (
-                      <>
-                        <ScrollProgress color="rgb(236, 72, 153)" position="right" thickness={3} />
-                        <SearchSection feedPosts={feedPosts} onScroll={handleScroll} />
-                      </>
-                    )}
+
 
                     {activeSection === 'guide' && <SoulGuide />}
 

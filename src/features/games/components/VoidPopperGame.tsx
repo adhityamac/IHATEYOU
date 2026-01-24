@@ -8,7 +8,7 @@ const THOUGHTS = ['Doubt', 'Fear', 'Worry', 'Anxiety', 'Insecurity'];
 export default function VoidPopperGame() {
   const [thoughts, setThoughts] = useState<{ id: number; text: string; x: number; y: number }[]>([]);
   const [score, setScore] = useState(0);
-  const gameInterval = useRef<NodeJS.Timeout>();
+  const gameInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     gameInterval.current = setInterval(() => {

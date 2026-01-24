@@ -111,7 +111,7 @@ export function LazyComponent<T = any>({
 
     return (
         <div ref={elementRef}>
-            {error ? errorFallback : Component ? <Component {...(props as T)} /> : fallback}
+            {error ? errorFallback : Component ? <Component {...(props as any)} /> : fallback}
         </div>
     );
 }

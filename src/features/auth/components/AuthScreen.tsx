@@ -1,229 +1,131 @@
 'use client';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import EmojiGrid from '@/components/EmojiGrid';
-import { signInAnonymously, signInWithGoogle } from '@/lib/firebase/auth';
-import { ArrowRight, Smartphone, Chrome, AlertCircle } from 'lucide-react';
-import { auth } from '@/lib/firebase';
-import { updateProfile } from 'firebase/auth';
+
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle } from 'lucide-react';
 import LiquidImage from '@/components/backgrounds/LiquidImage';
+import EmojiGrid from '@/components/EmojiGrid';
+import { useAuthFlow } from '../hooks/useAuthFlow';
+import { AuthCard } from './AuthCard';
+import { AuthInput } from './ui/AuthInput';
+import { SubmitButton } from './ui/SubmitButton';
+import { SocialLogin } from './SocialLogin';
+import YouLoader from './YouLoader';
 
 interface AuthScreenProps {
     onAuthSuccess: (user: any) => void;
 }
 
 export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
-    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-    const [ghostName, setGhostName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // Ghost Login (Anonymous)
-    const handleEnterVoid = async () => {
-        if (!ghostName.trim()) return;
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const result = await signInAnonymously();
-
-            // If result is null, Firebase auth is disabled - use guest mode
-            if (!result) {
-                console.warn("🎮 Using Guest Mode - Firebase Auth Disabled");
-                setIsLoading(false);
-                onAuthSuccess({
-                    id: 'guest-' + Date.now(),
-                    name: ghostName,
-                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
-                    authMethod: 'guest',
-                    onboardingComplete: true
-                });
-                return;
-            }
-
-            // Firebase auth successful
-            if (auth.currentUser) {
-                await updateProfile(auth.currentUser, { displayName: ghostName });
-            }
-            onAuthSuccess({
-                id: result.user.uid,
-                name: ghostName,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
-                authMethod: 'ghost'
-            });
-        } catch (e: any) {
-            console.error("Firebase Auth Failed:", e);
-            console.warn("🎮 Using Guest Mode - Bypassing Firebase Auth");
-
-            // GUEST MODE: Allow login without Firebase
-            setIsLoading(false);
-            onAuthSuccess({
-                id: 'guest-' + Date.now(),
-                name: ghostName,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
-                authMethod: 'guest',
-                onboardingComplete: true
-            });
-        }
-    };
-
-    // Email/Password Sign Up
-    const handleEmailSignUp = async () => {
-        if (!email.trim() || !password.trim() || !ghostName.trim()) {
-            setError("Please fill in all fields");
-            return;
-        }
-        setIsLoading(true);
-        setError(null);
-
-        // Guest mode for now (Firebase email auth would go here)
-        console.warn("🎮 Using Guest Mode - Email Sign Up");
-        setTimeout(() => {
-            setIsLoading(false);
-            onAuthSuccess({
-                id: 'guest-email-' + Date.now(),
-                name: ghostName,
-                email: email,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${ghostName}`,
-                authMethod: 'email',
-                onboardingComplete: true
-            });
-        }, 500);
-    };
-
-    // Google Login
-    const handleGoogleLogin = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const result = await signInWithGoogle();
-            onAuthSuccess({
-                id: result.user.uid,
-                name: result.user.displayName || 'Soul',
-                email: result.user.email,
-                avatar: result.user.photoURL,
-                authMethod: 'google'
-            });
-        } catch (e: any) {
-            console.error(e);
-            setError("Connection Error: " + (e.message || "Unable to connect. Please try again."));
-            setIsLoading(false);
-        }
-    };
+    const { state, actions } = useAuthFlow({ onAuthSuccess });
+    const { mode, isLoading, error, ghostName, email, password } = state;
 
     return (
-        <div className="min-h-screen w-full relative overflow-hidden bg-[#0D0D0F] flex items-center justify-center font-sans">
-
-            {/* 1. Liquid Effect Layer */}
+        <div className="min-h-screen w-full relative overflow-hidden bg-[#0D0D0F] flex items-center justify-center font-sans selection:bg-rose-500/30">
+            {/* 1. Liquid Background Layer */}
             <div className="absolute inset-0 z-0 opacity-40">
                 <LiquidImage strength={0.02} speed={0.15} />
             </div>
 
-            {/* 2. Emoji Grid Layer */}
+            {/* 2. Interactive Emoji Grid */}
             <EmojiGrid />
 
-            {/* 3. The Digital Soul Card */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="relative z-10 w-[90%] max-w-[420px] aspect-[4/5] bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/5 rounded-[48px] p-8 flex flex-col items-center text-center shadow-2xl"
-                style={{
-                    boxShadow: '0 0 100px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.05)'
-                } as React.CSSProperties}
-            >
-                {/* Badge */}
-                <div className="mt-8 mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5">
+            {/* 3. Main Auth Card */}
+            <AuthCard>
+                {/* Header Badge */}
+                <div className="mt-xs mb-lg px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
                     <span className="text-[10px] font-bold tracking-[0.25em] text-white/40 uppercase">
-                        Digital Soul 0.1
+                        Digital Soul 2.0
                     </span>
                 </div>
 
-                {/* Logo */}
-                <div className="mb-2 relative group cursor-default">
-                    <h1 className="text-6xl font-black italic tracking-tighter text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]">
-                        IHATEYOU
-                    </h1>
-                    <div className="absolute inset-0 text-6xl font-black italic tracking-tighter text-rose-500 opacity-0 group-hover:opacity-40 blur-[2px] transition-opacity duration-300" aria-hidden="true">
-                        IHATEYOU
-                    </div>
+                {/* Animated Logo */}
+                <div className="mb-8 relative group cursor-default flex justify-center">
+                    <YouLoader />
+                    {/* <div className="text-white">IHATEYOU</div> */}
                 </div>
 
-                <p className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase mb-6">
+                <p className="text-[10px] font-bold tracking-[0.4em] text-white/30 uppercase mb-lg">
                     The Emotional Playground
                 </p>
 
-                {/* Mode Toggle */}
-                <div className="flex gap-2 mb-6 w-full">
-                    <button
-                        onClick={() => setMode('signin')}
-                        className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${mode === 'signin'
-                                ? 'bg-white text-black'
-                                : 'bg-white/5 text-white/40 hover:bg-white/10'
-                            }`}
-                    >
-                        Sign In
-                    </button>
-                    <button
-                        onClick={() => setMode('signup')}
-                        className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${mode === 'signup'
-                                ? 'bg-white text-black'
-                                : 'bg-white/5 text-white/40 hover:bg-white/10'
-                            }`}
-                    >
-                        Sign Up
-                    </button>
+                {/* Mode Toggle Tabs */}
+                <div className="flex gap-2 mb-lg w-full bg-black/20 p-1 rounded-2xl border border-white/5">
+                    {(['signin', 'signup'] as const).map((m) => (
+                        <button
+                            key={m}
+                            onClick={() => actions.setMode(m)}
+                            className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all relative ${mode === m ? 'text-black' : 'text-white/40 hover:text-white/60'
+                                }`}
+                        >
+                            {mode === m && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-white rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <span className="relative z-10">{m === 'signin' ? 'Sign In' : 'Join'}</span>
+                        </button>
+                    ))}
                 </div>
 
-                {/* Input Area */}
-                <div className="w-full space-y-4 mb-auto">
-                    {mode === 'signup' && (
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Your email"
-                            className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
-                        />
-                    )}
+                {/* Form Fields */}
+                <div className="w-full space-y-md mb-auto">
+                    <AnimatePresence mode="popLayout">
+                        {mode === 'signup' && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <AuthInput
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => actions.setEmail(e.target.value)}
+                                    placeholder="Your email"
+                                    label="Email"
+                                />
+                                <div className="h-md" /> {/* Spacer */}
+                                <AuthInput
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => actions.setPassword(e.target.value)}
+                                    placeholder="Create password"
+                                    label="Password"
+                                    onKeyDown={(e) => e.key === 'Enter' && actions.handleEmailSignUp()}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                    {mode === 'signup' && (
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Create password"
-                            className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
-                            onKeyDown={(e) => e.key === 'Enter' && handleEmailSignUp()}
-                        />
-                    )}
-
-                    <input
+                    <AuthInput
                         type="text"
                         value={ghostName}
-                        onChange={(e) => setGhostName(e.target.value)}
-                        placeholder={mode === 'signup' ? "Your name" : "Your ghost name"}
-                        className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
-                        onKeyDown={(e) => e.key === 'Enter' && (mode === 'signup' ? handleEmailSignUp() : handleEnterVoid())}
+                        onChange={(e) => actions.setGhostName(e.target.value)}
+                        placeholder={mode === 'signup' ? "Choose your alias" : "Enter your ghost name"}
+                        label="Identity"
+                        onKeyDown={(e) => e.key === 'Enter' && (mode === 'signup' ? actions.handleEmailSignUp() : actions.handleEnterVoid())}
+                        autoFocus
                     />
 
-                    <button
-                        onClick={mode === 'signup' ? handleEmailSignUp : handleEnterVoid}
-                        disabled={isLoading || !ghostName.trim()}
-                        className="w-full bg-white text-black py-4 rounded-full font-black tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
-                    >
-                        {isLoading ? 'Connecting...' : <>{mode === 'signup' ? 'Create Account' : 'Enter The Void'} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={3} /></>}
-                    </button>
+                    <div className="pt-md">
+                        <SubmitButton
+                            onClick={mode === 'signup' ? actions.handleEmailSignUp : actions.handleEnterVoid}
+                            isLoading={isLoading}
+                            disabled={!ghostName.trim()}
+                            label={mode === 'signup' ? 'Create Account' : 'Enter The Void'}
+                        />
+                    </div>
 
-                    {/* Error Display */}
+                    {/* Error Message */}
                     <AnimatePresence>
                         {error && (
                             <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="flex items-center justify-center gap-2 text-rose-500 text-[10px] uppercase tracking-wider font-bold bg-rose-500/10 py-2 rounded-lg"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                className="flex items-center justify-center gap-2 text-rose-500 text-[10px] uppercase tracking-wider font-bold bg-rose-500/10 py-sm rounded-xl border border-rose-500/20"
                             >
                                 <AlertCircle className="w-3 h-3" />
                                 {error}
@@ -232,32 +134,17 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                     </AnimatePresence>
                 </div>
 
-                {/* Footer / Alt Login */}
-                <div className="w-full pt-6 border-t border-white/5 flex flex-col items-center gap-4">
-                    <p className="text-[10px] font-bold tracking-wider text-white/20 uppercase">
-                        Or connect via
-                    </p>
-                    <div className="flex gap-4">
-                        <button
-                            onClick={handleGoogleLogin}
-                            className="p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-colors group"
-                            title="Google Login"
-                        >
-                            <Chrome className="w-5 h-5 text-white/60 group-hover:text-white" />
-                        </button>
-                        <button
-                            className="p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-colors group opacity-50 cursor-not-allowed"
-                            title="Phone Login (Coming Soon)"
-                        >
-                            <Smartphone className="w-5 h-5 text-white/60 group-hover:text-white" />
-                        </button>
-                    </div>
-                </div>
+                <SocialLogin onGoogleClick={actions.handleGoogleLogin} />
 
-                <div className="mt-8 text-[9px] font-medium text-white/10 tracking-widest uppercase max-w-[200px] leading-relaxed">
+                <div className="mt-8 text-[9px] font-medium text-white/20 tracking-[0.3em] uppercase max-w-[200px] leading-relaxed opacity-60 hover:opacity-100 transition-opacity">
                     A minimalist space for authentic souls.
                 </div>
-            </motion.div>
+            </AuthCard>
+
+            {/* Version Tag */}
+            <div className="absolute bottom-6 left-6 text-[9px] font-mono text-white/10 uppercase tracking-widest pointer-events-none">
+                v2.0.4 // DARK MATTER
+            </div>
         </div>
     );
 }

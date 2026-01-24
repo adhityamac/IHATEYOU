@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Home, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { useHapticFeedback } from '@/hooks/useMobileUtils';
@@ -146,8 +146,8 @@ export function BottomNavigation({ items }: BottomNavigationProps) {
                                     item.onClick();
                                 }}
                                 className={`relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all min-w-[64px] ${item.active
-                                        ? 'text-purple-400'
-                                        : 'text-white/60 hover:text-white'
+                                    ? 'text-purple-400'
+                                    : 'text-white/60 hover:text-white'
                                     }`}
                             >
                                 <div className="relative">

@@ -9,13 +9,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 import Image from 'next/image';
-// @ts-expect-error - ReactWindow is missing type definitions
 import * as ReactWindow from 'react-window';
-// @ts-expect-error - AutoSizer is missing type definitions
 import * as AutoSizerPkg from 'react-virtualized-auto-sizer';
 
-// @ts-expect-error - ReactWindow is missing type definitions
-const List = ReactWindow.VariableSizeList || (ReactWindow as any).default?.VariableSizeList || (ReactWindow as any).default?.default?.VariableSizeList;
+const List = (ReactWindow as any).VariableSizeList || (ReactWindow as any).default?.VariableSizeList || (ReactWindow as any).default?.default?.VariableSizeList;
 const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
 
 // Mock Data
@@ -188,7 +185,7 @@ export default function SocialFeed({ onScroll }: SocialFeedProps) {
                             <div className="p-4 flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-10 h-10 rounded-full overflow-hidden border relative ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-white/10'}`}>
-                                        <Image src={post.avatar} alt={`${post.username}'s profile picture`} fill className="object-cover" />
+                                        <Image src={post.avatar || ''} alt={`${post.username}'s profile picture`} fill className="object-cover" />
                                     </div>
                                     <div>
                                         <div className={`font-bold text-sm ${textColor} ${isRetro ? 'font-vt323 text-lg' : ''}`}>{post.username}</div>

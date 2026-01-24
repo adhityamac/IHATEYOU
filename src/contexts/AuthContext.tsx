@@ -40,6 +40,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // BYPASS LOGIN FOR DEVELOPMENT
+        const mockUser: UserProfile = {
+            id: 'dev-user-123',
+            name: 'Dev User',
+            email: 'dev@test.com',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DevUser',
+            authMethod: 'google',
+            onboardingComplete: true,
+            moodBaseline: 'balanced',
+            intent: ['connect', 'explore'],
+            ghostName: 'SoulDiver',
+            theme: 'liquid-night',
+            createdAt: new Date()
+        };
+        setUser(mockUser);
+        setLoading(false);
+        return;
+
         const unsubscribe = onAuthStateChange(async (authUser) => {
             setFirebaseUser(authUser);
 

@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Shield, Check } from 'lucide-react';
-import EmojiGrid from '@/components/EmojiGrid';
-import LiquidImage from '@/components/backgrounds/LiquidImage';
+import { ArrowRight, Check, Smile } from 'lucide-react';
 import PixelAvatarCreator from '@/features/auth/components/PixelAvatarCreator';
 import { MOOD_OPTIONS, INTENT_OPTIONS } from '@/data/mockData';
 
@@ -20,76 +18,65 @@ interface OnboardingFlowProps {
     userName?: string;
 }
 
-// Extracted Card Component to prevent re-renders
+// Minimal Card Component matching "My Mind" aesthetic
 const OnboardingCard = ({
     children,
-    title,
-    subtitle,
     step,
     onNext,
     onBack,
-    canProceed
+    canProceed,
+    showNextButton = true
 }: {
     children: React.ReactNode,
-    title?: string,
-    subtitle?: string,
     step: number,
     onNext: () => void,
-    onBack: () => void,
-    canProceed: boolean
+    onBack?: () => void,
+    canProceed: boolean,
+    showNextButton?: boolean
 }) => (
     <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: -20 }}
-        className="relative z-10 w-[90%] max-w-[420px] aspect-[4/5] bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/5 rounded-[48px] p-8 flex flex-col items-center text-center shadow-2xl"
-        style={{
-            boxShadow: '0 0 100px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.05)'
-        } as React.CSSProperties}
+        exit={{ opacity: 0, scale: 0.95, y: -20 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-[400px] aspect-[4/5] bg-white rounded-[60px] p-10 flex flex-col items-center text-center shadow-2xl shadow-orange-500/20"
     >
-        {/* Header Badge */}
-        <div className="mt-4 mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5">
-            <span className="text-[10px] font-bold tracking-[0.25em] text-white/40 uppercase">
-                Setup Phase {step + 1}/6
-            </span>
+        {/* Logo Mark */}
+        <div className="mb-8 flex items-center gap-2 opacity-80">
+            <div className="w-6 h-6 rounded-full border border-black flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-black/20" />
+            </div>
+            <span className="font-serif italic text-lg text-black tracking-tight">my mind</span>
         </div>
 
-        {title && (
-            <div className="mb-2">
-                <h2 className="text-3xl font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                    {title}
-                </h2>
-            </div>
-        )}
-
-        {subtitle && (
-            <p className="text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase mb-8">
-                {subtitle}
-            </p>
-        )}
-
-        <div className="w-full flex-1 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+        {/* Content Area */}
+        <div className="w-full flex-1 flex flex-col justify-center items-center">
             {children}
         </div>
 
         {/* Footer Navigation */}
-        <div className="w-full pt-6 mt-4 border-t border-white/5 flex gap-4">
-            {step > 0 && (
+        {showNextButton && (
+            <div className="w-full mt-8">
                 <button
-                    onClick={onBack}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-full font-bold text-xs tracking-widest uppercase transition-colors"
+                    onClick={onNext}
+                    disabled={!canProceed}
+                    className="group relative w-full bg-[#FFF5F0] hover:bg-[#FFE5D6] text-black py-4 rounded-full font-bold text-[11px] tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
                 >
-                    Back
+                    <span className="relative z-10 flex items-center gap-2">
+                        {step === 0 ? "Let's Get Started" : step === 5 ? "Enter My Mind" : "Continue"}
+                        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                    </span>
                 </button>
-            )}
-            <button
-                onClick={onNext}
-                disabled={!canProceed}
-                className="flex-1 bg-white text-black py-4 rounded-full font-black text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {step === 5 ? "Complete" : "Next"} <ArrowRight className="w-3 h-3" strokeWidth={3} />
-            </button>
-        </div>
+                {onBack && step > 0 && (
+                    <button
+                        onClick={onBack}
+                        className="mt-4 text-[10px] text-black/40 hover:text-black uppercase tracking-widest transition-colors font-medium cursor-pointer"
+                    >
+                        Back
+                    </button>
+                )}
+            </div>
+        )}
     </motion.div>
 );
 
@@ -132,38 +119,28 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0D0D0F] font-sans overflow-hidden">
-            {/* Background Layers */}
-            <div className="absolute inset-0 z-0 opacity-40">
-                <LiquidImage strength={0.02} speed={0.15} />
-            </div>
-            <EmojiGrid />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-gradient-to-b from-[#FFD6A5] via-[#FFD6A5] to-[#FF9E9E] font-serif overflow-hidden">
 
             <AnimatePresence mode="wait">
                 {/* Step 0: Welcome */}
                 {step === 0 && (
                     <OnboardingCard
                         key="step0"
-                        title="INITIALIZE SOUL"
-                        subtitle="Connection Established"
                         step={step}
                         onNext={handleNext}
-                        onBack={() => setStep(step - 1)}
-                        canProceed={canProceed()}
+                        canProceed={true}
                     >
-                        <div className="space-y-6 text-center">
-                            <motion.div
-                                animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
-                                transition={{ duration: 4, repeat: Infinity }}
-                                className="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-purple-500/20 to-rose-500/20 flex items-center justify-center border border-white/10"
-                            >
-                                <span className="text-4xl">✨</span>
-                            </motion.div>
-                            <p className="text-white/60 text-sm leading-relaxed px-4">
-                                Welcome to IHATEYOU. <br />
-                                Before we permit entry to the void, we must calibrate your digital frequency.
-                            </p>
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="space-y-6"
+                        >
+                            <h1 className="text-5xl md:text-6xl font-serif text-black leading-[0.9] tracking-tight">
+                                Welcome.<br />
+                                <span className="font-normal italic text-black/80">Your fresh, new<br />mind is ready.</span>
+                            </h1>
+                        </motion.div>
                     </OnboardingCard>
                 )}
 
@@ -171,79 +148,83 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
                 {step === 1 && (
                     <OnboardingCard
                         key="step1"
-                        title="IDENTITY"
-                        subtitle="What do they call you?"
                         step={step}
                         onNext={handleNext}
                         onBack={() => setStep(step - 1)}
                         canProceed={canProceed()}
                     >
-                        <div className="w-full space-y-4">
+                        <div className="w-full space-y-6">
+                            <div>
+                                <h2 className="text-3xl font-serif text-black mb-2">First,</h2>
+                                <p className="text-sm font-sans text-black/50 uppercase tracking-widest">What should we call you?</p>
+                            </div>
                             <input
                                 type="text"
                                 value={data.name}
                                 onChange={(e) => setData(prev => ({ ...prev, name: e.target.value }))}
-                                placeholder="Display Name"
-                                className="w-full bg-[#151518] border border-white/5 rounded-2xl px-6 py-4 text-center text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-[#1A1A1D] transition-all font-medium"
+                                placeholder="Type your name..."
+                                className="w-full bg-transparent border-b-2 border-black/10 px-2 py-4 text-center text-3xl font-serif text-black placeholder-black/20 focus:outline-none focus:border-black/40 transition-all"
                                 autoFocus
                             />
-                            <p className="text-[10px] text-white/20 uppercase tracking-wider text-center">
-                                This echo will represent you.
-                            </p>
                         </div>
                     </OnboardingCard>
                 )}
 
-                {/* Step 2: Avatar Creator */}
+                {/* Step 2: Avatar */}
                 {step === 2 && (
-                    <motion.div
+                    <OnboardingCard
                         key="step2"
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                        className="relative z-10 w-full max-w-lg"
+                        step={step}
+                        onNext={handleNext}
+                        onBack={() => setStep(step - 1)}
+                        canProceed={canProceed()}
+                        showNextButton={false} // PixelAvatar has its own flow controls usually, but let's wrap it nicely
                     >
-                        <PixelAvatarCreator
-                            initialConfig={data.avatarConfig}
-                            onComplete={(config) => {
-                                setData(prev => ({ ...prev, avatarConfig: config }));
-                                handleNext();
-                            }}
-                        />
-                        <div className="absolute -bottom-16 w-full flex justify-center">
-                            <button onClick={() => setStep(step - 1)} className="text-white/40 hover:text-white uppercase tracking-widest text-xs font-bold py-2">
+                        <div className="w-full h-full flex flex-col">
+                            <h2 className="text-2xl font-serif text-black mb-6">Visual Identity</h2>
+                            <div className="flex-1 overflow-hidden rounded-3xl bg-gray-50 border border-black/5">
+                                {/* We need to style PixelAvatarCreator to fit light theme if possible, or wrap it */}
+                                <PixelAvatarCreator
+                                    initialConfig={data.avatarConfig}
+                                    onComplete={(config) => {
+                                        setData(prev => ({ ...prev, avatarConfig: config }));
+                                        handleNext();
+                                    }}
+                                />
+                            </div>
+                            <button onClick={() => setStep(step - 1)} className="mt-4 text-[10px] text-black/40 hover:text-black uppercase tracking-widest">
                                 Back
                             </button>
                         </div>
-                    </motion.div>
+                    </OnboardingCard>
                 )}
 
                 {/* Step 3: Mood */}
                 {step === 3 && (
                     <OnboardingCard
                         key="step3"
-                        title="RESONANCE"
-                        subtitle="Current Emotional State"
                         step={step}
                         onNext={handleNext}
                         onBack={() => setStep(step - 1)}
                         canProceed={canProceed()}
                     >
-                        <div className="grid grid-cols-2 gap-3 w-full">
-                            {MOOD_OPTIONS.map((mood) => (
-                                <motion.button
-                                    key={mood.value}
-                                    onClick={() => setData(prev => ({ ...prev, moodBaseline: mood.value }))}
-                                    whileTap={{ scale: 0.98 }}
-                                    className={`p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-2 ${data.moodBaseline === mood.value
-                                        ? 'bg-white text-black border-white'
-                                        : 'bg-[#151518] text-white/40 border-white/5 hover:bg-[#1A1A1D] hover:text-white'
-                                        }`}
-                                >
-                                    <span className="text-2xl filter grayscale-[0.5]">{mood.emoji}</span>
-                                    <span className="text-[10px] font-bold uppercase tracking-wide">{mood.label}</span>
-                                </motion.button>
-                            ))}
+                        <div className="w-full h-full flex flex-col justify-center">
+                            <h2 className="text-3xl font-serif text-black mb-8">Current State</h2>
+                            <div className="grid grid-cols-2 gap-3 w-full">
+                                {MOOD_OPTIONS.map((mood) => (
+                                    <button
+                                        key={mood.value}
+                                        onClick={() => setData(prev => ({ ...prev, moodBaseline: mood.value }))}
+                                        className={`p-4 rounded-xl border transition-all duration-300 flex flex-col items-center gap-2 ${data.moodBaseline === mood.value
+                                            ? 'bg-black text-white border-black shadow-lg scale-105'
+                                            : 'bg-white text-black/60 border-black/5 hover:border-black/20 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <span className="text-2xl">{mood.emoji}</span>
+                                        <span className="text-[10px] font-sans font-bold uppercase tracking-wide">{mood.label}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </OnboardingCard>
                 )}
@@ -252,76 +233,68 @@ export default function OnboardingFlow({ onComplete, userName = '' }: Onboarding
                 {step === 4 && (
                     <OnboardingCard
                         key="step4"
-                        title="OBJECTIVE"
-                        subtitle="Why are you here?"
                         step={step}
                         onNext={handleNext}
                         onBack={() => setStep(step - 1)}
                         canProceed={canProceed()}
                     >
-                        <div className="space-y-2 w-full">
-                            {INTENT_OPTIONS.map((option) => (
-                                <motion.button
-                                    key={option.value}
-                                    onClick={() => toggleIntent(option.value)}
-                                    whileTap={{ scale: 0.99 }}
-                                    className={`w-full p-4 rounded-xl border flex items-center justify-between transition-all duration-300 ${data.intent.includes(option.value)
-                                        ? 'bg-white/10 border-white/20 text-white'
-                                        : 'bg-transparent border-white/5 text-white/40 hover:bg-white/5'
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-lg opacity-80">{option.icon}</span>
-                                        <span className="text-xs font-bold uppercase tracking-wide">{option.label}</span>
-                                    </div>
-                                    {data.intent.includes(option.value) && (
-                                        <Check className="w-4 h-4 text-white" />
-                                    )}
-                                </motion.button>
-                            ))}
+                        <div className="w-full h-full flex flex-col justify-center">
+                            <h2 className="text-3xl font-serif text-black mb-2">Intentions</h2>
+                            <p className="text-xs font-sans text-black/40 uppercase tracking-widest mb-8">Select all that apply</p>
+
+                            <div className="space-y-2 w-full font-sans">
+                                {INTENT_OPTIONS.map((option) => (
+                                    <button
+                                        key={option.value}
+                                        onClick={() => toggleIntent(option.value)}
+                                        className={`w-full p-4 rounded-xl text-left transition-all duration-300 flex items-center justify-between ${data.intent.includes(option.value)
+                                            ? 'bg-orange-50 text-orange-900 border-l-4 border-orange-500'
+                                            : 'bg-white hover:bg-gray-50 text-black/60 border-l-4 border-transparent'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-lg opacity-80">{option.icon}</span>
+                                            <span className="text-xs font-bold uppercase tracking-wide">{option.label}</span>
+                                        </div>
+                                        {data.intent.includes(option.value) && (
+                                            <Check className="w-4 h-4 text-orange-500" />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </OnboardingCard>
                 )}
 
-                {/* Step 5: Privacy */}
+                {/* Step 5: Final */}
                 {step === 5 && (
                     <OnboardingCard
                         key="step5"
-                        title="PROTOCOL"
-                        subtitle="Privacy Agreement"
                         step={step}
                         onNext={handleNext}
                         onBack={() => setStep(step - 1)}
                         canProceed={canProceed()}
                     >
-                        <div className="space-y-6 w-full text-left">
-                            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
-                                <Shield className="w-8 h-8 text-white/80" strokeWidth={1.5} />
-                                <div>
-                                    <h4 className="text-sm font-bold text-white mb-1">Encrypted Soul</h4>
-                                    <p className="text-[10px] text-white/50 leading-relaxed">
-                                        Your data is encrypted end-to-end. We cannot see your shadows.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4 px-2">
-                                <div className="flex items-center gap-3 text-xs text-white/60">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span>No tracking pixels detected.</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-xs text-white/60">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span>Zero-knowledge storage active.</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-xs text-white/60">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    <span>Right to vanish (Delete all) enabled.</span>
-                                </div>
+                        <div className="space-y-6 text-center">
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", delay: 0.2 }}
+                                className="w-24 h-24 mx-auto rounded-full bg-[#FFF5F0] flex items-center justify-center"
+                            >
+                                <Smile className="w-10 h-10 text-orange-500" strokeWidth={1.5} />
+                            </motion.div>
+                            <div>
+                                <h1 className="text-4xl font-serif text-black mb-4">All Set.</h1>
+                                <p className="text-black/60 text-sm font-sans px-8 leading-relaxed">
+                                    Your digital sanctuary has been prepared. <br />
+                                    Enter with kindness.
+                                </p>
                             </div>
                         </div>
                     </OnboardingCard>
                 )}
+
             </AnimatePresence>
         </div>
     );

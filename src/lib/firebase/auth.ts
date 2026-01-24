@@ -19,7 +19,12 @@ import { auth, db } from '@/lib/firebase';
 import { UserProfile, OnboardingData } from '@/types/user';
 
 // Google Sign-In
+// Google Sign-In
 export const signInWithGoogle = async (): Promise<UserCredential> => {
+    if (!auth) {
+        throw new Error('Firebase Auth is not available. Please configure Firebase credentials.');
+    }
+
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
         prompt: 'select_account',
@@ -39,7 +44,13 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 };
 
 // Anonymous Sign-In
+// Anonymous Sign-In
 export const signInAnonymously = async (): Promise<UserCredential | null> => {
+    if (!auth) {
+        // Return null to indicate guest mode should be used
+        return null;
+    }
+
     try {
         const result = await firebaseSignInAnonymously(auth);
 
@@ -60,7 +71,7 @@ export const signInAnonymously = async (): Promise<UserCredential | null> => {
 
 // Create or update user profile in Firestore
 export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
-    if (!user) return;
+    if (!user || !db) return;
 
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
@@ -94,6 +105,7 @@ export const updateUserOnboardingData = async (
     uid: string,
     data: OnboardingData
 ): Promise<void> => {
+    if (!db) return;
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, {
         ghostName: data.ghostName,
@@ -105,18 +117,21 @@ export const updateUserOnboardingData = async (
 
 // Update user's ghost name (Legacy / Individual update)
 export const updateGhostName = async (uid: string, ghostName: string): Promise<void> => {
+    if (!db) return;
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, { ghostName });
 };
 
 // Update user theme
 export const updateUserTheme = async (uid: string, theme: string): Promise<void> => {
+    if (!db) return;
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, { theme });
 };
 
 // Get user profile
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+    if (!db) return null;
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
 
@@ -129,6 +144,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 
 // Sign out
 export const signOut = async (): Promise<void> => {
+    if (!auth) return;
     try {
         await firebaseSignOut(auth);
     } catch (error) {
@@ -139,10 +155,14 @@ export const signOut = async (): Promise<void> => {
 
 // Auth state observer
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
+    if (!auth) {
+        callback(null);
+        return () => { };
+    }
     return onAuthStateChanged(auth, callback);
 };
 
 // Get current user
 export const getCurrentUser = (): User | null => {
-    return auth.currentUser;
+    return auth?.currentUser || null;
 };

@@ -89,7 +89,7 @@ export default function PacmanGame({ onBack, onUpdateTokens }: PacmanGameProps) 
         { id: 3, color: '#FFB852', x: 9, y: 10, dir: 'UP', state: 'SCATTER', speed: 0.8 }, // Clyde
     ]);
     const pellets = useRef<number[][]>([]);
-    const animationFrameId = useRef<number>();
+    const animationFrameId = useRef<number | undefined>(undefined);
     const lastTime = useRef<number>(0);
     const moveTimer = useRef<number>(0);
 
