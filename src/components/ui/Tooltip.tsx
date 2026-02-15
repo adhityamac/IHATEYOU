@@ -151,7 +151,7 @@ export function OnboardingStep({
                 </div>
             </div>
 
-            {/* Content */}
+            ̣lp-           {/* Content */}
             <div className="mb-6">
                 <h3 className="text-2xl font-black text-white mb-2">{title}</h3>
                 <p className="text-purple-200">{description}</p>

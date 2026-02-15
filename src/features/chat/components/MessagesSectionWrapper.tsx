@@ -2,6 +2,9 @@
 
 import { useChat } from '@/hooks/useChat';
 import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect, useMemo } from 'react';
+import { usePresence } from '@/hooks/usePresence';
+import { useUsersPresence } from '@/hooks/useUsersPresence';
 import MessagesSection from './MessagesSection';
 import { Conversation as FirebaseConversation, ChatMessage } from '@/lib/firebase/chat';
 import { Conversation, Message, User } from '@/types/types';
@@ -19,14 +22,13 @@ const convertConversation = (fbConv: FirebaseConversation, currentUserId: string
 
     return {
         id: fbConv.id,
-        participant: {
+        participants: [{
             id: otherUserId,
             name: participant.name,
             username: participant.ghostName || participant.name,
             avatar: participant.avatar,
             isOnline: true, // TODO: Add presence system
-            currentEmotion: 'static',
-        },
+        }],
         messages: [], // Messages are loaded separately
         lastMessage: fbConv.lastMessage ? {
             id: 'last',
@@ -34,6 +36,8 @@ const convertConversation = (fbConv: FirebaseConversation, currentUserId: string
             content: fbConv.lastMessage.content,
             timestamp: fbConv.lastMessage.timestamp?.toDate() || new Date(),
             isRead: true,
+            reactions: [],
+            size: 'small',
         } : undefined,
         unreadCount: fbConv.unreadCount?.[currentUserId] || 0,
     };
@@ -47,13 +51,14 @@ const convertMessage = (fbMsg: ChatMessage): Message => {
         content: fbMsg.content,
         timestamp: fbMsg.timestamp?.toDate() || new Date(),
         isRead: fbMsg.isRead,
-        reactions: fbMsg.reactions,
+        reactions: fbMsg.reactions || [],
         size: 'small',
     };
 };
 
 export default function MessagesSectionWrapper({ onScroll }: MessagesSectionWrapperProps) {
     const { user } = useAuth();
+    usePresence(); // Start heartbeats
     const {
         conversations: fbConversations,
         activeConversationId,
@@ -64,12 +69,87 @@ export default function MessagesSectionWrapper({ onScroll }: MessagesSectionWrap
         addReaction,
     } = useChat();
 
-    if (!user) return null;
+    // State to hold the mapped conversations
+    const [conversations, setConversations] = useState<Conversation[]>([]);
 
-    // Convert Firebase data to app format
-    const conversations: Conversation[] = fbConversations
-        .map(conv => convertConversation(conv, user.id))
-        .filter((conv): conv is Conversation => conv !== null);
+    // Extract all participant IDs for presence monitoring
+    const participantIds = useMemo(() => {
+        if (!fbConversations) return [];
+        const ids = new Set<string>();
+        fbConversations.forEach(c => c.participants.forEach(p => ids.add(p)));
+        return Array.from(ids);
+    }, [fbConversations]);
+
+    const presenceMap = useUsersPresence(participantIds);
+
+    // Filter conversations to only show those where current user is a participant
+    // AND map to our app's Conversation type with real user details
+    useEffect(() => {
+        if (!user || !fbConversations) return;
+
+        const mapConversations = async () => {
+            const mapped = await Promise.all(fbConversations.map(async (fbConv) => {
+                // Get other participants
+                // In a real app, we might need to fetch user profiles here if not in details
+                // But we can fallback to the details stored in conversation
+
+                const participantsNodes: User[] = fbConv.participants.map(uid => {
+                    const details = fbConv.participantDetails?.[uid];
+                    const presence = presenceMap[uid];
+
+                    // If it's the current user, use auth user data
+                    if (uid === user.id) {
+                        return {
+                            id: user.id,
+                            name: user.name,
+                            username: user.ghostName || user.name,
+                            avatar: user.avatar,
+                            isOnline: true // Always online for self
+                        };
+                    }
+
+                    return {
+                        id: uid,
+                        name: details?.name || 'Unknown',
+                        username: details?.ghostName || details?.name || 'Unknown',
+                        avatar: details?.avatar || '',
+                        isOnline: presence?.isOnline || false
+                    };
+                });
+
+                // ... rest of mapping
+                const messages: Message[] = []; // We load these separately or from lastMessage
+
+                // Map last message
+                let lastMessage: Message | undefined;
+                if (fbConv.lastMessage) {
+                    lastMessage = {
+                        id: 'latest', // we don't have ID in summary
+                        senderId: fbConv.lastMessage.senderId,
+                        content: fbConv.lastMessage.content,
+                        timestamp: fbConv.lastMessage.timestamp.toDate(),
+                        isRead: true, // simplified
+                        size: 'small',
+                        reactions: []
+                    };
+                }
+
+                return {
+                    id: fbConv.id,
+                    participants: participantsNodes,
+                    messages: messages,
+                    lastMessage,
+                    unreadCount: fbConv.unreadCount?.[user.id] || 0
+                };
+            }));
+
+            setConversations(mapped);
+        };
+
+        mapConversations();
+    }, [user, fbConversations, presenceMap]);
+
+    if (!user) return null;
 
     const messages: Message[] = fbMessages.map(convertMessage);
 
@@ -87,7 +167,6 @@ export default function MessagesSectionWrapper({ onScroll }: MessagesSectionWrap
         username: user.ghostName || user.name,
         avatar: user.avatar,
         isOnline: true,
-        currentEmotion: 'static',
     };
 
     // Handle send message - integrate with Firebase
@@ -124,7 +203,6 @@ export default function MessagesSectionWrapper({ onScroll }: MessagesSectionWrap
             activeConversationId={activeConversationId}
             setActiveConversationId={setActiveConversationId}
             currentUser={currentUser}
-            mockUsers={[]} // Will be replaced with real user discovery
             onScroll={onScroll}
             onSendMessage={handleSendMessage}
             onReaction={handleReaction}

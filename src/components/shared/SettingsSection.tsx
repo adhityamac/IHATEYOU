@@ -8,6 +8,7 @@ import {
     Edit3, Check, X, Moon, Sun, Gamepad2, Download, Trash2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { updateUserProfile } from '@/lib/firebase/auth';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 
@@ -18,7 +19,7 @@ interface SettingsSectionProps {
 }
 
 export default function SettingsSection({ onScroll }: SettingsSectionProps) {
-    const { user, logout } = useAuth();
+    const { user, logout, setUser } = useAuth();
     const { mode, setMode } = useThemeMode();
     const [activeView, setActiveView] = useState<SettingsView>('main');
     const [isEditing, setIsEditing] = useState(false);
@@ -35,9 +36,31 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
 
 
 
-    const handleSaveAccount = () => {
-        // TODO: Save to Firebase
-        setIsEditing(false);
+    const handleSaveAccount = async () => {
+        if (!user) return;
+
+        try {
+            await updateUserProfile(user.id, {
+                displayName,
+                ghostName,
+                bio,
+            });
+
+            // Update local user state
+            if (setUser) {
+                setUser({
+                    ...user,
+                    name: displayName,
+                    ghostName,
+                    bio,
+                });
+            }
+
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Error saving account settings:', error);
+            alert('Failed to save changes. Please try again.');
+        }
     };
 
     const handleLogout = async () => {

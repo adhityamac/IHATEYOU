@@ -1,75 +1,36 @@
-export type Section = 'home' | 'dashboard' | 'messages' | 'settings' | 'search' | 'guide' | 'social' | 'games' | 'music' | 'vision';
-
 export interface User {
-  id: string;
-  name: string;
-  username: string;
-  avatar: string;
-  isOnline: boolean;
-  currentEmotion?: string;
-}
-
-export interface Reaction {
-  emoji: string;
-  userId: string;
+    id: string;
+    name: string;
+    username: string;
+    avatar: string;
+    isOnline: boolean;
+    lastSeen?: Date | any; // Firestore Timestamp or Date
+    bio?: string;
+    phone?: string;
+    ghostName?: string;
 }
 
 export interface Message {
-  id: string;
-  senderId: string;
-  content: string;
-  timestamp: Date;
-  isRead: boolean;
-  reactions?: Reaction[];
-  size?: 'small' | 'medium' | 'large';
-  replyTo?: {
     id: string;
-    username: string;
+    senderId: string;
     content: string;
-  };
+    timestamp: Date;
+    isRead: boolean;
+    size: 'small' | 'medium' | 'large';
+    reactions: { emoji: string; userId?: string }[];
+    replyTo?: {
+        id: string;
+        username: string;
+        content: string;
+    };
 }
 
 export interface Conversation {
-  id: string;
-  participant: User;
-  messages: Message[];
-  lastMessage?: Message;
-  unreadCount: number;
+    id: string;
+    participants: User[];
+    messages: Message[];
+    lastMessage?: Message;
+    unreadCount: number;
 }
 
-export interface Story {
-  id: string;
-  userId: string;
-  username: string; // Added for UI
-  userAvatar: string; // Added for UI
-  imageUrl: string;
-  isViewed: boolean;
-  timestamp: Date; // Added for sorting
-}
-
-export interface EmojiAvatar {
-  emojis: string[];
-  background?: string;
-}
-
-export interface Group {
-  id: string;
-  name: string;
-  members: User[];
-  lastMessage?: Message;
-  unreadCount: number;
-}
-
-export interface Post {
-  id: number;
-  user: string;
-  username?: string; // Added
-  avatar?: string; // Added
-  content: string;
-  image?: string; // Added for media posts
-  time: string;
-  color?: string; // Optional now
-  echoes: number; // Likes
-  replies: number; // Comments
-  isLiked?: boolean; // UI state
-}
+export type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music' | 'vision';

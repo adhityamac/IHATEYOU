@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Shuffle, Check } from 'lucide-react';
 
 interface AvatarConfig {
@@ -8,11 +8,14 @@ interface AvatarConfig {
     eyes: number;
     mouth: number;
     accessory: number;
+    hair: number;
+    hairColor: string;
 }
 
 interface PixelAvatarCreatorProps {
     initialConfig?: AvatarConfig;
     onComplete: (config: AvatarConfig) => void;
+    compact?: boolean;
 }
 
 const SKIN_TONES = [
@@ -24,6 +27,21 @@ const SKIN_TONES = [
     '#523218', // Deep
     '#9bbc0f', // GameBoy Green (Retro)
     '#a78bfa', // Alien Purple
+];
+
+const HAIR_COLORS = [
+    '#1a1a1c', // Black
+    '#4a3728', // Dark Brown
+    '#8D5524', // Brown
+    '#C68642', // Light Brown
+    '#eab308', // Blonde
+    '#92400e', // Auburn
+    '#dc2626', // Red
+    '#9ca3af', // Grey
+    '#ffffff', // White
+    '#2563eb', // Blue
+    '#db2777', // Pink
+    '#16a34a', // Green
 ];
 
 // Pixel Art Assets (32x32 Grid)
@@ -66,12 +84,31 @@ const ACCESSORIES = [
     <g key="a4"><rect x="7" y="17" width="3" height="1" fill="#f472b6" opacity="0.6" /><rect x="22" y="17" width="3" height="1" fill="#f472b6" opacity="0.6" /></g>,
 ];
 
-export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelAvatarCreatorProps) {
+const HAIR_STYLES = [
+    // 0: None (Bald)
+    null,
+    // 1: Short Crop
+    <g key="h1"><path d="M8 6h16v2h-16z M6 8h2v6h-2z M24 8h2v6h-2z M8 6h16v-1h-16z" fill="currentColor" /></g>,
+    // 2: Long
+    <g key="h2"><path d="M8 6h16v2h-16z M6 8h2v16h-2z M24 8h2v16h-2z" fill="currentColor" /></g>,
+    // 3: Mohawk
+    <g key="h3"><rect x="14" y="2" width="4" height="6" fill="currentColor" /></g>,
+    // 4: Pigtails
+    <g key="h4"><rect x="8" y="6" width="16" height="3" fill="currentColor" /><rect x="4" y="7" width="3" height="8" fill="currentColor" /><rect x="25" y="7" width="3" height="8" fill="currentColor" /></g>,
+    // 5: Side Part
+    <g key="h5"><path d="M8 6h16v3h-16z M6 9h2v4h-2z M24 8h2v4h-2z M20 6h-6v2h6z" fill="currentColor" /></g>,
+    // 6: Bangs
+    <g key="h6"><path d="M8 6h16v5h-16z M6 8h2v8h-2z M24 8h2v8h-2z" fill="currentColor" /></g>
+];
+
+export default function PixelAvatarCreator({ initialConfig, onComplete, compact = false }: PixelAvatarCreatorProps) {
     const [config, setConfig] = useState<AvatarConfig>(initialConfig || {
         skinTone: SKIN_TONES[2],
         eyes: 0,
         mouth: 0,
-        accessory: 0
+        accessory: 0,
+        hair: 1,
+        hairColor: HAIR_COLORS[0]
     });
 
     const handleRandomize = () => {
@@ -80,6 +117,8 @@ export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelA
             eyes: Math.floor(Math.random() * EYES.length),
             mouth: Math.floor(Math.random() * MOUTHS.length),
             accessory: Math.floor(Math.random() * ACCESSORIES.length),
+            hair: Math.floor(Math.random() * HAIR_STYLES.length),
+            hairColor: HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)],
         });
     };
 
@@ -89,7 +128,9 @@ export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelA
             if (key === 'eyes') max = EYES.length;
             if (key === 'mouth') max = MOUTHS.length;
             if (key === 'accessory') max = ACCESSORIES.length;
-            if (key === 'skinTone') return prev; // Handled separately
+            if (key === 'hair') max = HAIR_STYLES.length;
+            if (key === 'skinTone') return prev;
+            if (key === 'hairColor') return prev;
 
             let next = (prev[key] as number) + direction;
             if (next < 0) next = max - 1;
@@ -100,23 +141,27 @@ export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelA
     };
 
     return (
-        <div className="w-full max-w-md mx-auto bg-[#0f380f] border-4 border-[#8bac0f] p-6 font-vt323 shadow-[8px_8px_0px_#306230]">
-            <div className="text-center mb-6">
-                <h2 className="text-[#9bbc0f] text-2xl uppercase tracking-widest mb-1">Identity Matrix</h2>
-                <div className="h-1 w-full bg-[#306230]" />
-            </div>
+        <div className={`w-full max-w-md mx-auto font-vt323 ${compact ? 'p-0 bg-transparent' : 'bg-[#0f380f] border-4 border-[#8bac0f] p-6 shadow-[8px_8px_0px_#306230]'}`}>
+            {!compact && (
+                <div className="text-center mb-6">
+                    <h2 className="text-[#9bbc0f] text-2xl uppercase tracking-widest mb-1">Identity Matrix</h2>
+                    <div className="h-1 w-full bg-[#306230]" />
+                </div>
+            )}
 
             {/* Avatar Preview */}
-            <div className="flex justify-center mb-8">
-                <div className="relative w-48 h-48 bg-[#9bbc0f] border-4 border-[#306230] shadow-[4px_4px_0px_#0f380f]">
+            <div className={`flex justify-center ${compact ? 'mb-2' : 'mb-8'}`}>
+                <div className={`relative ${compact ? 'w-32 h-32' : 'w-48 h-48'} bg-[#9bbc0f] border-4 border-[#306230] shadow-[4px_4px_0px_#0f380f] group cursor-pointer`}
+                    onClick={compact ? undefined : undefined} // Maybe allow click to edit?
+                >
                     <svg viewBox="0 0 32 32" className="w-full h-full" style={{ shapeRendering: 'crispEdges' }}>
                         {/* Base Head */}
                         <rect x="8" y="6" width="16" height="20" fill={config.skinTone} />
                         <rect x="6" y="8" width="2" height="16" fill={config.skinTone} />
                         <rect x="24" y="8" width="2" height="16" fill={config.skinTone} />
 
-                        {/* Hair/Top Outline (Simple) */}
-                        <path d="M8 6h16v2h-16z M6 8h2v2h-2z M24 8h2v2h-2z" fill="#0f380f" opacity="0.2" />
+                        {/* Hair Background (Behind ears/face if needed for long hair) */}
+                        {/* Simplified for now, just on top */}
 
                         {/* Features */}
                         <g color="#0f380f">
@@ -124,6 +169,12 @@ export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelA
                             {MOUTHS[config.mouth]}
                             {ACCESSORIES[config.accessory]}
                         </g>
+
+                        {/* Hair */}
+                        <g color={config.hairColor}>
+                            {HAIR_STYLES[config.hair]}
+                        </g>
+
                     </svg>
 
                     {/* Scanline Overlay */}
@@ -131,71 +182,107 @@ export default function PixelAvatarCreator({ initialConfig, onComplete }: PixelA
                 </div>
             </div>
 
-            {/* Controls */}
-            <div className="space-y-4 mb-8">
-                {/* Skin Tone */}
-                <div className="flex flex-col gap-2">
-                    <label className="text-[#8bac0f] text-sm uppercase tracking-wider">Skin Tone</label>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#306230] scrollbar-track-transparent">
-                        {SKIN_TONES.map(tone => (
-                            <button
-                                key={tone}
-                                onClick={() => setConfig(prev => ({ ...prev, skinTone: tone }))}
-                                className={`w-8 h-8 shrink-0 border-2 transition-transform ${config.skinTone === tone ? 'border-[#9bbc0f] scale-110' : 'border-[#306230] hover:scale-105'}`}
-                                style={{ backgroundColor: tone }}
-                            />
-                        ))}
+            {!compact && (
+                <div className="space-y-4 mb-8 text-[#9bbc0f]">
+                    {/* Skin Tone */}
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[#8bac0f] text-sm uppercase tracking-wider">Skin Tone</label>
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#306230] scrollbar-track-transparent">
+                            {SKIN_TONES.map(tone => (
+                                <button
+                                    key={tone}
+                                    onClick={() => setConfig(prev => ({ ...prev, skinTone: tone }))}
+                                    className={`w-8 h-8 shrink-0 border-2 transition-transform ${config.skinTone === tone ? 'border-[#9bbc0f] scale-110' : 'border-[#306230] hover:scale-105'}`}
+                                    style={{ backgroundColor: tone }}
+                                />
+                            ))}
+                        </div>
                     </div>
+
+                    {/* Hair Color */}
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[#8bac0f] text-sm uppercase tracking-wider">Hair Color</label>
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#306230] scrollbar-track-transparent">
+                            {HAIR_COLORS.map(color => (
+                                <button
+                                    key={color}
+                                    onClick={() => setConfig(prev => ({ ...prev, hairColor: color }))}
+                                    className={`w-8 h-8 shrink-0 border-2 transition-transform ${config.hairColor === color ? 'border-[#9bbc0f] scale-110' : 'border-[#306230] hover:scale-105'}`}
+                                    style={{ backgroundColor: color }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Hair Style */}
+                    <ControlRow
+                        label="Hair"
+                        value={config.hair + 1}
+                        max={HAIR_STYLES.length}
+                        onPrev={() => cycleOption('hair', -1)}
+                        onNext={() => cycleOption('hair', 1)}
+                    />
+
+                    {/* Eyes Control */}
+                    <ControlRow
+                        label="Eyes"
+                        value={config.eyes + 1}
+                        max={EYES.length}
+                        onPrev={() => cycleOption('eyes', -1)}
+                        onNext={() => cycleOption('eyes', 1)}
+                    />
+
+                    {/* Mouth Control */}
+                    <ControlRow
+                        label="Mouth"
+                        value={config.mouth + 1}
+                        max={MOUTHS.length}
+                        onPrev={() => cycleOption('mouth', -1)}
+                        onNext={() => cycleOption('mouth', 1)}
+                    />
+
+                    {/* Accessory Control */}
+                    <ControlRow
+                        label="Accessory"
+                        value={config.accessory + 1}
+                        max={ACCESSORIES.length}
+                        onPrev={() => cycleOption('accessory', -1)}
+                        onNext={() => cycleOption('accessory', 1)}
+                    />
                 </div>
-
-                {/* Eyes Control */}
-                <ControlRow
-                    label="Eyes"
-                    value={config.eyes + 1}
-                    max={EYES.length}
-                    onPrev={() => cycleOption('eyes', -1)}
-                    onNext={() => cycleOption('eyes', 1)}
-                />
-
-                {/* Mouth Control */}
-                <ControlRow
-                    label="Mouth"
-                    value={config.mouth + 1}
-                    max={MOUTHS.length}
-                    onPrev={() => cycleOption('mouth', -1)}
-                    onNext={() => cycleOption('mouth', 1)}
-                />
-
-                {/* Accessory Control */}
-                <ControlRow
-                    label="Accessory"
-                    value={config.accessory + 1}
-                    max={ACCESSORIES.length}
-                    onPrev={() => cycleOption('accessory', -1)}
-                    onNext={() => cycleOption('accessory', 1)}
-                />
-            </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-4">
                 <button
                     onClick={handleRandomize}
-                    className="flex-1 py-3 border-2 border-[#306230] bg-[#0f380f] text-[#8bac0f] hover:bg-[#306230] hover:text-[#9bbc0f] transition-colors flex items-center justify-center gap-2 group"
+                    className={`flex-1 py-3 border-2 border-[#306230] bg-[#0f380f] text-[#8bac0f] hover:bg-[#306230] hover:text-[#9bbc0f] transition-colors flex items-center justify-center gap-2 group ${compact ? 'text-xs py-2' : ''}`}
                 >
-                    <Shuffle size={18} className="group-hover:rotate-180 transition-transform" />
-                    <span className="uppercase tracking-wider">Random</span>
+                    <Shuffle size={compact ? 14 : 18} className="group-hover:rotate-180 transition-transform" />
+                    <span className="uppercase tracking-wider">Randomize</span>
                 </button>
 
-                <button
-                    onClick={() => onComplete(config)}
-                    className="flex-[2] py-3 bg-[#8bac0f] text-[#0f380f] border-2 border-[#8bac0f] hover:bg-[#9bbc0f] hover:border-[#9bbc0f] transition-colors flex items-center justify-center gap-2 font-bold shadow-[4px_4px_0px_#306230] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                >
-                    <Check size={20} strokeWidth={3} />
-                    <span className="uppercase tracking-widest text-lg">Confirm Identity</span>
-                </button>
+                {!compact && (
+                    <button
+                        onClick={() => onComplete(config)}
+                        className="flex-[2] py-3 bg-[#8bac0f] text-[#0f380f] border-2 border-[#8bac0f] hover:bg-[#9bbc0f] hover:border-[#9bbc0f] transition-colors flex items-center justify-center gap-2 font-bold shadow-[4px_4px_0px_#306230] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                    >
+                        <Check size={20} strokeWidth={3} />
+                        <span className="uppercase tracking-widest text-lg">Confirm Identity</span>
+                    </button>
+                )}
             </div>
+            {/* Invisible Effect for compact mode sync */}
+            {compact && <EffectSync config={config} onComplete={onComplete} />}
         </div>
     );
+}
+
+function EffectSync({ config, onComplete }: { config: AvatarConfig, onComplete: (c: AvatarConfig) => void }) {
+    useEffect(() => {
+        onComplete(config);
+    }, [config, onComplete]);
+    return null;
 }
 
 function ControlRow({ label, value, max, onPrev, onNext }: {

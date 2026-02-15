@@ -10,7 +10,7 @@ import ReactionGame from './ReactionGame';
 import AlchemyGame from './AlchemyGame';
 import VoidPopperGame from './VoidPopperGame';
 import TriviaGame from './TriviaGame';
-import ChessGame from './ChessGame';
+import PixelChess from './PixelChess';
 import PacmanGame from './PacmanGame';
 import InteractiveGamingRoom from './InteractiveGamingRoom';
 
@@ -173,14 +173,14 @@ export default function FunZone({ onClose }: FunZoneProps) {
                         </div>
 
                         <div className="h-[calc(100%-80px)] overflow-y-auto">
-                            {gameMode === 'chess' && <ChessGame onBack={() => setGameMode(null)} />}
+                            {gameMode === 'chess' && <PixelChess onBack={() => setGameMode(null)} />}
                             {gameMode === 'pacman' && <PacmanGame onBack={() => setGameMode(null)} tokens={score} onUpdateTokens={() => { }} />}
-                            {gameMode === 'tictactoe' && <TicTacToe />}
-                            {gameMode === 'memory' && <MemoryGame />}
-                            {gameMode === 'rhythm' && <ReactionGame />}
-                            {gameMode === 'alchemy' && <AlchemyGame />}
-                            {gameMode === 'popper' && <VoidPopperGame />}
-                            {gameMode === 'trivia' && <TriviaGame />}
+                            {gameMode === 'tictactoe' && <TicTacToe onBack={() => setGameMode(null)} />}
+                            {gameMode === 'memory' && <MemoryGame onBack={() => setGameMode(null)} />}
+                            {gameMode === 'rhythm' && <ReactionGame onBack={() => setGameMode(null)} />}
+                            {gameMode === 'alchemy' && <AlchemyGame onBack={() => setGameMode(null)} />}
+                            {gameMode === 'popper' && <VoidPopperGame onBack={() => setGameMode(null)} />}
+                            {gameMode === 'trivia' && <TriviaGame onBack={() => setGameMode(null)} />}
                         </div>
                     </div>
                 )}

@@ -38,7 +38,6 @@ interface MessagesSectionProps {
     activeConversationId: string | null;
     setActiveConversationId: React.Dispatch<React.SetStateAction<string | null>>;
     currentUser: User;
-    mockUsers: User[];
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
     onSendMessage?: (content: string) => Promise<void> | void;
     onReaction?: (messageId: string, emoji: string) => Promise<void> | void;
@@ -91,6 +90,7 @@ const MessagesSection = memo(function MessagesSection({
 
 
     const activeConversation = conversations.find(c => c.id === activeConversationId);
+    const otherUser = activeConversation?.participants.find(p => p.id !== currentUser.id) || activeConversation?.participants[0];
 
     // Auto-scroll to bottom only when new messages arrive
     useEffect(() => {
@@ -119,6 +119,7 @@ const MessagesSection = memo(function MessagesSection({
             content: messageInput,
             timestamp: new Date(),
             isRead: false,
+            reactions: [],
             size: 'small'
         };
 
@@ -137,10 +138,11 @@ const MessagesSection = memo(function MessagesSection({
                 const replies = ["I hear you 💙", "That resonates with me", "Tell me more", "I feel that too", "Sending you good vibes ✨"];
                 const replyMessage: Message = {
                     id: `msg-${Date.now() + 1}`,
-                    senderId: activeConversation?.participant.id || '',
+                    senderId: otherUser?.id || '',
                     content: replies[Math.floor(Math.random() * replies.length)],
                     timestamp: new Date(),
                     isRead: false,
+                    reactions: [],
                     size: 'small'
                 };
                 setConversations(prev =>
@@ -188,14 +190,14 @@ const MessagesSection = memo(function MessagesSection({
                     <div className="flex items-end gap-2">
                         <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 relative">
                             <Image
-                                src={activeConversation.participant.avatar}
-                                alt={activeConversation.participant.username}
+                                src={otherUser?.avatar || ''}
+                                alt={otherUser?.username || 'User'}
                                 fill
                                 className="object-cover"
                                 sizes="32px"
                             />
                         </div>
-                        <TypingIndicator username={activeConversation.participant.username} />
+                        <TypingIndicator username={otherUser?.username || 'User'} />
                     </div>
                 </div>
             );
@@ -215,8 +217,8 @@ const MessagesSection = memo(function MessagesSection({
                     message={message}
                     isSent={isSent}
                     showAvatar={showAvatar}
-                    avatar={!isSent ? activeConversation.participant.avatar : undefined}
-                    username={activeConversation.participant.name}
+                    avatar={!isSent ? otherUser?.avatar : undefined}
+                    username={otherUser?.name || 'User'}
                     onReact={handleReaction}
                     onReply={() => { }}
                 />
@@ -254,69 +256,72 @@ const MessagesSection = memo(function MessagesSection({
 
                 {/* Conversations List */}
                 <div className="flex-1 overflow-y-auto">
-                    {conversations.map((conv) => (
-                        <div key={conv.id} className="relative w-full overflow-hidden">
-                            {/* Archive Background */}
-                            <div className="absolute inset-0 bg-red-500/20 flex items-center justify-end px-6">
-                                <Archive className="text-red-400" size={24} />
+                    {conversations.map((conv) => {
+                        const participant = conv.participants.find(p => p.id !== currentUser.id) || conv.participants[0];
+                        return (
+                            <div key={conv.id} className="relative w-full overflow-hidden">
+                                {/* Archive Background */}
+                                <div className="absolute inset-0 bg-red-500/20 flex items-center justify-end px-6">
+                                    <Archive className="text-red-400" size={24} />
+                                </div>
+
+                                <motion.button
+                                    drag="x"
+                                    dragConstraints={{ left: -100, right: 0 }}
+                                    dragElastic={0.1}
+                                    onDragEnd={(e, { offset }) => {
+                                        if (offset.x < -80) {
+                                            setConversations(prev => prev.filter(c => c.id !== conv.id));
+                                            trackInteraction('archive_conversation', 0);
+                                        }
+                                    }}
+                                    onClick={() => {
+                                        setActiveConversationId(conv.id);
+                                        setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, unreadCount: 0 } : c));
+                                        trackConnection(participant.id);
+                                    }}
+                                    className={`w-full px-6 py-4 flex items-center gap-4 transition-all border-b relative z-10 ${itemHover} ${bgColor} ${isRetro ? 'border-stone-800' : 'border-white/5'}`}
+                                    style={{ x: 0 }}
+                                >
+                                    <div className="relative">
+                                        <div className="w-14 h-14 rounded-full overflow-hidden bg-zinc-800 relative">
+                                            <Image
+                                                src={participant.avatar}
+                                                alt={participant.username}
+                                                fill
+                                                className="object-cover"
+                                                sizes="56px"
+                                            />
+                                        </div>
+                                        {participant.isOnline && (
+                                            <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-black rounded-full" />
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="font-bold text-white truncate">{participant.username}</span>
+                                            {conv.lastMessage && (
+                                                <span className="text-xs text-white/40 ml-2">
+                                                    {new Date(conv.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm text-white/50 truncate">
+                                                {conv.lastMessage?.content || 'Start a conversation'}
+                                            </p>
+                                            {conv.unreadCount > 0 && (
+                                                <span className="ml-2 px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
+                                                    {conv.unreadCount}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.button>
                             </div>
-
-                            <motion.button
-                                drag="x"
-                                dragConstraints={{ left: -100, right: 0 }}
-                                dragElastic={0.1}
-                                onDragEnd={(e, { offset }) => {
-                                    if (offset.x < -80) {
-                                        setConversations(prev => prev.filter(c => c.id !== conv.id));
-                                        trackInteraction('archive_conversation', 0);
-                                    }
-                                }}
-                                onClick={() => {
-                                    setActiveConversationId(conv.id);
-                                    setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, unreadCount: 0 } : c));
-                                    trackConnection(conv.participant.id);
-                                }}
-                                className={`w-full px-6 py-4 flex items-center gap-4 transition-all border-b relative z-10 ${itemHover} ${bgColor} ${isRetro ? 'border-stone-800' : 'border-white/5'}`}
-                                style={{ x: 0 }}
-                            >
-                                <div className="relative">
-                                    <div className="w-14 h-14 rounded-full overflow-hidden bg-zinc-800 relative">
-                                        <Image
-                                            src={conv.participant.avatar}
-                                            alt={conv.participant.username}
-                                            fill
-                                            className="object-cover"
-                                            sizes="56px"
-                                        />
-                                    </div>
-                                    {conv.participant.isOnline && (
-                                        <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-black rounded-full" />
-                                    )}
-                                </div>
-
-                                <div className="flex-1 min-w-0 text-left">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="font-bold text-white truncate">{conv.participant.username}</span>
-                                        {conv.lastMessage && (
-                                            <span className="text-xs text-white/40 ml-2">
-                                                {new Date(conv.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-sm text-white/50 truncate">
-                                            {conv.lastMessage?.content || 'Start a conversation'}
-                                        </p>
-                                        {conv.unreadCount > 0 && (
-                                            <span className="ml-2 px-2 py-0.5 bg-rose-500 text-white text-xs font-bold rounded-full min-w-[20px] text-center">
-                                                {conv.unreadCount}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </motion.button>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* User Discovery Modal */}
@@ -360,8 +365,8 @@ const MessagesSection = memo(function MessagesSection({
 
                             <div className={`w-10 h-10 rounded-full overflow-hidden border relative ${isRetro ? 'border-stone-800 bg-white' : 'bg-zinc-800 border-none'}`}>
                                 <Image
-                                    src={activeConversation.participant.avatar}
-                                    alt={activeConversation.participant.username}
+                                    src={otherUser?.avatar || ''}
+                                    alt={otherUser?.username || 'User'}
                                     fill
                                     className="object-cover"
                                     sizes="40px"
@@ -369,9 +374,9 @@ const MessagesSection = memo(function MessagesSection({
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h3 className={`font-bold text-sm truncate ${textColor} ${isRetro ? 'font-vt323 text-xl' : ''}`}>{activeConversation.participant.username}</h3>
+                                <h3 className={`font-bold text-sm truncate ${textColor} ${isRetro ? 'font-vt323 text-xl' : ''}`}>{otherUser?.username || 'User'}</h3>
                                 <p className={`text-xs ${mutedText}`}>
-                                    {activeConversation.participant.isOnline ? 'Active now' : 'Offline'}
+                                    {otherUser?.isOnline ? 'Active now' : 'Offline'}
                                 </p>
                             </div>
                         </div>

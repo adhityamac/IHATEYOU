@@ -19,6 +19,8 @@ export interface UserProfile {
     // App-specific Identity
     ghostName?: string;
     avatar?: string;
+    bio?: string;
+    phone?: string;
 
     // Wellness Data
     mood?: string;

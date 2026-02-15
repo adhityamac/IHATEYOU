@@ -122,6 +122,13 @@ export const updateGhostName = async (uid: string, ghostName: string): Promise<v
     await updateDoc(userRef, { ghostName });
 };
 
+// Generic update user profile
+export const updateUserProfile = async (uid: string, data: Partial<UserProfile>): Promise<void> => {
+    if (!db) return;
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, data);
+};
+
 // Update user theme
 export const updateUserTheme = async (uid: string, theme: string): Promise<void> => {
     if (!db) return;
