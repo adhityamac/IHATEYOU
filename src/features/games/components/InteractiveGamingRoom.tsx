@@ -7,6 +7,7 @@ import StatsDashboard from './StatsDashboard';
 import AchievementsList from './AchievementsList';
 import DailyChallenges from './DailyChallenges';
 import { MOCK_USER_STATS, MOCK_ACHIEVEMENTS, MOCK_CHALLENGES } from '../data/mockEngagementData';
+import { GameCard } from './GameCard';
 
 interface InteractiveGamingRoomProps {
     onSelectGame: (gameId: string) => void;
@@ -14,14 +15,18 @@ interface InteractiveGamingRoomProps {
 }
 
 const GAMES = [
-    { id: 'chess', name: 'Pixel Chess', icon: '♟️', category: 'brain', time: 15, difficulty: 'Hard', multiplayer: true, featured: true },
-    { id: 'pacman', name: 'Neon Pac-Man', icon: '👻', category: 'action', time: 10, difficulty: 'Medium', multiplayer: false },
-    { id: 'memory', name: 'Memory Match', icon: '🧩', category: 'brain', time: 5, difficulty: 'Easy', multiplayer: true },
-    { id: 'alchemy', name: 'Mood Alchemy', icon: '⚗️', category: 'creative', time: 8, difficulty: 'Medium', multiplayer: false },
-    { id: 'trivia', name: 'Cosmic Trivia', icon: '🧠', category: 'brain', time: 10, difficulty: 'Hard', multiplayer: true },
-    { id: 'tictactoe', name: 'Tic Tac Toe', icon: '🎲', category: 'quick', time: 3, difficulty: 'Easy', multiplayer: true },
-    { id: 'popper', name: 'Void Popper', icon: '💥', category: 'action', time: 5, difficulty: 'Hard', multiplayer: false },
-    { id: 'rhythm', name: 'Neon Rhythm', icon: '🎵', category: 'quick', time: 5, difficulty: 'Easy', multiplayer: false },
+    { id: 'chess', name: 'Pixel Chess', description: 'Master the classic strategy.', icon: '♟️', category: 'brain', time: 15, difficulty: 'Hard', multiplayer: true, featured: true },
+    { id: 'pacman', name: 'Neon Pac-Man', description: 'Retro arcade action.', icon: '👻', category: 'action', time: 10, difficulty: 'Medium', multiplayer: false, featured: false },
+    { id: 'tictactoe', name: 'Tic Tac Toe', description: 'Classic 3x3 for quick wins.', icon: '🎲', category: 'quick', time: 3, difficulty: 'Easy', multiplayer: true },
+    { id: 'rhythm', name: 'Neon Rhythm', description: 'Tap to the beat.', icon: '🎵', category: 'quick', time: 5, difficulty: 'Easy', multiplayer: false },
+    // Connection Activities
+    { id: 'truth-or-depth', name: 'Truth or Depth', description: 'Deep questions for connection.', icon: '💌', category: 'connection', time: 10, difficulty: 'Easy', multiplayer: true },
+    { id: 'know-me', name: 'Know Me Quiz', description: 'Test your friendship.', icon: '🧠', category: 'connection', time: 10, difficulty: 'Easy', multiplayer: true },
+    { id: 'mood-sync', name: 'Mood Sync', description: 'Align your vibes.', icon: '🌙', category: 'connection', time: 3, difficulty: 'Easy', multiplayer: true },
+    { id: 'memory-builder', name: 'Memory Builder', description: 'Craft shared stories.', icon: '📖', category: 'connection', time: 15, difficulty: 'Easy', multiplayer: true },
+    { id: 'conflict-sim', name: 'Conflict Sim', description: 'Safe space for disputes.', icon: '🧩', category: 'connection', time: 10, difficulty: 'Medium', multiplayer: true },
+    { id: 'future-map', name: 'Future Map', description: 'Align your paths.', icon: '🌌', category: 'connection', time: 10, difficulty: 'Easy', multiplayer: true },
+    { id: 'heartbeat', name: 'Heartbeat Timer', description: 'Sync up now.', icon: '🫀', category: 'connection', time: 1, difficulty: 'Easy', multiplayer: true },
 ];
 
 const THEMES = [
@@ -204,14 +209,14 @@ export default function InteractiveGamingRoom({ onSelectGame, onClose }: Interac
                                 </div>
                             </div>
 
-                            <div className="flex-1 grid grid-cols-4 gap-4 items-center">
-                                {GAMES.slice(0, 4).map((g, i) => (
-                                    <div key={i} className="flex flex-col items-center gap-2 group/icon cursor-pointer">
-                                        <div className="w-16 h-16 rounded-2xl bg-gray-800 border-2 border-white/10 flex items-center justify-center text-2xl shadow-lg group-hover/icon:scale-110 group-hover/icon:border-orange-500 transition-all">
-                                            {g.icon}
-                                        </div>
-                                        <span className="text-xs font-bold text-white/60 group-hover/icon:text-white transition-colors">{g.name}</span>
-                                    </div>
+                            <div className="flex-1 grid grid-cols-4 gap-4 items-stretch content-start overflow-y-auto pr-2 custom-scrollbar">
+                                {GAMES.slice(0, 4).map((game) => (
+                                    <GameCard
+                                        key={game.id}
+                                        {...game}
+                                        onClick={() => onSelectGame(game.id)}
+                                        className={game.featured ? "col-span-2 row-span-2 min-h-[auto]" : "col-span-1 min-h-[140px]"}
+                                    />
                                 ))}
                             </div>
 
@@ -268,20 +273,13 @@ export default function InteractiveGamingRoom({ onSelectGame, onClose }: Interac
                                 </h2>
                                 <button onClick={() => setShowGameMenu(false)} className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors"><X size={20} /></button>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 custom-scrollbar">
                                 {GAMES.map(game => (
-                                    <button
+                                    <GameCard
                                         key={game.id}
+                                        {...game}
                                         onClick={() => { onSelectGame(game.id); setShowGameMenu(false); }}
-                                        className="group bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/50 rounded-2xl p-6 flex flex-col items-center text-center transition-all"
-                                    >
-                                        <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{game.icon}</div>
-                                        <h3 className="font-bold text-lg mb-1">{game.name}</h3>
-                                        <div className="flex gap-2 text-[10px] uppercase font-bold text-white/40">
-                                            <span className="bg-white/5 px-2 py-1 rounded">{game.category}</span>
-                                            <span className="bg-white/5 px-2 py-1 rounded">{game.difficulty}</span>
-                                        </div>
-                                    </button>
+                                    />
                                 ))}
                             </div>
                         </motion.div>

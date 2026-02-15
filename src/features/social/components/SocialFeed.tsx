@@ -3,7 +3,16 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Plus } from 'lucide-react';
-import { Post, Story } from '@/types/types';
+import { Post } from '@/types/types';
+interface SocialStory {
+    id: string;
+    userId: string;
+    username: string;
+    userAvatar: string;
+    imageUrl: string;
+    isViewed: boolean;
+    timestamp: Date;
+}
 import { useSignals } from '@/hooks/useSignals';
 import { useAuth } from '@/contexts/AuthContext';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
@@ -16,7 +25,7 @@ const List = (ReactWindow as any).VariableSizeList || (ReactWindow as any).defau
 const AutoSizer = (AutoSizerPkg as any).default || AutoSizerPkg.AutoSizer || AutoSizerPkg;
 
 // Mock Data
-const MOCK_STORIES: Story[] = [
+const MOCK_STORIES: SocialStory[] = [
     {
         id: '1',
         userId: 'user-2',

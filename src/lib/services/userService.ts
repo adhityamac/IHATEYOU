@@ -31,20 +31,58 @@ export interface FirebaseUser extends UserProfile {
 /**
  * Create a new user document in Firestore
  */
-export async function createUser(userId: string, userData: Partial<FirebaseUser>) {
+export async function createUser(userId: string, userData: Partial<FirebaseUser> & { moodBaseline?: string; intent?: string[] }) {
     try {
+        if (!db) {
+            console.warn('Firebase DB not initialized - running in guest mode (createUser)');
+            // Return a mock user for guest mode to prevent crashes
+            const now = Timestamp.now();
+            return {
+                // UserProfile fields
+                id: userId,
+                username: userId, // Default to uid
+                displayName: userData.name || 'Anonymous',
+                bio: '',
+                avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+                email: userData.email || undefined,
+                theme: { primary: '#000000', secondary: '#ffffff', gradient: 'none' },
+                badges: [],
+                stats: { posts: 0, followers: 0, following: 0, streak: 0 },
+
+                // FirebaseUser specific
+                uid: userId, // Legacy
+                name: userData.name || 'Anonymous',
+                mood: userData.mood || '😶',
+                authMethod: userData.authMethod || 'email',
+                onboardingComplete: userData.onboardingComplete || false,
+                lastActive: now,
+                isOnline: true,
+                photoURL: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+                createdAt: now,
+                lastLoginAt: now,
+            } as unknown as FirebaseUser;
+        }
+
         const userRef = doc(db, 'users', userId);
 
-        const newUser: FirebaseUser = {
-            // Core UserProfile fields
+        // Prepare the new user object
+        // Note: casting to any to allow extra properties if needed, or stick to interface
+        const newUser: any = {
             uid: userId,
             email: userData.email || null,
             displayName: userData.name || 'Anonymous',
             photoURL: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
-            createdAt: serverTimestamp() as Timestamp,
-            lastLoginAt: serverTimestamp() as Timestamp,
+            createdAt: serverTimestamp(),
+            lastLoginAt: serverTimestamp(),
 
-            // FirebaseUser specific fields (aliases)
+            // UserProfile defaults
+            username: userId,
+            bio: '',
+            theme: { primary: '#000000', secondary: '#ffffff', gradient: 'none' },
+            badges: [],
+            stats: { posts: 0, followers: 0, following: 0, streak: 0 },
+
+            // FirebaseUser specific
             id: userId,
             name: userData.name || 'Anonymous',
             avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
@@ -53,12 +91,12 @@ export async function createUser(userId: string, userData: Partial<FirebaseUser>
             intent: userData.intent || [],
             authMethod: userData.authMethod || 'email',
             onboardingComplete: userData.onboardingComplete || false,
-            lastActive: serverTimestamp() as Timestamp,
+            lastActive: serverTimestamp(),
             isOnline: true,
         };
 
         await setDoc(userRef, newUser);
-        return newUser;
+        return newUser as FirebaseUser;
     } catch (error) {
         console.error('Error creating user:', error);
         throw error;
@@ -70,6 +108,7 @@ export async function createUser(userId: string, userData: Partial<FirebaseUser>
  */
 export async function getUser(userId: string): Promise<FirebaseUser | null> {
     try {
+        if (!db) return null;
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
 
@@ -88,6 +127,7 @@ export async function getUser(userId: string): Promise<FirebaseUser | null> {
  */
 export async function updateUser(userId: string, updates: Partial<FirebaseUser>) {
     try {
+        if (!db) return;
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, {
             ...updates,
@@ -104,6 +144,7 @@ export async function updateUser(userId: string, updates: Partial<FirebaseUser>)
  */
 export async function setUserOnlineStatus(userId: string, isOnline: boolean) {
     try {
+        if (!db) return;
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, {
             isOnline,
@@ -123,6 +164,7 @@ export async function completeUserOnboarding(
     onboardingData: { name: string; moodBaseline: string; intent: string[] }
 ) {
     try {
+        if (!db) return;
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, {
             name: onboardingData.name,
@@ -142,6 +184,7 @@ export async function completeUserOnboarding(
  */
 export async function searchUsers(searchTerm: string): Promise<FirebaseUser[]> {
     try {
+        if (!db) return [];
         const usersRef = collection(db, 'users');
         const q = query(
             usersRef,
@@ -162,6 +205,7 @@ export async function searchUsers(searchTerm: string): Promise<FirebaseUser[]> {
  */
 export async function getOnlineUsers(): Promise<FirebaseUser[]> {
     try {
+        if (!db) return [];
         const usersRef = collection(db, 'users');
         const q = query(usersRef, where('isOnline', '==', true));
 

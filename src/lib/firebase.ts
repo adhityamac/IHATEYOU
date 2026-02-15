@@ -11,13 +11,11 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Validate required environment variables
 // Check if Firebase credentials are available
-// FORCED GUEST MODE: Temporarily disabled to prevent invalid API key crash
-const hasFirebaseCredentials = false;
-/* !!(
+const hasFirebaseCredentials = !!(
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-); */
+);
 
 // Firebase configuration from environment variables
 const firebaseConfig = hasFirebaseCredentials ? {

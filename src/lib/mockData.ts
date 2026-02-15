@@ -54,6 +54,8 @@ export const createMockMessages = (userId: string): Message[] => [
         content: 'Hey! How are you doing? 👋',
         timestamp: new Date(Date.now() - 3600000),
         isRead: true,
+        size: 'medium',
+        reactions: [],
     },
     {
         id: '2',
@@ -61,6 +63,8 @@ export const createMockMessages = (userId: string): Message[] => [
         content: "I'm doing great! Just working on this new chat app 🚀",
         timestamp: new Date(Date.now() - 3500000),
         isRead: true,
+        size: 'medium',
+        reactions: [],
     },
     {
         id: '3',
@@ -68,6 +72,8 @@ export const createMockMessages = (userId: string): Message[] => [
         content: 'That sounds awesome! What features are you adding?',
         timestamp: new Date(Date.now() - 3400000),
         isRead: true,
+        size: 'medium',
+        reactions: [],
     },
     {
         id: '4',
@@ -79,6 +85,7 @@ export const createMockMessages = (userId: string): Message[] => [
             { emoji: '🔥', userId: 'user-2' },
             { emoji: '❤️', userId: 'user-3' }
         ],
+        size: 'medium',
     },
     {
         id: '5',
@@ -86,12 +93,14 @@ export const createMockMessages = (userId: string): Message[] => [
         content: "Love it! Can't wait to try it out! 🎉",
         timestamp: new Date(Date.now() - 1800000),
         isRead: true,
+        size: 'medium',
+        reactions: [],
     },
 ];
 
 export const initialConversations: Conversation[] = mockUsers.map((user, index) => ({
     id: `conv-${user.id}`,
-    participant: user,
+    participants: [user, DEFAULT_USER],
     messages: createMockMessages(user.id),
     lastMessage: createMockMessages(user.id)[createMockMessages(user.id).length - 1],
     unreadCount: index === 0 ? 0 : Math.floor(Math.random() * 3),

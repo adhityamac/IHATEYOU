@@ -6,42 +6,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { usePresence } from '@/hooks/usePresence';
 import { useUsersPresence } from '@/hooks/useUsersPresence';
 import MessagesSection from './MessagesSection';
-import { Conversation as FirebaseConversation, ChatMessage } from '@/lib/firebase/chat';
+import { ChatMessage } from '@/lib/firebase/chat';
 import { Conversation, Message, User } from '@/types/types';
 
 interface MessagesSectionWrapperProps {
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
 }
-
-// Convert Firebase conversation to app conversation format
-const convertConversation = (fbConv: FirebaseConversation, currentUserId: string): Conversation | null => {
-    const otherUserId = fbConv.participants.find(p => p !== currentUserId);
-    if (!otherUserId || !fbConv.participantDetails?.[otherUserId]) return null;
-
-    const participant = fbConv.participantDetails[otherUserId];
-
-    return {
-        id: fbConv.id,
-        participants: [{
-            id: otherUserId,
-            name: participant.name,
-            username: participant.ghostName || participant.name,
-            avatar: participant.avatar,
-            isOnline: true, // TODO: Add presence system
-        }],
-        messages: [], // Messages are loaded separately
-        lastMessage: fbConv.lastMessage ? {
-            id: 'last',
-            senderId: fbConv.lastMessage.senderId,
-            content: fbConv.lastMessage.content,
-            timestamp: fbConv.lastMessage.timestamp?.toDate() || new Date(),
-            isRead: true,
-            reactions: [],
-            size: 'small',
-        } : undefined,
-        unreadCount: fbConv.unreadCount?.[currentUserId] || 0,
-    };
-};
 
 // Convert Firebase message to app message format
 const convertMessage = (fbMsg: ChatMessage): Message => {

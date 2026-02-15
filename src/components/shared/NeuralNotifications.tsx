@@ -29,7 +29,7 @@ export default function NeuralNotifications() {
                 const draft = messages[Math.floor(Math.random() * messages.length)];
                 const newNote: Notification = {
                     id: Math.random().toString(36).substr(2, 9),
-                    type: draft.type as any,
+                    type: draft.type as Notification['type'],
                     message: draft.message,
                     timestamp: Date.now()
                 };

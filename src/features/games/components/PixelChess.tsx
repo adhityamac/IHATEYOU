@@ -214,7 +214,7 @@ function ChessBoard({ gameCtx }: { gameCtx: GameContextType }) {
     const { user } = useAuth();
     const [onlineGameId, setOnlineGameId] = useState<string | null>(null);
     const [joinIdInput, setJoinIdInput] = useState('');
-    const { game: remoteGame, makeMove: makeRemoteMove, isPlayerTurn, playerColor: remotePlayerColor } = useGame(onlineGameId);
+    const { game: remoteGame, makeMove: makeRemoteMove, isPlayerTurn, playerColor: remotePlayerColor, surrender } = useGame(onlineGameId);
     const [copied, setCopied] = useState(false);
 
     const [isAiThinking, setIsAiThinking] = useState(false);
@@ -545,14 +545,14 @@ function ChessBoard({ gameCtx }: { gameCtx: GameContextType }) {
             <div className="flex flex-col md:flex-row gap-8 items-start">
 
                 {/* Board Frame */}
-                <div className="p-2 bg-[#0a0a0a] rounded-xl shadow-2xl border border-white/10 max-w-lg relative">
+                <div className="p-2 bg-[#0a0a0a] rounded-xl shadow-2xl border border-white/10 max-w-lg relative w-full flex justify-center">
                     {/* Board Frame Highlight */}
                     <div className="absolute inset-0 border border-white/5 rounded-xl pointer-events-none" />
 
                     <div className={`
                         aspect-square bg-[#101010] border-4 border-[#101010]
                         grid grid-cols-8 grid-rows-8 relative
-                        w-[min(80vw,450px)] h-[min(80vw,450px)]
+                        w-full max-w-[450px]
                     `}>
                         {boardRows.map((sq) => (
                             <div
@@ -633,6 +633,19 @@ function ChessBoard({ gameCtx }: { gameCtx: GameContextType }) {
                     >
                         <RotateCcw size={16} /> Reset Board
                     </button>
+
+                    {gameMode === 'ONLINE' && onlineGameId && !game.isGameOver() && (
+                        <button
+                            onClick={() => {
+                                if (confirm('Are you sure you want to surrender?')) {
+                                    surrender();
+                                }
+                            }}
+                            className="p-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 rounded-xl border border-red-500/20 flex items-center justify-center gap-2 transition-colors font-bold text-sm"
+                        >
+                            🏳️ Surrender
+                        </button>
+                    )}
 
                 </div>
             </div>

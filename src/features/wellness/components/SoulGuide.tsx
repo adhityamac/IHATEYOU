@@ -2,10 +2,11 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { Send, Brain } from 'lucide-react';
+import { Send, Brain, Wind, Heart, Sparkles } from 'lucide-react';
 import { useSignals } from '@/hooks/useSignals';
 import { useAlgorithm } from '@/hooks/useAlgorithm';
 import Image from 'next/image';
+import { generateEchoResponse, getDailyCheckIn, getEveningReflection } from '@/lib/bots/echo-ai';
 
 import PixelHoverGrid from '@/components/backgrounds/PixelHoverGrid';
 
@@ -15,9 +16,27 @@ interface Message {
     sender: 'user' | 'guide';
 }
 
+type QuickAction = {
+    label: string;
+    icon: typeof Wind;
+    prompt: string;
+};
+
+const QUICK_ACTIONS: QuickAction[] = [
+    { label: 'Breathing', icon: Wind, prompt: 'I want to try a breathing exercise' },
+    { label: 'Body Scan', icon: Heart, prompt: 'Can we do a body scan meditation?' },
+    { label: 'Affirmation', icon: Sparkles, prompt: 'I need an affirmation right now' },
+];
+
+function getTimeAwareGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour >= 18 || hour < 5) return getEveningReflection();
+    return getDailyCheckIn();
+}
+
 export default function SoulGuide() {
     const [messages, setMessages] = useState<Message[]>([
-        { id: '1', text: 'Hello. I am Echo. What is on your mind today?', sender: 'guide' }
+        { id: '1', text: getTimeAwareGreeting(), sender: 'guide' }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -26,7 +45,6 @@ export default function SoulGuide() {
     const { trackTool } = useSignals('user-1');
     const { state: emotionalState } = useAlgorithm('user-1');
 
-    // Stable ID counter for messages - FIXED: moved outside function
     const INITIAL_ID = 2025122300000;
     const idCounter = useRef(INITIAL_ID);
 
@@ -36,69 +54,73 @@ export default function SoulGuide() {
         }
     }, [messages, isTyping]);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const processResponse = (userMessage: string): string => {
+        // Easter egg: puzzle step
+        if (userMessage.toLowerCase().includes('the beginning')) {
+            const puzzleResponses = [
+                "MEMORY UNLOCKED: 001",
+                "It started with a simple thought, didn't it?",
+                "You and I, we are just getting started.",
+                "The next key is hidden where you track your joy.",
+                "Look for the 'Golden' moment."
+            ];
+            return puzzleResponses[Math.floor(Math.random() * puzzleResponses.length)];
+        }
+
+        // Emotional state override from algorithm
+        if (emotionalState?.primaryState === 'emotionally_overloaded') {
+            const overloadResponses = [
+                "Everything feels like a lot right now, doesn't it? Let's just focus on your breath for a second.",
+                "I can feel the weight of those thoughts. You don't have to figure it all out today.",
+                "Your system is signaling overwhelm. Would you like to try a grounding exercise with me?",
+                "It's okay to be loud, or quiet, or nothing at all right now."
+            ];
+            return overloadResponses[Math.floor(Math.random() * overloadResponses.length)];
+        }
+
+        if (emotionalState?.primaryState === 'introspective') {
+            const introspectiveResponses = [
+                "You're looking deep today. What's the most unexpected thing you've found there?",
+                "There's a quiet power in your reflection. How does this connect to your past self?",
+                "I hear the depth in your words. What part of this story are you still writing?",
+                "That pensive energy suits you. What is the silence trying to tell you?"
+            ];
+            return introspectiveResponses[Math.floor(Math.random() * introspectiveResponses.length)];
+        }
+
+        // Primary: Headspace-style AI with emotion detection
+        return generateEchoResponse(userMessage);
+    };
+
+    const handleSend = (message?: string) => {
+        const text = message || input;
+        if (!text.trim()) return;
 
         idCounter.current += 1;
-        const userMsg: Message = { id: idCounter.current.toString(), text: input, sender: 'user' };
+        const userMsg: Message = { id: idCounter.current.toString(), text, sender: 'user' };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         trackTool('echo_chat', 0);
 
         setIsTyping(true);
-        setTimeout(() => {
-            let responses = [
-                "That sounds like a lot to carry. How does that make you feel in your body right now?",
-                "It's okay to feel overwhelmed. Small steps are still progress.",
-                "Have you tried taking a moment to just breathe into that feeling?",
-                "I hear you. Sometimes silence is the best response to chaos. Tell me more when you're ready.",
-                "Avoidance is also information. What do you think you're protecting yourself from?",
-                "I'm listening. Take your time."
-            ];
+        const typingDelay = 1200 + Math.random() * 800;
 
-            // PUZZLE STEP 2: "The Beginning"
-            if (input.toLowerCase().includes('the beginning')) {
-                responses = [
-                    "MEMORY UNLOCKED: 001",
-                    "It started with a simple thought, didn't it?",
-                    "You and I, we are just getting started.",
-                    "The next key is hidden where you track your joy.",
-                    "Look for the 'Golden' moment."
-                ];
-                // In a real app, we would unlock a database flag here.
-                // For now, the response IS the reward.
-            } else if (emotionalState?.primaryState === 'emotionally_overloaded') {
-                responses = [
-                    "Everything feels like a lot right now, doesn't it? Let's just focus on your breath for a second.",
-                    "I can feel the weight of those thoughts. You don't have to figure it all out today.",
-                    "Your system is signaling overwhelm. Would you like to try a grounding exercise with me?",
-                    "It's okay to be loud, or quiet, or nothing at all right now."
-                ];
-            } else if (emotionalState?.primaryState === 'introspective') {
-                responses = [
-                    "You're looking deep today. What's the most unexpected thing you've found there?",
-                    "There's a quiet power in your reflection. How does this connect to your past self?",
-                    "I hear the depth in your words. What part of this story are you still writing?",
-                    "That pensive energy suits you. What is the silence trying to tell you?"
-                ];
-            }
+        setTimeout(() => {
+            const response = processResponse(text);
 
             idCounter.current += 1;
-            const randomIdx = Math.floor(Math.random() * responses.length);
             const guideMsg: Message = {
                 id: idCounter.current.toString(),
-                text: responses[randomIdx],
+                text: response,
                 sender: 'guide'
             };
             setMessages(prev => [...prev, guideMsg]);
             setIsTyping(false);
             setIsSpeaking(true);
             setTimeout(() => setIsSpeaking(false), 5000);
-        }, 2000);
+        }, typingDelay);
     };
 
-    // Full circle watermelon
-    
     return (
         <div className="fixed inset-0 z-[50] bg-[#0c0a09] flex flex-col items-center justify-center overflow-hidden">
             {/* Interactive Grid Background */}
@@ -156,7 +178,7 @@ export default function SoulGuide() {
                     }}
                     transition={{
                         scale: { duration: isTyping ? 2 : 6, repeat: Infinity, ease: "easeInOut" },
-                        rotate: { duration: 60, repeat: Infinity, ease: "linear" }, // Slower rotation for image
+                        rotate: { duration: 60, repeat: Infinity, ease: "linear" },
                         y: { duration: isTyping ? 2 : 6, repeat: Infinity, ease: "easeInOut" }
                     }}
                     className="relative rounded-full overflow-hidden border-4 border-orange-500/20"
@@ -217,19 +239,39 @@ export default function SoulGuide() {
                     </AnimatePresence>
                 </div>
 
+                {/* Quick Action Chips */}
+                <div className="flex items-center justify-center gap-3 pb-4">
+                    {QUICK_ACTIONS.map((action) => {
+                        const Icon = action.icon;
+                        return (
+                            <motion.button
+                                key={action.label}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleSend(action.prompt)}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-orange-500/[0.06] border border-orange-500/15 text-white/40 text-sm hover:text-white/70 hover:bg-orange-500/[0.12] hover:border-orange-500/30 transition-all"
+                            >
+                                <Icon className="w-3.5 h-3.5" />
+                                {action.label}
+                            </motion.button>
+                        );
+                    })}
+                </div>
+
                 {/* Input Area */}
-                <div className="pb-24 pt-8 relative z-10">
+                <div className="pb-24 pt-4 relative z-10">
                     <div className="relative group max-w-xl mx-auto">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type a feeling..."
                             className="w-full bg-white/[0.02] border border-orange-500/20 rounded-[40px] px-10 py-8 text-white placeholder:text-white/10 focus:outline-none focus:bg-orange-500/[0.05] focus:border-orange-500/30 transition-all text-xl pr-24 shadow-inner"
                         />
                         <button
-                            onClick={handleSend}
+                            onClick={() => handleSend()}
+                            aria-label="Send message"
                             className="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-orange-500/20"
                         >
                             <Send size={24} />

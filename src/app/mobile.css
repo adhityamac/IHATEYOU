@@ -121,13 +121,13 @@ body {
     touch-action: none;
 }
 
-/* Mobile-optimized shadows (lighter for performance) */
+/* Mobile-optimized shadows — opt-in utility classes instead of Tailwind overrides */
 @media (max-width: 768px) {
-    .shadow-2xl {
+    .mobile-shadow-light {
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     }
 
-    .shadow-xl {
+    .mobile-shadow-medium {
         box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.1);
     }
 }
@@ -185,14 +185,14 @@ body {
     }
 }
 
-/* Optimize backdrop filters for mobile */
+/* Mobile-optimized blur — opt-in utility classes instead of Tailwind overrides */
 @media (max-width: 768px) {
-    .backdrop-blur-xl {
+    .mobile-blur-optimized {
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
 
-    .backdrop-blur-3xl {
+    .mobile-blur-heavy {
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
     }
@@ -218,13 +218,9 @@ body {
     user-select: none;
 }
 
-/* Mobile-optimized transitions */
+/* Mobile-optimized transitions — opt-in utility classes instead of Tailwind overrides */
 @media (max-width: 768px) {
-    .transition-all {
-        transition-duration: 200ms;
-    }
-
-    .transition-transform {
+    .mobile-transition-fast {
         transition-duration: 200ms;
     }
 }

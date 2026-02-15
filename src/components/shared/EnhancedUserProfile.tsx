@@ -4,27 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit3, Camera, Palette, Save, X, Sparkles, Star } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
-
-interface UserProfile {
-    id: string;
-    username: string;
-    displayName: string;
-    bio: string;
-    avatar: string;
-    coverImage?: string;
-    theme: {
-        primary: string;
-        secondary: string;
-        gradient: string;
-    };
-    badges: string[];
-    stats: {
-        posts: number;
-        followers: number;
-        following: number;
-        streak: number;
-    };
-}
+import { UserProfile } from '@/types/user';
 
 const THEME_PRESETS = [
     { name: 'Purple Dream', primary: '#8b5cf6', secondary: '#ec4899', gradient: 'from-purple-500 to-pink-500' },
@@ -270,7 +250,7 @@ export default function EnhancedUserProfile({
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as any)}
+                                        onClick={() => setActiveTab(tab.id as typeof activeTab)}
                                         className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all ${activeTab === tab.id
                                             ? 'bg-white text-black'
                                             : 'bg-white/10 text-white/60 hover:bg-white/20'

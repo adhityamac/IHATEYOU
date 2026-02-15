@@ -21,21 +21,21 @@ export default function ShaderGradientBackground() {
         color2: "#af35db",
         color3: "#d0bce1",
         uSpeed: 0.4,
-        uStrength: perfSettings.enableShadows ? 4 : 2, // Reduce strength on low-end
+        uStrength: perfSettings.strength,
         uDensity: 1.3,
         uFrequency: 5.5,
         uAmplitude: 1,
         brightness: 1.2,
-        reflection: perfSettings.enableBlur ? 0.1 : 0, // Disable reflection on low-end
-        grain: perfSettings.enableShaderGrain ? "on" as "on" | "off" : "off" as "on" | "off",
+        reflection: perfSettings.enableReflection ? 0.1 : 0,
+        grain: perfSettings.enableGrain ? "on" as "on" | "off" : "off" as "on" | "off",
         cAzimuthAngle: 180,
         cPolarAngle: 90,
         cDistance: 3.6,
         rotationX: 0,
         rotationY: 10,
         rotationZ: 50,
-        pixelDensity: perfSettings.shaderPixelDensity, // Device-optimized
-        frameRate: perfSettings.shaderFrameRate // Device-optimized
+        pixelDensity: perfSettings.pixelDensity,
+        frameRate: perfSettings.frameRate
     };
 
     const [params, setParams] = useState(initialParams);

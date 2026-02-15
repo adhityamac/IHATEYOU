@@ -33,4 +33,28 @@ export interface Conversation {
     unreadCount: number;
 }
 
-export type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music' | 'vision';
+export interface EmojiAvatar {
+    id: string;
+    name: string;
+    gridPos: {
+        row: number;
+        col: number;
+    };
+    color?: string;
+}
+
+export interface Post {
+    id: number;
+    user: string;
+    username: string;
+    avatar: string;
+    content: string;
+    image?: string;
+    time: string;
+    echoes: number;
+    replies: number;
+    isLiked: boolean;
+}
+
+
+export type Section = 'home' | 'messages' | 'music' | 'camera' | 'guide' | 'settings';

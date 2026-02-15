@@ -34,6 +34,7 @@ export default function GlobalError({
                     </p>
                     <button
                         onClick={reset}
+                        aria-label="Try again"
                         style={{
                             backgroundColor: '#fff',
                             color: '#000',

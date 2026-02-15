@@ -19,13 +19,13 @@ export default function NeuralRipples() {
     // Use useEffect for event listeners to avoid re-rendering parent
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            window.addEventListener('mousedown', addRipple as any);
-            window.addEventListener('touchstart', addRipple as any, { passive: true });
+            window.addEventListener('mousedown', addRipple as unknown as EventListener);
+            window.addEventListener('touchstart', addRipple as unknown as EventListener, { passive: true });
         }
         return () => {
             if (typeof window !== 'undefined') {
-                window.removeEventListener('mousedown', addRipple as any);
-                window.removeEventListener('touchstart', addRipple as any);
+                window.removeEventListener('mousedown', addRipple as unknown as EventListener);
+                window.removeEventListener('touchstart', addRipple as unknown as EventListener);
             }
         };
     }, [addRipple]);

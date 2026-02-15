@@ -10,7 +10,9 @@ import { SoundProvider } from "@/components/shared/SoundProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CustomCursor from "@/components/shared/CustomCursor";
 import { CommandMenu } from "@/components/shared/CommandMenu";
-import { Press_Start_2P, VT323, Rubik_Vinyl, Special_Elite, Fredoka, Space_Grotesk } from "next/font/google";
+import { Press_Start_2P, VT323, Rubik_Vinyl, Special_Elite, Fredoka, Space_Grotesk, Cormorant_Garamond } from "next/font/google";
+import { AudioProvider } from "@/contexts/AudioContext";
+import AmbienceSelector from "@/components/shared/AmbienceSelector";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -48,6 +50,12 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+const cormorantGaramond = Cormorant_Garamond({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+});
+
 export const metadata: Metadata = {
   title: "IHATEYOU - Neural Resonance",
   description: "A premium manifest interface for spectral communication.",
@@ -81,7 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${pressStart2P.variable} ${vt323.variable} ${rubikVinyl.variable} ${specialElite.variable} ${fredoka.variable} ${spaceGrotesk.variable} antialiased font-sans bg-theme-primary text-theme-primary transition-colors duration-300`}
+        className={`${pressStart2P.variable} ${vt323.variable} ${rubikVinyl.variable} ${specialElite.variable} ${fredoka.variable} ${spaceGrotesk.variable} ${cormorantGaramond.variable} antialiased font-sans bg-theme-primary text-theme-primary transition-colors duration-300`}
         suppressHydrationWarning
       >
         <ThemeModeProvider>
@@ -90,8 +98,11 @@ export default function RootLayout({
               <CommandMenu />
               <CursorProvider>
                 <SoundProvider>
-                  <CustomCursor />
-                  <main className="relative z-10">{children}</main>
+                  <AudioProvider>
+                    <CustomCursor />
+                    <AmbienceSelector />
+                    <main className="relative z-10">{children}</main>
+                  </AudioProvider>
                 </SoundProvider>
               </CursorProvider>
             </AuthProvider>

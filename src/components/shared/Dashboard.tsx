@@ -30,6 +30,8 @@ import BreathingExercise from './dashboard/BreathingExercise';
 import Journal from './dashboard/Journal';
 import Affirmations from './dashboard/Affirmations';
 import Insights from './dashboard/Insights';
+import VentBox from './dashboard/VentBox';
+import CalmingAudio from './dashboard/CalmingAudio';
 
 
 
@@ -76,6 +78,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
     const [showJournal, setShowJournal] = useState(false);
     const [showAffirmations, setShowAffirmations] = useState(false);
     const [showInsights, setShowInsights] = useState(false);
+    const [showVentBox, setShowVentBox] = useState(false);
+    const [showAudio, setShowAudio] = useState(false);
     const [quote, setQuote] = useState({ text: "You are stronger than you think.", author: "Unknown" });
 
     // Quotes Data
@@ -121,7 +125,7 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-[#FFD6A5] via-[#FFD6A5] to-[#FF9E9E] p-4 md:p-8 font-serif flex items-center justify-center overflow-x-hidden relative">
+        <div className="min-h-screen w-full bg-[#121212] p-4 md:p-8 font-serif flex items-center justify-center overflow-x-hidden relative text-white">
             <AnimatePresence>
                 {showOnboarding && (
                     <div className="fixed inset-0 z-[100]">
@@ -136,15 +140,19 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                 {showJournal && <Journal onClose={() => setShowJournal(false)} />}
                 {showAffirmations && <Affirmations onClose={() => setShowAffirmations(false)} />}
                 {showInsights && <Insights onClose={() => setShowInsights(false)} />}
+                {showVentBox && <VentBox onClose={() => setShowVentBox(false)} />}
+                {showAudio && <CalmingAudio onClose={() => setShowAudio(false)} />}
             </AnimatePresence>
 
             {/* Main Container - The "My Mind" Space */}
-            <div className="w-full max-w-[1400px] bg-white/60 backdrop-blur-2xl rounded-[40px] shadow-2xl border border-white/40 overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh]">
+            <div className="w-full max-w-[1400px] bg-[#1a1a1c]/80 backdrop-blur-2xl rounded-[40px] shadow-2xl border border-white/5 overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[85vh] relative">
+                {/* Noise Texture */}
+                <div className="noise-overlay" />
 
                 {/* --- LEFT SIDEBAR --- */}
-                <aside className="w-full md:w-64 bg-white/20 border-r border-white/20 flex flex-col p-8 overflow-y-auto">
+                <aside className="w-full md:w-64 bg-white/5 border-r border-white/5 flex flex-col p-8 overflow-y-auto relative z-10">
                     <div className="mb-12">
-                        <h1 className="text-3xl font-serif font-medium text-[#1a1a1c] tracking-tight flex items-center gap-3">
+                        <h1 className="text-3xl font-serif font-medium text-white tracking-tight flex items-center gap-3">
                             MindBloom
                             <div className="flex items-center gap-1 bg-orange-100 px-2 py-1 rounded-full border border-orange-200" title="Daily Streak">
                                 <span className="text-sm">🔥</span>
@@ -152,8 +160,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                             </div>
                         </h1>
                         <div className="mt-4">
-                            <p className="text-xs font-bold uppercase tracking-widest text-[#1a1a1c]/40">{getDateString()}</p>
-                            <p className="text-lg font-serif italic text-[#1a1a1c]/80">{getGreeting()}, {user?.name}</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-white/40">{getDateString()}</p>
+                            <p className="text-lg font-serif italic text-white/80">{getGreeting()}, {user?.name}</p>
                         </div>
                     </div>
 
@@ -163,8 +171,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                                 key={item.id}
                                 onClick={() => onSectionChange(item.id as Section)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-full transition-all font-medium text-sm ${item.id === 'dashboard'
-                                    ? 'bg-[#1a1a1c] text-white shadow-lg'
-                                    : 'text-[#1a1a1c]/60 hover:bg-white/40'
+                                    ? 'bg-white text-black shadow-lg shadow-white/10'
+                                    : 'text-white/40 hover:bg-white/5 hover:text-white'
                                     }`}
                             >
                                 <item.icon size={18} />
@@ -176,7 +184,7 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                     <div className="mt-8 pt-6 border-t border-[#1a1a1c]/5">
                         <button
                             onClick={() => logout()}
-                            className="flex items-center gap-3 px-4 py-2 text-[#1a1a1c]/60 font-medium text-sm hover:text-[#1a1a1c] hover:bg-red-50 rounded-full transition-all w-full text-left"
+                            className="flex items-center gap-3 px-4 py-2 text-white/40 font-medium text-sm hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all w-full text-left"
                         >
                             <LogOut size={18} />
                             Log out
@@ -197,7 +205,7 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                 </aside>
 
                 {/* --- MAIN FEED (Center) --- */}
-                <main className="flex-1 bg-white/40 p-6 md:p-10 overflow-y-auto custom-scrollbar relative">
+                <main className="flex-1 bg-transparent p-6 md:p-10 overflow-y-auto custom-scrollbar relative z-10">
 
                     {/* Header: Search & Tags */}
 
@@ -205,7 +213,7 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                     {/* Mood Section */}
                     <section className="mb-12">
                         <div className="flex justify-between items-end mb-6">
-                            <h2 className="text-2xl font-serif text-[#1a1a1c]">Current Mood</h2>
+                            <h2 className="text-2xl font-serif text-white">Current Mood</h2>
                         </div>
 
                         <div className="flex items-start gap-8">
@@ -220,18 +228,19 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                             </div>
 
                             {/* Speech Bubble - Minimalist */}
-                            <div className="flex-1 bg-white/80 backdrop-blur-md rounded-[32px] p-8 shadow-sm relative border border-white/50 group">
+                            <div className="flex-1 bg-white/5 backdrop-blur-md rounded-[32px] p-8 shadow-sm relative border border-white/10 group">
                                 <button
                                     onClick={refreshQuote}
-                                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-black/5 rounded-full"
+                                    aria-label="New quote"
+                                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-white/10 rounded-full"
                                     title="New Quote"
                                 >
-                                    <svg className="w-4 h-4 text-[#1a1a1c]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    <svg className="w-4 h-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                 </button>
-                                <p className="text-2xl font-serif font-medium text-[#1a1a1c] mb-3 leading-relaxed italic">
+                                <p className="text-2xl font-serif font-medium text-white mb-3 leading-relaxed italic">
                                     "{currentMood ? getMoodMessage() : quote.text}"
                                 </p>
-                                <p className="text-sm font-sans text-[#1a1a1c]/50 font-medium uppercase tracking-widest">
+                                <p className="text-sm font-sans text-white/50 font-medium uppercase tracking-widest">
                                     {currentMood ? `— Mood: ${currentMood}` : `— ${quote.author}`}
                                 </p>
                             </div>
@@ -255,28 +264,28 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                     {/* Daily Check-in & Hydration */}
                     <section className="mb-12">
                         <div className="flex justify-between items-end mb-6">
-                            <h2 className="text-2xl font-serif text-[#1a1a1c]">Daily Care</h2>
+                            <h2 className="text-2xl font-serif text-white">Daily Care</h2>
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Hydration Card */}
-                            <div className="bg-blue-50/50 rounded-[32px] p-6 shadow-sm border border-blue-100 flex flex-col relative overflow-hidden group">
-                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-200/20 rounded-full blur-xl"></div>
-                                <h4 className="font-serif font-medium text-lg text-blue-900 mb-1 z-10">Hydration</h4>
-                                <p className="text-[10px] text-blue-900/40 font-bold uppercase tracking-widest mb-4 z-10">{hydration}/8 Glasses</p>
+                            <div className="bg-blue-500/10 rounded-[32px] p-6 shadow-sm border border-blue-500/20 flex flex-col relative overflow-hidden group">
+                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/20 rounded-full blur-xl"></div>
+                                <h4 className="font-serif font-medium text-lg text-blue-200 mb-1 z-10">Hydration</h4>
+                                <p className="text-[10px] text-blue-200/40 font-bold uppercase tracking-widest mb-4 z-10">{hydration}/8 Glasses</p>
 
                                 <div className="flex flex-wrap gap-2 mb-4 z-10">
                                     {[...Array(8)].map((_, i) => (
                                         <div
                                             key={i}
-                                            className={`w-3 h-3 rounded-full transition-all ${i < hydration ? 'bg-blue-400 scale-110' : 'bg-blue-100'}`}
+                                            className={`w-3 h-3 rounded-full transition-all ${i < hydration ? 'bg-blue-400 scale-110 shadow-glow-blue' : 'bg-blue-500/20'}`}
                                         />
                                     ))}
                                 </div>
 
                                 <button
                                     onClick={() => updateHydration(1)}
-                                    className="mt-auto w-full bg-white text-blue-600 py-2 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                    className="mt-auto w-full bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 py-2 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 border border-blue-500/20"
                                 >
                                     <span>+</span> Add Water
                                 </button>
@@ -306,8 +315,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                                 className="bg-[#1a1a1c] relative rounded-[32px] p-6 text-left shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col justify-between border border-white/10 group overflow-hidden"
                             >
                                 {/* Gramophone / Record aesthetic */}
-                                <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl group-hover:scale-110 transition-transform"></div>
-                                <div className="absolute top-6 right-6 text-amber-100/50 group-hover:rotate-12 transition-transform duration-700">
+                                <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:scale-110 transition-transform"></div>
+                                <div className="absolute top-6 right-6 text-amber-500/50 group-hover:rotate-12 transition-transform duration-700">
                                     <Disc size={48} strokeWidth={1} />
                                 </div>
 
@@ -315,8 +324,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                                     <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 mb-4 backdrop-blur-sm">
                                         <Disc size={16} className="animate-spin-slow" />
                                     </div>
-                                    <h4 className="font-serif font-medium text-lg text-amber-50 mb-1">Retro Player</h4>
-                                    <p className="text-[10px] text-amber-50/40 font-bold uppercase tracking-widest">Lo-Fi & Classics</p>
+                                    <h4 className="font-serif font-medium text-lg text-amber-100 mb-1">Retro Player</h4>
+                                    <p className="text-[10px] text-amber-100/40 font-bold uppercase tracking-widest">Lo-Fi & Classics</p>
                                 </div>
                             </button>
                         </div>
@@ -326,13 +335,13 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
 
                         {/* Daily Goals (Takes up 2/3 on LG) */}
-                        <div className="lg:col-span-2 bg-white/60 backdrop-blur-xl rounded-[40px] p-8 shadow-sm border border-white/40 flex flex-col justify-between relative overflow-hidden">
+                        <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl rounded-[40px] p-8 shadow-sm border border-white/5 flex flex-col justify-between relative overflow-hidden">
                             <div className="flex justify-between items-start z-10">
                                 <div>
-                                    <h2 className="text-2xl font-serif text-[#1a1a1c] mb-1">Daily Goals</h2>
-                                    <p className="text-xs font-sans font-bold text-[#1a1a1c]/40 uppercase tracking-widest">Focus & Consistency</p>
+                                    <h2 className="text-2xl font-serif text-white mb-1">Daily Goals</h2>
+                                    <p className="text-xs font-sans font-bold text-white/40 uppercase tracking-widest">Focus & Consistency</p>
                                 </div>
-                                <span className="bg-[#1a1a1c] text-white text-xs font-bold px-3 py-1 rounded-full">
+                                <span className="bg-white/10 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/10">
                                     {goals.filter(g => g.done).length}/{goals.length} Completed
                                 </span>
                             </div>
@@ -344,14 +353,15 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                                         className="flex items-center gap-4 group cursor-pointer"
                                         onClick={() => toggleGoal(goal.id)}
                                     >
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${goal.done ? 'bg-[#10B981] border-[#10B981]' : 'border-[#1a1a1c]/20 group-hover:border-[#1a1a1c]/40'
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${goal.done ? 'bg-[#10B981] border-[#10B981]' : 'border-white/20 group-hover:border-white/40'
                                             }`}>
-                                            {goal.done && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                                            {goal.done && <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
                                         </div>
-                                        <span className={`font-serif text-lg ${goal.done ? 'text-[#1a1a1c]/40 line-through' : 'text-[#1a1a1c]'}`}>{goal.text}</span>
+                                        <span className={`font-serif text-lg ${goal.done ? 'text-white/40 line-through' : 'text-white'}`}>{goal.text}</span>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); deleteGoal(goal.id); }}
-                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full text-red-500 transition-all ml-auto"
+                                            aria-label="Delete goal"
+                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-full text-red-400 transition-all ml-auto"
                                         >
                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                         </button>
@@ -373,12 +383,13 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                                         value={newGoal}
                                         onChange={(e) => setNewGoal(e.target.value)}
                                         placeholder="Add a new goal..."
-                                        className="bg-transparent border-b border-[#1a1a1c]/10 w-full py-2 text-sm font-sans text-[#1a1a1c] placeholder-[#1a1a1c]/30 focus:outline-none focus:border-[#1a1a1c]/30 transition-colors pr-8"
+                                        className="bg-transparent border-b border-white/10 w-full py-2 text-sm font-sans text-white placeholder:text-white/30 focus:outline-none focus:border-white/50 transition-colors pr-8"
                                     />
                                     <button
                                         type="submit"
+                                        aria-label="Add goal"
                                         disabled={!newGoal.trim()}
-                                        className="absolute right-0 text-[#1a1a1c]/40 hover:text-[#1a1a1c] disabled:opacity-0 transition-all p-1"
+                                        className="absolute right-0 text-white/40 hover:text-white disabled:opacity-0 transition-all p-1"
                                     >
                                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -404,20 +415,20 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                         {/* Tools Grid (Takes up 1/3) */}
                         <div className="lg:col-span-1 grid grid-cols-1 gap-4">
                             {[
-                                { title: 'Breathing', sub: '4-4-4-2', icon: '💨', color: 'bg-cyan-100 text-cyan-800', action: () => setShowBreathing(true) },
-                                { title: 'Journal', sub: 'Reflect', icon: '📓', color: 'bg-purple-100 text-purple-800', action: () => setShowJournal(true) },
-                                { title: 'Affirmations', sub: 'Start well', icon: '✨', color: 'bg-amber-100 text-amber-800', action: () => setShowAffirmations(true) },
-                                { title: 'Insights', sub: 'Analytics', icon: '🧠', color: 'bg-emerald-100 text-emerald-800', action: () => setShowInsights(true) },
+                                { title: 'Vent Box', sub: 'Burn it', icon: '💌', color: 'bg-rose-500/20 text-rose-300', action: () => setShowVentBox(true) },
+                                { title: 'Calm Audio', sub: 'Voice Notes', icon: '🎧', color: 'bg-purple-500/20 text-purple-300', action: () => setShowAudio(true) },
+                                { title: 'Breathing', sub: '4-4-4-2', icon: '💨', color: 'bg-cyan-500/20 text-cyan-300', action: () => setShowBreathing(true) },
+                                { title: 'Journal', sub: 'Reflect', icon: '📓', color: 'bg-amber-500/20 text-amber-300', action: () => setShowJournal(true) },
                             ].map((tool, i) => (
                                 <button
                                     key={i}
                                     onClick={tool.action}
-                                    className="bg-white/70 backdrop-blur-md rounded-[32px] p-6 text-left shadow-sm hover:bg-white hover:scale-[1.02] transition-all flex items-center justify-between group"
+                                    className="bg-white/5 backdrop-blur-md rounded-[32px] p-6 text-left shadow-sm hover:bg-white/10 hover:scale-[1.02] transition-all flex items-center justify-between group border border-white/5"
                                 >
                                     <div>
-                                        <div className="mb-2 text-2xl">{tool.icon}</div>
-                                        <h4 className="font-serif font-bold text-[#1a1a1c] leading-none">{tool.title}</h4>
-                                        <p className="text-[10px] text-[#1a1a1c]/50 font-bold uppercase tracking-wider mt-1">{tool.sub}</p>
+                                        <div className="mb-2 text-2xl filter drop-shadow-md">{tool.icon}</div>
+                                        <h4 className="font-serif font-bold text-white leading-none">{tool.title}</h4>
+                                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider mt-1">{tool.sub}</p>
                                     </div>
                                     <div className={`w-8 h-8 rounded-full ${tool.color} flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}>
                                         <ChevronRight size={14} />
@@ -444,8 +455,8 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                             />
                         </div>
                         <div>
-                            <h3 className="font-serif font-medium text-lg text-[#1a1a1c]">{user?.name || 'Guest'}</h3>
-                            <p className="text-xs text-[#1a1a1c]/50 font-bold uppercase tracking-wider group-hover:text-[#1a1a1c]/80 transition-colors">Edit Profile</p>
+                            <h3 className="font-serif font-medium text-lg text-white">{user?.name || 'Guest'}</h3>
+                            <p className="text-xs text-white/50 font-bold uppercase tracking-wider group-hover:text-white/80 transition-colors">Edit Profile</p>
                         </div>
                     </button>
 
@@ -455,7 +466,7 @@ export default function Dashboard({ onSectionChange }: DashboardProps) {
                     <div className="mt-8">
                         <button
                             onClick={() => onSectionChange('messages')}
-                            className="w-full bg-[#1a1a1c] text-white rounded-full py-4 flex items-center gap-3 justify-center shadow-lg hover:bg-black hover:scale-[1.02] transition-all"
+                            className="w-full bg-white text-black rounded-full py-4 flex items-center gap-3 justify-center shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
                         >
                             <div className="w-6 h-6 bg-purple-200 rounded-full overflow-hidden">
                                 <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Therapist" alt="Therapist" />

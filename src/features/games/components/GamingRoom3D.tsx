@@ -363,16 +363,28 @@ export default function GamingRoom3D({ onSelectGame, onClose }: GamingRoom3DProp
 
                             {/* Game Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {['Chess', 'Pac-Man', 'Memory', 'Alchemy', 'Trivia', 'Tic Tac Toe'].map((game) => (
+                                {[
+                                    { name: 'Chess', id: 'chess' },
+                                    { name: 'Pac-Man', id: 'pacman' },
+                                    { name: 'Tic Tac Toe', id: 'tictactoe' },
+                                    { name: 'Neon Rhythm', id: 'rhythm' },
+                                    { name: '💌 Truth or Depth', id: 'truth-or-depth' },
+                                    { name: '🧠 Know Me Quiz', id: 'know-me' },
+                                    { name: '🌙 Mood Sync', id: 'mood-sync' },
+                                    { name: '📖 Memory Builder', id: 'memory-builder' },
+                                    { name: '🧩 Conflict Sim', id: 'conflict-sim' },
+                                    { name: '🌌 Future Map', id: 'future-map' },
+                                    { name: '🫀 Heartbeat Timer', id: 'heartbeat' },
+                                ].map((game) => (
                                     <button
-                                        key={game}
+                                        key={game.id}
                                         onClick={() => {
-                                            onSelectGame(game.toLowerCase().replace(/[- ]/g, ''));
+                                            onSelectGame(game.id);
                                             setShowGameMenu(false);
                                         }}
                                         className="p-6 bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl text-white font-bold text-lg transition-all transform hover:scale-105"
                                     >
-                                        {game}
+                                        {game.name}
                                     </button>
                                 ))}
                             </div>

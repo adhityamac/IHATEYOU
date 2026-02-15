@@ -5,20 +5,23 @@ import { X, Gamepad2, Maximize2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSignals } from '@/hooks/useSignals';
 import TicTacToe from './TicTacToe';
-import MemoryGame from './MemoryGame';
 import ReactionGame from './ReactionGame';
-import AlchemyGame from './AlchemyGame';
-import VoidPopperGame from './VoidPopperGame';
-import TriviaGame from './TriviaGame';
 import PixelChess from './PixelChess';
 import PacmanGame from './PacmanGame';
 import InteractiveGamingRoom from './InteractiveGamingRoom';
+import TruthOrDepth from './TruthOrDepth';
+import KnowMeQuiz from './KnowMeQuiz';
+import MoodSync from './MoodSync';
+import MemoryBuilder from './MemoryBuilder';
+import ConflictSim from './ConflictSim';
+import FutureMap from './FutureMap';
+import HeartbeatTimer from './HeartbeatTimer';
 
 // Game data matching the modern design
 interface Game {
     id: string;
     name: string;
-    category: 'Brain Games' | 'Action Games' | 'Creative Games' | 'Quick Play';
+    category: 'Brain Games' | 'Action Games' | 'Creative Games' | 'Quick Play' | 'Connection';
     description: string;
     icon: string;
     playCount: number;
@@ -53,48 +56,6 @@ const GAMES: Game[] = [
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     },
     {
-        id: 'alchemy',
-        name: 'Mood Alchemy',
-        category: 'Creative Games',
-        description: 'Mix emotions and create magic.',
-        icon: '⚗️',
-        playCount: 980,
-        difficulty: 'Medium',
-        gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    },
-    {
-        id: 'memory',
-        name: 'Memory Match',
-        category: 'Brain Games',
-        description: 'Test your memory with pixelated cards.',
-        icon: '🧩',
-        playCount: 700,
-        difficulty: 'Easy',
-        gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    },
-    {
-        id: 'popper',
-        name: 'Void Popper',
-        category: 'Action Games',
-        description: 'Pop the void bubbles before they reach you.',
-        icon: '💥',
-        playCount: 400,
-        difficulty: 'Hard',
-        isPremium: true,
-        gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    },
-    {
-        id: 'trivia',
-        name: 'Cosmic Trivia',
-        category: 'Brain Games',
-        description: 'Test your knowledge across the cosmos.',
-        icon: '🧠',
-        playCount: 850,
-        difficulty: 'Medium',
-        isNew: true,
-        gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    },
-    {
         id: 'rhythm',
         name: 'Neon Rhythm',
         category: 'Quick Play',
@@ -114,9 +75,80 @@ const GAMES: Game[] = [
         difficulty: 'Easy',
         gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     },
+    // ─── Connection Activities ────────────────────────────
+    {
+        id: 'truth-or-depth',
+        name: 'Truth or Depth',
+        category: 'Connection',
+        description: 'Layered questions that build deeper trust.',
+        icon: '💌',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+    },
+    {
+        id: 'know-me',
+        name: 'How Well Do You Know Me?',
+        category: 'Connection',
+        description: 'Two-player quiz — wrong answers teach, not shame.',
+        icon: '🧠',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%)',
+    },
+    {
+        id: 'mood-sync',
+        name: 'Mood Sync',
+        category: 'Connection',
+        description: 'See if you\'re on the same wavelength.',
+        icon: '🌙',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+    },
+    {
+        id: 'memory-builder',
+        name: 'Memory Builder',
+        category: 'Connection',
+        description: 'Build your shared story, one line at a time.',
+        icon: '📖',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #d97706 0%, #f43f5e 100%)',
+    },
+    {
+        id: 'conflict-sim',
+        name: 'Conflict Simulator',
+        category: 'Connection',
+        description: 'Practice disagreements before they happen.',
+        icon: '🧩',
+        playCount: 0,
+        difficulty: 'Medium',
+        gradient: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+    },
+    {
+        id: 'future-map',
+        name: 'Future Map',
+        category: 'Connection',
+        description: 'Visualize where your futures overlap.',
+        icon: '🌌',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #4338ca 0%, #7c3aed 100%)',
+    },
+    {
+        id: 'heartbeat',
+        name: 'Heartbeat Timer',
+        category: 'Connection',
+        description: '30 seconds of pure presence.',
+        icon: '🫀',
+        playCount: 0,
+        difficulty: 'Easy',
+        gradient: 'linear-gradient(135deg, #be123c 0%, #881337 100%)',
+    },
 ];
 
-const categories = ['All', 'Brain Games', 'Action Games', 'Creative Games', 'Quick Play'];
+const categories = ['All', 'Brain Games', 'Action Games', 'Quick Play', 'Connection'];
 
 interface FunZoneProps {
     onClose: () => void;
@@ -160,6 +192,20 @@ export default function FunZone({ onClose }: FunZoneProps) {
                         }}
                         onClose={onClose}
                     />
+                ) : [
+                    'truth-or-depth', 'know-me', 'mood-sync',
+                    'memory-builder', 'conflict-sim', 'future-map', 'heartbeat',
+                ].includes(gameMode) ? (
+                    // Connection activities — fullscreen via ConnectionShell
+                    <div className="w-full h-full">
+                        {gameMode === 'truth-or-depth' && <TruthOrDepth onBack={() => setGameMode(null)} />}
+                        {gameMode === 'know-me' && <KnowMeQuiz onBack={() => setGameMode(null)} />}
+                        {gameMode === 'mood-sync' && <MoodSync onBack={() => setGameMode(null)} />}
+                        {gameMode === 'memory-builder' && <MemoryBuilder onBack={() => setGameMode(null)} />}
+                        {gameMode === 'conflict-sim' && <ConflictSim onBack={() => setGameMode(null)} />}
+                        {gameMode === 'future-map' && <FutureMap onBack={() => setGameMode(null)} />}
+                        {gameMode === 'heartbeat' && <HeartbeatTimer onBack={() => setGameMode(null)} />}
+                    </div>
                 ) : (
                     // Individual Game View
                     <div className="w-full h-full bg-black">
@@ -174,13 +220,9 @@ export default function FunZone({ onClose }: FunZoneProps) {
 
                         <div className="h-[calc(100%-80px)] overflow-y-auto">
                             {gameMode === 'chess' && <PixelChess onBack={() => setGameMode(null)} />}
-                            {gameMode === 'pacman' && <PacmanGame onBack={() => setGameMode(null)} tokens={score} onUpdateTokens={() => { }} />}
+                            {gameMode === 'pacman' && <PacmanGame onBack={() => setGameMode(null)} />}
                             {gameMode === 'tictactoe' && <TicTacToe onBack={() => setGameMode(null)} />}
-                            {gameMode === 'memory' && <MemoryGame onBack={() => setGameMode(null)} />}
                             {gameMode === 'rhythm' && <ReactionGame onBack={() => setGameMode(null)} />}
-                            {gameMode === 'alchemy' && <AlchemyGame onBack={() => setGameMode(null)} />}
-                            {gameMode === 'popper' && <VoidPopperGame onBack={() => setGameMode(null)} />}
-                            {gameMode === 'trivia' && <TriviaGame onBack={() => setGameMode(null)} />}
                         </div>
                     </div>
                 )}

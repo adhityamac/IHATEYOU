@@ -21,6 +21,7 @@ export const updateUserPreferences = async (
     preferences: Partial<UserPreferences>
 ): Promise<void> => {
     try {
+        if (!db) return;
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, {
             'preferences': preferences,
@@ -36,6 +37,7 @@ export const getUserPreferences = async (
     userId: string
 ): Promise<UserPreferences | null> => {
     try {
+        if (!db) return null;
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
 
@@ -57,6 +59,7 @@ export const updateUserBio = async (
     bio: string
 ): Promise<void> => {
     try {
+        if (!db) return;
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, { bio });
     } catch (error) {

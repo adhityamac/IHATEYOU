@@ -1,83 +1,62 @@
-/**
- * Optimized Image Component
- * Wrapper around next/image with performance optimizations
- */
+'use client';
 
 import Image, { ImageProps } from 'next/image';
-import { useState } from 'react';
-import { getPerformanceSettings } from '@/lib/utils/performance';
+import { useState, useEffect } from 'react';
+import { isLowEndDevice } from '@/lib/utils/performance';
 
-interface OptimizedImageProps extends Omit<ImageProps, 'quality'> {
-    quality?: number;
-    showPlaceholder?: boolean;
+interface OptimizedImageProps extends Omit<ImageProps, 'onLoad' | 'onError'> {
+    fallbackSrc?: string;
+    containerClassName?: string;
 }
 
 export default function OptimizedImage({
+    src,
+    alt,
+    className,
+    containerClassName,
+    fallbackSrc = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=100&auto=format&fit=crop', // Abstract fallback
     quality,
-    showPlaceholder = true,
-    className = '',
     ...props
 }: OptimizedImageProps) {
     const [isLoading, setIsLoading] = useState(true);
-    const perfSettings = getPerformanceSettings();
+    const [error, setError] = useState(false);
+    const [deviceQuality, setDeviceQuality] = useState(75);
 
-    // Use device-optimized quality
-    const imageQuality = quality || perfSettings.imageQuality;
+    useEffect(() => {
+        if (isLowEndDevice()) {
+            setDeviceQuality(60);
+        } else {
+            setDeviceQuality(90);
+        }
+    }, []);
+
+    const finalQuality = quality || deviceQuality;
 
     return (
-        <div className={`relative ${className}`}>
-            {showPlaceholder && isLoading && (
-                <div className="absolute inset-0 bg-white/5 animate-pulse" />
-            )}
+        <div className={`relative overflow-hidden ${containerClassName || ''}`}>
             <Image
+                src={error ? fallbackSrc : src}
+                alt={alt}
+                quality={finalQuality}
+                onLoad={() => setIsLoading(false)}
+                onError={() => setError(true)}
+                className={`transition-all duration-500 ${isLoading ? 'scale-110 blur-lg grayscale' : 'scale-100 blur-0 grayscale-0'
+                    } ${className || ''}`}
                 {...props}
-                quality={imageQuality}
-                loading="lazy"
-                onLoadingComplete={() => setIsLoading(false)}
-                className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
-                    } ${className}`}
             />
         </div>
     );
 }
 
-/**
- * Avatar Image Component
- * Optimized for user avatars with fallback
- */
-export function AvatarImage({
-    src,
-    alt,
-    size = 40,
-    className = '',
-}: {
-    src: string;
-    alt: string;
-    size?: number;
-    className?: string;
-}) {
-    const [error, setError] = useState(false);
-
-    if (error) {
-        return (
-            <div
-                className={`flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold ${className}`}
-                style={{ width: size, height: size }}
-            >
-                {alt.charAt(0).toUpperCase()}
-            </div>
-        );
-    }
-
+export function AvatarImage({ src, alt, size = 40, className }: { src: string; alt: string; size?: number; className?: string }) {
     return (
-        <Image
+        <OptimizedImage
             src={src}
             alt={alt}
             width={size}
             height={size}
-            className={`rounded-full ${className}`}
-            onError={() => setError(true)}
-            loading="lazy"
+            containerClassName={`rounded-full ${className || ''}`}
+            fallbackSrc={`https://api.dicebear.com/7.x/initials/svg?seed=${alt}`}
         />
     );
 }

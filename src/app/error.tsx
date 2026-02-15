@@ -29,6 +29,7 @@ export default function Error({
 
             <button
                 onClick={reset}
+                aria-label="Attempt system reboot"
                 className="px-6 py-3 bg-white text-black font-bold rounded hover:bg-zinc-200 transition-colors"
             >
                 ATTEMPT SYSTEM REBOOT

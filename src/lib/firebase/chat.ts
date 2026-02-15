@@ -62,6 +62,7 @@ export const createConversation = async (
     user1Details: { name: string; avatar: string; ghostName?: string },
     user2Details: { name: string; avatar: string; ghostName?: string }
 ): Promise<string> => {
+    if (!db) throw new Error('Firebase not initialized');
     try {
         // Check if conversation already exists
         const existingConv = await findConversation(userId1, userId2);
@@ -70,7 +71,7 @@ export const createConversation = async (
         }
 
         // Create new conversation
-        const conversationRef = await addDoc(collection(db, 'conversations'), {
+        const conversationRef = await addDoc(collection(db!, 'conversations'), {
             participants: [userId1, userId2],
             participantDetails: {
                 [userId1]: user1Details,
@@ -96,9 +97,10 @@ export const findConversation = async (
     userId1: string,
     userId2: string
 ): Promise<Conversation | null> => {
+    if (!db) return null;
     try {
         const q = query(
-            collection(db, 'conversations'),
+            collection(db!, 'conversations'),
             where('participants', 'array-contains', userId1)
         );
 
@@ -127,8 +129,13 @@ export const getUserConversations = (
     userId: string,
     callback: (conversations: Conversation[]) => void
 ) => {
+    if (!db) {
+        callback([]);
+        return () => { };
+    }
+
     const q = query(
-        collection(db, 'conversations'),
+        collection(db!, 'conversations'),
         where('participants', 'array-contains', userId),
         orderBy('updatedAt', 'desc')
     );
@@ -160,10 +167,11 @@ export const sendMessage = async (
     type: 'text' | 'image' | 'voice' = 'text',
     mediaUrl?: string
 ): Promise<string> => {
+    if (!db) throw new Error('Firebase not initialized');
     try {
         // Add message to messages subcollection
         const messageRef = await addDoc(
-            collection(db, 'conversations', conversationId, 'messages'),
+            collection(db!, 'conversations', conversationId, 'messages'),
             {
                 senderId,
                 content,
@@ -176,7 +184,7 @@ export const sendMessage = async (
         );
 
         // Update conversation's last message and timestamp
-        const conversationRef = doc(db, 'conversations', conversationId);
+        const conversationRef = doc(db!, 'conversations', conversationId);
         const conversationSnap = await getDoc(conversationRef);
         const currentUnread = conversationSnap.data()?.unreadCount || {};
 
@@ -203,8 +211,13 @@ export const listenToMessages = (
     callback: (messages: ChatMessage[]) => void,
     limitCount: number = 50
 ) => {
+    if (!db) {
+        callback([]);
+        return () => { };
+    }
+
     const q = query(
-        collection(db, 'conversations', conversationId, 'messages'),
+        collection(db!, 'conversations', conversationId, 'messages'),
         orderBy('timestamp', 'desc'),
         limit(limitCount)
     );
@@ -235,10 +248,11 @@ export const markMessagesAsRead = async (
     conversationId: string,
     userId: string
 ): Promise<void> => {
+    if (!db) return;
     try {
         // Get all unread messages from the other user
         const q = query(
-            collection(db, 'conversations', conversationId, 'messages'),
+            collection(db!, 'conversations', conversationId, 'messages'),
             where('isRead', '==', false),
             where('senderId', '!=', userId)
         );
@@ -247,7 +261,7 @@ export const markMessagesAsRead = async (
 
         // Update each message
         const updatePromises = snapshot.docs.map((messageDoc) =>
-            updateDoc(doc(db, 'conversations', conversationId, 'messages', messageDoc.id), {
+            updateDoc(doc(db!, 'conversations', conversationId, 'messages', messageDoc.id), {
                 isRead: true,
             })
         );
@@ -255,7 +269,7 @@ export const markMessagesAsRead = async (
         await Promise.all(updatePromises);
 
         // Reset unread count for this user
-        const conversationRef = doc(db, 'conversations', conversationId);
+        const conversationRef = doc(db!, 'conversations', conversationId);
         await updateDoc(conversationRef, {
             [`unreadCount.${userId}`]: 0,
         });
@@ -272,8 +286,9 @@ export const addReaction = async (
     userId: string,
     emoji: string
 ): Promise<void> => {
+    if (!db) return;
     try {
-        const messageRef = doc(db, 'conversations', conversationId, 'messages', messageId);
+        const messageRef = doc(db!, 'conversations', conversationId, 'messages', messageId);
         const messageSnap = await getDoc(messageRef);
         const currentReactions = messageSnap.data()?.reactions || [];
 
@@ -305,8 +320,9 @@ export const deleteMessage = async (
     conversationId: string,
     messageId: string
 ): Promise<void> => {
+    if (!db) return;
     try {
-        await deleteDoc(doc(db, 'conversations', conversationId, 'messages', messageId));
+        await deleteDoc(doc(db!, 'conversations', conversationId, 'messages', messageId));
     } catch (error) {
         console.error('Error deleting message:', error);
         throw error;
@@ -319,9 +335,10 @@ export const loadMoreMessages = async (
     lastDoc: QueryDocumentSnapshot<DocumentData>,
     limitCount: number = 50
 ): Promise<ChatMessage[]> => {
+    if (!db) return [];
     try {
         const q = query(
-            collection(db, 'conversations', conversationId, 'messages'),
+            collection(db!, 'conversations', conversationId, 'messages'),
             orderBy('timestamp', 'desc'),
             startAfter(lastDoc),
             limit(limitCount)

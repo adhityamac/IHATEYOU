@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { updateUserProfile } from '@/lib/firebase/auth';
-import { useThemeMode } from '@/contexts/ThemeModeContext';
+import { useThemeMode, ThemeMode } from '@/contexts/ThemeModeContext';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 
 type SettingsView = 'main' | 'account' | 'privacy' | 'notifications' | 'appearance' | 'data' | 'help';
@@ -130,9 +130,9 @@ export default function SettingsSection({ onScroll }: SettingsSectionProps) {
     // Sync both theme contexts
     const { setTheme } = useTheme();
 
-    const handleThemeChange = (newMode: any) => {
+    const handleThemeChange = (newMode: ThemeMode) => {
         setMode(newMode);
-        setTheme(newMode);
+        setTheme(newMode as any);
     };
 
     const isRetro = mode === 'retro-soul' || mode === 'retro';

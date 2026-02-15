@@ -4,6 +4,10 @@ import {
     signOut as firebaseSignOut,
     onAuthStateChanged,
     signInAnonymously as firebaseSignInAnonymously,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    updateProfile,
     User,
     UserCredential,
 } from 'firebase/auth';
@@ -78,8 +82,8 @@ export const createOrUpdateUserProfile = async (user: User): Promise<void> => {
 
     const userData: Partial<UserProfile> = {
         uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
+        email: user.email ?? undefined,
+        displayName: user.displayName ?? undefined,
         photoURL: user.photoURL,
         lastLoginAt: serverTimestamp() as Timestamp,
     };
@@ -172,4 +176,53 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
 // Get current user
 export const getCurrentUser = (): User | null => {
     return auth?.currentUser || null;
+};
+
+// Email/Password Sign Up
+export const signUpWithEmail = async (
+    email: string,
+    password: string,
+    displayName?: string
+): Promise<UserCredential> => {
+    if (!auth) {
+        throw new Error('Firebase Auth is not available. Please configure Firebase credentials.');
+    }
+
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+
+    if (displayName && result.user) {
+        await updateProfile(result.user, { displayName });
+    }
+
+    await createOrUpdateUserProfile(result.user);
+    return result;
+};
+
+// Email/Password Sign In
+export const signInWithEmail = async (
+    email: string,
+    password: string
+): Promise<UserCredential> => {
+    if (!auth) {
+        throw new Error('Firebase Auth is not available. Please configure Firebase credentials.');
+    }
+
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    await createOrUpdateUserProfile(result.user);
+    return result;
+};
+
+// Password Reset
+export const resetPassword = async (email: string): Promise<void> => {
+    if (!auth) {
+        throw new Error('Firebase Auth is not available. Please configure Firebase credentials.');
+    }
+    await sendPasswordResetEmail(auth, email);
+};
+
+// Get Firebase ID token for session cookie handshake
+export const getIdToken = async (): Promise<string | null> => {
+    const user = auth?.currentUser;
+    if (!user) return null;
+    return user.getIdToken();
 };

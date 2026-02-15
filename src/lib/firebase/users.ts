@@ -21,6 +21,7 @@ export const searchUsersByGhostName = async (
     limitCount: number = 20
 ): Promise<UserProfile[]> => {
     try {
+        if (!db) return [];
         if (!searchTerm.trim()) return [];
 
         const q = query(
@@ -47,6 +48,7 @@ export const getRandomUsers = async (
         // Fetch all users with a reasonable limit
         // We can't use where('uid', '!=', currentUserId) without orderBy('uid')
         // So we fetch more users and filter client-side
+        if (!db) return [];
         const q = query(
             collection(db, 'users'),
             limit(limitCount * 3) // Fetch 3x to ensure enough after filtering
@@ -56,8 +58,8 @@ export const getRandomUsers = async (
         const users = snapshot.docs
             .map((doc) => doc.data() as UserProfile)
             .filter((user) =>
-                user.uid !== currentUserId &&
-                user.uid !== ECHO_BOT_ID // Filter out current user and Echo bot
+                user.id !== currentUserId &&
+                user.id !== ECHO_BOT_ID // Filter out current user and Echo bot
             )
             .slice(0, limitCount);
 
@@ -72,6 +74,7 @@ export const getRandomUsers = async (
 // Get user by ID
 export const getUserById = async (userId: string): Promise<UserProfile | null> => {
     try {
+        if (!db) return null;
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
             return userDoc.data() as UserProfile;
@@ -104,6 +107,7 @@ export const getUsersWithPagination = async (
     limitCount: number = 20
 ): Promise<{ users: UserProfile[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null }> => {
     try {
+        if (!db) return { users: [], lastDoc: null };
         let q;
 
         if (lastDoc) {

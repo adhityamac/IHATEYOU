@@ -2,21 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Gamepad2, RefreshCw } from 'lucide-react';
+import { Settings, Gamepad2, RefreshCw, Camera } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/shared/GradientThemeProvider';
 import { useThemeMode } from '@/contexts/ThemeModeContext';
 import { useSignals } from '@/hooks/useSignals';
-// import { useAlgorithm } from '@/lib/algorithm';
-
-type Section = 'home' | 'dashboard' | 'messages' | 'social' | 'search' | 'guide' | 'settings' | 'games' | 'music' | 'vision';
+import { Section } from '@/types/types';
 import Dock from '@/components/shared/Dock';
 import Dashboard from '@/components/shared/Dashboard';
-
 import MessagesSectionWrapper from '@/features/chat/components/MessagesSectionWrapper';
-import SocialFeed from '@/features/social/components/SocialFeed';
 import SoulGuide from '@/features/wellness/components/SoulGuide';
-import VisionBoard from '@/features/wellness/components/VisionBoard';
+
 import SettingsSection from '@/components/shared/SettingsSection';
 import FunZone from '@/features/games/components/FunZone';
 import RetroMusicPlayer from '@/features/games/components/RetroMusicPlayer';
@@ -26,6 +22,7 @@ import WelcomeScreen from '@/features/auth/components/WelcomeScreen';
 import AuthScreen from '@/features/auth/components/AuthScreen';
 import OnboardingFlow from '@/features/auth/components/OnboardingFlow';
 import LiquidBackground from '@/components/backgrounds/LiquidBackground';
+import Photobooth from '@/features/camera/components/Photobooth';
 import LightBackground from '@/components/backgrounds/LightBackground';
 import RetroBackground from '@/components/backgrounds/RetroBackground';
 import RetroMinimalBackground from '@/components/backgrounds/RetroMinimalBackground';
@@ -99,7 +96,7 @@ export default function Home() {
 
   // const { state: emotionalState, decision: algoDecision } = useAlgorithm(currentUserId);
 
-  const [activeSection, setActiveSection] = useState<Section>('dashboard');
+  const [activeSection, setActiveSection] = useState<Section>('home');
   const [showFunZone, setShowFunZone] = useState(false);
   const { theme } = useTheme();
   const [showHeader, setShowHeader] = useState(true);
@@ -168,10 +165,28 @@ export default function Home() {
       setShowDock(false);
     } else if (currentScrollY < lastScrollY.current || currentScrollY < 20) {
       setShowHeader(true);  // Scrolling up - show UI
-      setShowDock(true);
+      // In Camera mode, strictly keep dock hidden unless hovered (handled by Dock component)
+      // or force user to scroll up?
+      // Actually, better to just let hover handle it in camera mode.
+      if (activeSection === 'camera') {
+        setShowDock(false);
+      } else {
+        setShowDock(true);
+      }
     }
     lastScrollY.current = currentScrollY;
   };
+
+  // Auto-hide Dock when entering Camera mode
+  useEffect(() => {
+    if (activeSection === 'camera') {
+      setShowDock(false);
+      setShowHeader(false); // Immersive mode
+    } else {
+      setShowDock(true);
+      setShowHeader(true);
+    }
+  }, [activeSection]);
 
   // Pull to Refresh Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -324,6 +339,7 @@ export default function Home() {
 
 
                       <button
+                        aria-label="Settings"
                         onClick={() => setActiveSection('settings')}
                         className={`group relative w-12 h-12 flex items-center justify-center rounded-2xl border transition-all ${isRetro
                           ? 'bg-[#eab308] border-[#422006] hover:bg-[#fde047]'
@@ -367,46 +383,34 @@ export default function Home() {
                     className="flex-1 flex flex-col will-change-transform overflow-hidden"
                   >
                     {activeSection === 'home' && (
-                      <div
-                        data-scrollable="true"
-                        className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar relative"
-                        onScroll={handleScroll}
-                      >
-                        <EmotionalCheckIn />
-                      </div>
-                    )}
-
-                    {activeSection === 'dashboard' && (
                       <>
-                        {/* Traditional 2D Dashboard */}
-                        <>
-                          <ScrollProgress color={isRetro ? '#422006' : "rgb(168, 85, 247)"} position="right" thickness={3} />
+                        <ScrollProgress color={isRetro ? '#422006' : "rgb(168, 85, 247)"} position="right" thickness={3} />
+                        <div
+                          ref={dashboardRef}
+                          data-scrollable="true"
+                          className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
+                          onScroll={handleScroll}
+                          onTouchStart={handleTouchStart}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
+                        >
                           <div
-                            ref={dashboardRef}
-                            data-scrollable="true"
-                            className="flex flex-col h-full overflow-y-auto custom-scrollbar scroll-smooth relative pt-24"
-                            onScroll={handleScroll}
-                            onTouchStart={handleTouchStart}
-                            onTouchMove={handleTouchMove}
-                            onTouchEnd={handleTouchEnd}
+                            className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
+                            style={{ transform: `translateY(${pullProgress - 50}px)` }}
                           >
-                            <div
-                              className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none z-20"
-                              style={{ transform: `translateY(${pullProgress - 50}px)` }}
-                            >
-                              <div className={`w-10 h-10 backdrop-blur-xl rounded-full flex items-center justify-center border shadow-xl mt-4 ${isRetro ? 'bg-[#eab308] border-[#422006]' : 'bg-black/50 border-white/10'}`}>
-                                <RefreshCw
-                                  className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''} ${isRetro ? 'text-[#422006]' : 'text-white'}`}
-                                  style={{ transform: `rotate(${pullProgress * 3}deg)` }}
-                                />
-                              </div>
+                            <div className={`w-10 h-10 backdrop-blur-xl rounded-full flex items-center justify-center border shadow-xl mt-4 ${isRetro ? 'bg-[#eab308] border-[#422006]' : 'bg-black/50 border-white/10'}`}>
+                              <RefreshCw
+                                className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''} ${isRetro ? 'text-[#422006]' : 'text-white'}`}
+                                style={{ transform: `rotate(${pullProgress * 3}deg)` }}
+                              />
                             </div>
-
-                            <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-                              <Dashboard onSectionChange={(section) => setActiveSection(section)} />
-                            </motion.div>
                           </div>
-                        </>
+
+                          <motion.div animate={{ y: pullProgress > 0 ? pullProgress * 0.3 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+                            <EmotionalCheckIn />
+                            <Dashboard onSectionChange={(section) => setActiveSection(section)} />
+                          </motion.div>
+                        </div>
                       </>
                     )}
 
@@ -414,19 +418,13 @@ export default function Home() {
                       <MessagesSectionWrapper onScroll={handleScroll} />
                     )}
 
-                    {activeSection === 'social' && (
-                      <SocialFeed onScroll={handleScroll} />
-                    )}
-
-
-
                     {activeSection === 'guide' && <SoulGuide />}
 
-                    {activeSection === 'vision' && <VisionBoard />}
+                    {activeSection === 'camera' && <Photobooth />}
 
                     {activeSection === 'music' && (
                       <div className="flex-1 relative flex items-center justify-center bg-black/80 backdrop-blur-xl">
-                        <RetroMusicPlayer onClose={() => setActiveSection('dashboard')} />
+                        <RetroMusicPlayer onClose={() => setActiveSection('home')} />
                       </div>
                     )}
 
@@ -439,13 +437,9 @@ export default function Home() {
                 activeSection={activeSection}
                 showDock={showDock}
                 onSectionChange={(section) => {
-                  if (section === 'games') {
-                    setShowFunZone(true);
-                  } else {
-                    setActiveSection(section);
-                    setShowHeader(true);
-                    setShowDock(true); // Always show dock when changing sections
-                  }
+                  setActiveSection(section);
+                  setShowHeader(true);
+                  setShowDock(true);
                 }}
               />
             </div>

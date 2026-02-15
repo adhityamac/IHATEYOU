@@ -24,9 +24,9 @@ export const useUsersPresence = (userIds: string[]) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     const lastSeen = data.lastSeen?.toDate();
-                    const isOnline = data.isOnline === true || (
-                        lastSeen && (Date.now() - lastSeen.getTime() < 5 * 60 * 1000) // 5 minutes timeout
-                    );
+                    // Rely primarily on lastSeen for online status (2 minutes timeout)
+                    // We ignore data.isOnline because it can be stale if the user closes the tab without a clean disconnect
+                    const isOnline = lastSeen && (Date.now() - lastSeen.getTime() < 2 * 60 * 1000);
 
                     setPresenceData(prev => ({
                         ...prev,

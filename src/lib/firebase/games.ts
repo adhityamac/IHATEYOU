@@ -151,6 +151,30 @@ export const makeMove = async (gameId: string, userId: string, from: string, to:
     });
 };
 
+export const abandonGame = async (gameId: string, userId: string): Promise<void> => {
+    if (!db) throw new Error('Firebase not initialized');
+
+    const gameRef = doc(db, GAMES_COLLECTION, gameId);
+
+    await runTransaction(db, async (transaction) => {
+        const gameDoc = await transaction.get(gameRef);
+        if (!gameDoc.exists()) throw new Error('Game not found');
+
+        const data = gameDoc.data() as FirestoreGame;
+
+        if (data.status !== 'active') throw new Error('Game is not active');
+
+        // Determine forfeiter and winner
+        const winner = data.players.w === userId ? 'b' : (data.players.b === userId ? 'w' : null);
+        if (!winner) throw new Error('User is not a player in this game');
+
+        transaction.update(gameRef, {
+            status: 'abandoned', // or 'completed' depending on how we handle it
+            winner: winner
+        });
+    });
+};
+
 export const subscribeToGame = (gameId: string, callback: (game: FirestoreGame | null) => void) => {
     if (!db) return () => { };
 

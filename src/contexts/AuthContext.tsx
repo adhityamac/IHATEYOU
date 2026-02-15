@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     if (profile) {
                         // Convert Firestore profile to our UserProfile format
                         setUser({
-                            id: profile.uid,
+                            id: authUser.uid,
                             name: profile.displayName || 'User',
                             email: profile.email || undefined,
                             phone: undefined,
@@ -77,9 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             authMethod: 'google', // Default to google for now
                             onboardingComplete: !!profile.ghostName, // If they have a ghost name, onboarding is complete
                             moodBaseline: profile.moodBaseline,
-                            intent: profile.intent,
+                            intent: profile.intent ? (Array.isArray(profile.intent) ? profile.intent : [profile.intent]) : undefined,
                             ghostName: profile.ghostName,
-                            theme: profile.theme,
+                            theme: profile.theme?.gradient,
                             createdAt: profile.createdAt?.toDate() || new Date()
                         });
                     } else {
@@ -188,6 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
+            // Clear server-side session cookie
+            await fetch('/api/auth/session', { method: 'DELETE' });
             await firebaseSignOut();
             setUser(null);
             setFirebaseUser(null);

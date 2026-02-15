@@ -54,7 +54,7 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
         try {
             const results = await searchUsersByGhostName(searchQuery);
             // Filter out current user
-            setSearchResults(results.filter(u => u.uid !== user?.id));
+            setSearchResults(results.filter(u => u.id !== user?.id));
         } catch (error) {
             console.error('Error searching users:', error);
         } finally {
@@ -67,16 +67,16 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
 
         try {
             const conversationId = await startConversation(
-                selectedUser.uid,
+                selectedUser.id,
                 {
                     name: selectedUser.displayName || 'User',
-                    avatar: selectedUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.uid}`,
+                    avatar: selectedUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.id}`,
                     ghostName: selectedUser.ghostName,
                 }
             );
 
             if (conversationId) {
-                onUserSelected?.(selectedUser.uid);
+                onUserSelected?.(selectedUser.id);
                 onClose();
             }
         } catch (error) {
@@ -197,7 +197,7 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {displayUsers.map((discoveredUser) => (
                                 <motion.button
-                                    key={discoveredUser.uid}
+                                    key={discoveredUser.id}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => handleStartConversation(discoveredUser)}
@@ -206,7 +206,7 @@ export default function UserDiscovery({ onClose, onUserSelected }: UserDiscovery
                                     <div className="flex flex-col items-center text-center">
                                         <div className="relative w-16 h-16 rounded-full overflow-hidden bg-zinc-800 mb-3 ring-2 ring-white/10 group-hover:ring-white/20 transition-all">
                                             <Image
-                                                src={discoveredUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${discoveredUser.uid}`}
+                                                src={discoveredUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${discoveredUser.id}`}
                                                 alt={discoveredUser.ghostName || discoveredUser.displayName || 'User'}
                                                 fill
                                                 className="object-cover"

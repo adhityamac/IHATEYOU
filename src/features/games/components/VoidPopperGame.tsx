@@ -33,7 +33,7 @@ function VoidBoard({ gameCtx }: { gameCtx: GameContextType }) {
   const [wave, setWave] = useState(1);
   const [nextId, setNextId] = useState(0);
 
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const spawnTimerRef = useRef(0);
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FirestoreGame, subscribeToGame, makeMove } from '@/lib/firebase/games';
+import { FirestoreGame, subscribeToGame, makeMove, abandonGame } from '@/lib/firebase/games';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const useGame = (gameId: string | null) => {
@@ -40,6 +40,15 @@ export const useGame = (gameId: string | null) => {
         loading,
         error,
         makeMove: handleMove,
+        surrender: async () => {
+            if (!gameId || !user) return;
+            try {
+                await abandonGame(gameId, user.id);
+            } catch (err: any) {
+                console.error('Surrender failed:', err);
+                setError(err.message);
+            }
+        },
         isPlayerTurn: game?.turn === (game?.players.w === user?.id ? 'w' : 'b'),
         playerColor: game?.players.w === user?.id ? 'w' : (game?.players.b === user?.id ? 'b' : null)
     };
