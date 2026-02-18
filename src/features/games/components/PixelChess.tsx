@@ -321,7 +321,7 @@ function ChessBoard({ gameCtx }: { gameCtx: GameContextType }) {
                     else if (piece.type === 'r') value = 500;
                     else if (piece.type === 'q') value = 900;
                     else if (piece.type === 'k') value = 20000;
-                    let x = i; let y = j;
+                    let x = i; const y = j;
                     if (isWhite) x = 7 - i;
                     const pstVal = (PST as any)[piece.type][x][y] || 0;
                     totalEvaluation += (value + pstVal) * multiplier;

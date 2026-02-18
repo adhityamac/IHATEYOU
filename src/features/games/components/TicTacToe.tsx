@@ -117,7 +117,7 @@ function TicTacToeBoard({ gameCtx }: { gameCtx: GameContextType }) {
 
     const handleMove = useCallback((index: number, player: Player) => {
         let targetIndex = index;
-        let currentBoard = [...stateRef.current.board];
+        const currentBoard = [...stateRef.current.board];
         let currentHistory = [...stateRef.current.moveHistory];
 
         // 1. Gravity Logic: Fall to bottom
